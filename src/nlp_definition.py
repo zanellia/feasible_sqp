@@ -2,7 +2,7 @@ import casadi as ca
 import numpy as np
 from os import system 
 
-nv = 2
+nv = 10
 ni = 1
 
 y = ca.SX.sym('y', nv, 1)
@@ -19,7 +19,7 @@ system('gcc -fPIC -shared -O3 ca_dfdy.c -o ../bin/libca_dfdy.so')
 system('gcc -fPIC -shared -O3 ca_dfdy.c -o ../bin/ca_dfdy.so')
 
 # constraints
-g = y[0] - y[1]**2 
+g = y[0] - 2*y[1] + 0.5*y[8] 
 
 ca_g = ca.Function('ca_g', [y], [g])
 ca_g.generate('ca_g', opts)
@@ -39,4 +39,4 @@ L = f + ca.dot(lam, g)
 
 ca_dLdyy = ca.Function('ca_dLdyy', [y, lam], [ca.hessian(L,y)[0]])
 ca_dLdyy.generate('ca_dLdyy', opts)
-system('gcc -fPIC -shared -O3 ca_dLdyy.c -o ../bin/libca_dLdyy.so')
+system('gcc -fPIC -shared -O3 ca_dLdyy.c -o ../bin/ca_dLdyy.so')
