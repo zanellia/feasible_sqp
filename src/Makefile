@@ -30,6 +30,8 @@
 ##
 
 QPOASES_DIR = ../../qpOASES
+CASADI_INSTALL_DIR = ../../casadi/build/install/include
+
 include ${QPOASES_DIR}/make.mk
 
 ##
@@ -37,11 +39,17 @@ include ${QPOASES_DIR}/make.mk
 ##
 
 IFLAGS      =  -I. \
-               -I${IDIR}
+               -I${IDIR} \
+			   -I${CASADI_INSTALL_DIR}
+
+OUTPUT_DIR = ../bin
 
 QPOASES_EXES = \
-	${BINDIR}/feasibleSQP${EXE}
+	${OUTPUT_DIR}/feasibleSQP${EXE}
 
+CPPFLAGS += -std=c++11
+# LINK_LIBRARIES += -l casadi
+# QPOASES_LINK += -L ${CASADI_INSTALL_DIR}/lib
 
 ##
 ##	targets
@@ -49,13 +57,13 @@ QPOASES_EXES = \
 
 all: ${QPOASES_EXES}
 
-${BINDIR}/%${EXE}: %.${OBJEXT} ${LINK_DEPENDS}
+${OUTPUT_DIR}/%${EXE}: %.${OBJEXT} ${LINK_DEPENDS}
 	@${ECHO} "Creating" $@
-	@${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${QPOASES_LINK} ${LINK_LIBRARIES}
+	@${CPP} ${DEF_TARGET} ${CPPFLAGS}  $< -L/home/andrea/casadi/build/install/lib -L/home/andrea/feasible_sqp/bin -lcasadi -lca_dfdy -lca_g  -lca_dgdy -lca_dLdyy ${QPOASES_LINK} ${LINK_LIBRARIES}
 
-${BINDIR}/feasibleSQP${EXE}: feasibleSQP.${OBJEXT} qrecipe_data.hpp ${LINK_DEPENDS}
+${OUTPUT_DIR}/feasibleSQP${EXE}: feasibleSQP.${OBJEXT} qrecipe_data.hpp ${LINK_DEPENDS}
 	@${ECHO} "Creating" $@
-	@${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${QPOASES_LINK} ${LINK_LIBRARIES}
+	@${CPP} ${DEF_TARGET} ${CPPFLAGS}  $< -L /home/andrea/casadi/build/install/lib -L /home/andrea/feasible_sqp/bin -lcasadi  -lca_dfdy -lca_g  -lca_dgdy -lca_dLdyy ${QPOASES_LINK} ${LINK_LIBRARIES}
 
 
 clean:
