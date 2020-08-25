@@ -236,29 +236,40 @@ int main( )
 
 	H->createDiagInfo();
 
-	// // solve with sparse matrices (Schur complement) 
-	// nWSR = 1000;
-	// SQProblemSchur qrecipeSchur(nv, ni);
-	// tic = getCPUtime();
-	// qrecipeSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0);
-	// toc = getCPUtime();
+    for(int j = 0; j < 10; j ++) { 
+        // outer loop
+        
+        // update matrices and vectors
+        // solve with sparse matrices (Schur complement) 
+        nWSR = 1000;
+        SQProblemSchur qrecipeSchur(nv, ni);
+        tic = getCPUtime();
+        qrecipeSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0);
+        toc = getCPUtime();
 
-	// fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
+        fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
     
-    // // update vectors and solve hotstarted QP
-	// tic = getCPUtime();
-	// qrecipeSchur.hotstart(g, lb, ub, lbA, ubA, nWSR, 0);
-	// toc = getCPUtime();
-	// qrecipeSchur.getPrimalSolution(x3);
-	// qrecipeSchur.getDualSolution(y3);
+        for(int k = 0; k < 10; k ++) { 
+            // inner loop
+            
+            
+            // update vectors and solve hotstarted QP
+            tic = getCPUtime();
+            qrecipeSchur.hotstart(g, lb, ub, lbA, ubA, nWSR, 0);
+            toc = getCPUtime();
+            qrecipeSchur.getPrimalSolution(x3);
+            qrecipeSchur.getDualSolution(y3);
 
-	// fprintf(stdFile, "Solved hotstarted sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
+            fprintf(stdFile, "Solved hotstarted sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
 
-	// delete H;
-	// delete A;
+        }
+    }
 
-	// delete[] y3;
-	// delete[] x3;
+	delete H;
+	delete A;
+
+	delete[] y3;
+	delete[] x3;
 
 	// return 0;
 }
