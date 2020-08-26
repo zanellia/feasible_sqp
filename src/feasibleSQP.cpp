@@ -57,21 +57,21 @@ int main( )
 
     Function ca_dfdy = external("ca_dfdy");
 
-    vector<DM> ca_arg = {reshape(DM(y), nv, 1)};
-    vector<DM> dfdy_eval = ca_dfdy(ca_arg);
+    vector<DM> ca_y = {reshape(DM(y), nv, 1)};
+    vector<DM> dfdy_eval = ca_dfdy(ca_y);
     cout << "result (0): " << dfdy_eval.at(0) << endl;
 
     Function ca_g = external("ca_g");
-    vector<DM> g_eval = ca_g(ca_arg);
+    vector<DM> g_eval = ca_g(ca_y);
     cout << "result (0): " << g_eval.at(0) << endl;
 
     Function ca_dgdy = external("ca_dgdy");
-    vector<DM> dgdy_eval = ca_dgdy(ca_arg);
+    vector<DM> dgdy_eval = ca_dgdy(ca_y);
     cout << "result (0): " << dgdy_eval.at(0) << endl;
 
     Function ca_dLdyy = external("ca_dLdyy");
-    ca_arg = {reshape(DM(y), nv, 1), reshape(DM(lam), ni, 1)};
-    vector<DM> dLdyy_eval = ca_dLdyy(ca_arg);
+    vector<DM> ca_z = {reshape(DM(y), nv, 1), reshape(DM(lam), ni, 1)};
+    vector<DM> dLdyy_eval = ca_dLdyy(ca_z);
     cout << "result (0): " << dLdyy_eval.at(0) << endl;
 
 	USING_NAMESPACE_QPOASES
@@ -105,7 +105,7 @@ int main( )
     nnz = sp_i[ncol]; /* Number of nonzeros */
 
     sparse_int_t A_ir[nnz];
-    sparse_int_t A_jc[ncol];
+    sparse_int_t A_jc[ncol+1];
     real_t A_val[nnz];
 
     /* Print the pattern */
@@ -124,10 +124,13 @@ int main( )
         printf("{%lld,%lld}",rr,cc);                 /* Print the nonzero */
       }
     }
+
+    A_jc[ncol] = nnz;
+
     printf("}\n\n");
     for (int i = 0; i < nnz; i++) 
         printf("A_ir[%i] = %i\n", i, A_ir[i]);
-    for (int i = 0; i < ncol; i++) 
+    for (int i = 0; i < ncol+1; i++) 
         printf("A_jc[%i] = %i\n", i, A_jc[i]);
 
     // evaluate A
@@ -190,7 +193,7 @@ int main( )
     nnz = sp_i[ncol]; /* Number of nonzeros */
 
     sparse_int_t H_ir[nnz];
-    sparse_int_t H_jc[ncol];
+    sparse_int_t H_jc[ncol+1];
     real_t H_val[nnz];
 
     /* Print the pattern */
@@ -208,12 +211,14 @@ int main( )
       }
     }
 
+    H_jc[ncol] = nnz;
+
     printf("}\n\n");
 
     for (int i = 0; i < nnz; i++) 
         printf("H_ir[%i] = %i\n", i, H_ir[i]);
 
-    for (int i = 0; i < ncol; i++) 
+    for (int i = 0; i < ncol+1; i++) 
         printf("H_jc[%i] = %i\n", i, H_jc[i]);
     // evaluate H
 
@@ -248,23 +253,12 @@ int main( )
 	long i;
 	int_t nWSR;
 	real_t tic, toc;
-	real_t *x3 = new real_t[nv];
-	real_t *y3 = new real_t[nv + ni];
+	real_t *y_QP = new real_t[nv];
+	real_t *lam_QP = new real_t[nv + ni];
 
 	// create sparse matrices
-	// SymSparseMat *H = new SymSparseMat(nv, nv, H_ir, H_jc, H_val);
-	// SparseMatrix *A = new SparseMatrix(nv, ni, A_ir, A_jc, A_val);
-
-    sparse_int_t H_ir_temp = {0};
-    sparse_int_t H_jc_temp = {0};
-    real_t H_val_temp = {1.0};
-
-    sparse_int_t A_ir_temp = {0};
-    sparse_int_t A_jc_temp = {0};
-    real_t A_val_temp = {1.0};
-
-	SymSparseMat *H = new SymSparseMat(1, 1, H_ir_temp, H_jc_temp, H_val_temp);
-	SparseMatrix *A = new SparseMatrix(1, 1, A_ir_temp, A_jc_temp, A_val_temp);
+	SymSparseMat *H = new SymSparseMat(nv, nv, H_ir, H_jc, H_val);
+	SparseMatrix *A = new SparseMatrix(ni, nv, A_ir, A_jc, A_val);
 
 	H->createDiagInfo();
 
@@ -277,10 +271,8 @@ int main( )
     DM myvector = dfdy_eval.at(0);
     for(int i = 0; i < nv; i++) {
 
-        // cout << "result (0): " << myvector(i) << endl;
-        // g[i] = (double)myvector(i);
-        g[i] = 0.0;
-        lb[i] = INFTY;
+        g[i] = (double) myvector(i);
+        lb[i] = -INFTY;
         ub[i] = INFTY;
     }
 
@@ -289,32 +281,53 @@ int main( )
         ubA[i] = 0.0;
     }
 
-    for(int j = 0; j < 10; j ++) { 
+    SQProblemSchur qrecipeSchur(nv, ni);
+
+    for(int j = 0; j < 2; j ++) { 
         // outer loop
+        printf("in outer loop\n");
         
         // update matrices and vectors
         // solve with sparse matrices (Schur complement) 
         nWSR = 1000;
-        // SQProblemSchur qrecipeSchur(nv, ni);
-        SQProblemSchur qrecipeSchur(1, 1);
+        // SQProblemSchur qrecipeSchur(1, 1);
+        qrecipeSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR);
         tic = getCPUtime();
-        qrecipeSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0);
         toc = getCPUtime();
 
         fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
-    }
-#if 0
+#if 1
     
-        for(int k = 0; k < 10; k ++) { 
+        for(int k = 0; k < 2; k ++) { 
             // inner loop
-            
+            printf("in inner loop\n");
+
+            for(int i = 0; i < nv; i++) {
+                y[i] = y_QP[i];
+            }
+
+            for(int i = 0; i < ni; i++) {
+                lam[i] = lam_QP[i];
+            }
+
+            ca_y[0] = reshape(DM(y), nv, 1);
+            dfdy_eval = ca_dfdy(ca_y);
+            cout << "new gradient: " << dfdy_eval.at(0) << endl;
+            myvector = dfdy_eval.at(0);
+
+            // ca_lam[0] = reshape(DM(lam), ni, 1);
+
+            for(int i = 0; i < nv; i++) {
+
+                g[i] = (double) myvector(i);
+            }
             
             // update vectors and solve hotstarted QP
             tic = getCPUtime();
-            qrecipeSchur.hotstart(g, lb, ub, lbA, ubA, nWSR, 0);
+            qrecipeSchur.hotstart(g, lb, ub, lbA, ubA, nWSR);
             toc = getCPUtime();
-            qrecipeSchur.getPrimalSolution(x3);
-            qrecipeSchur.getDualSolution(y3);
+            qrecipeSchur.getPrimalSolution(y_QP);
+            qrecipeSchur.getDualSolution(lam_QP);
 
             fprintf(stdFile, "Solved hotstarted sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
 
@@ -324,8 +337,8 @@ int main( )
 	delete H;
 	delete A;
 
-	delete[] y3;
-	delete[] x3;
+	delete[] y_QP;
+    delete[] lam_QP;
 
 	// return 0;
 #endif

@@ -11,7 +11,7 @@ lam = ca.SX.sym('lam', ni, 1)
 opts = dict(with_header=True)
 
 # objective function 
-f = 1.0/2.0*(y[0]**2 + y[1]**2)
+f = 1.0/2.0*ca.dot(y,y) + ca.sin(y[0])
 
 ca_dfdy = ca.Function('ca_dfdy', [y], [ca.jacobian(f,y)])
 ca_dfdy.generate('ca_dfdy', opts)
@@ -39,4 +39,5 @@ L = f + ca.dot(lam, g)
 
 ca_dLdyy = ca.Function('ca_dLdyy', [y, lam], [ca.hessian(L,y)[0]])
 ca_dLdyy.generate('ca_dLdyy', opts)
+system('gcc -fPIC -shared -O3 ca_dLdyy.c -o ../bin/libca_dLdyy.so')
 system('gcc -fPIC -shared -O3 ca_dLdyy.c -o ../bin/ca_dLdyy.so')
