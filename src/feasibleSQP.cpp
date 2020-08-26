@@ -47,7 +47,8 @@
 #define MAXNWSR 100000
 #define nv 1000
 #define ni 50
-#define YMAX 1
+#define YMAX INFTY
+#define BOUNDS 0
 
 using namespace casadi;
 using namespace std;
@@ -306,27 +307,39 @@ int main( )
 	options.setToDefault();
 	options.printLevel = PL_TABULAR;
     options.enableEqualities = BT_TRUE;
+    // options.enableFarBounds = BT_FALSE;
 
     Constraints guessedConstraints( ni );
-    guessedConstraints.setupAllUpper( );
+    guessedConstraints.setupAllInactive( );
 
     Bounds guessedBounds( nv );
     guessedBounds.setupAllFree( );
 
     // SQProblemSchur qpSchur(nv, ni);
     SQProblemSchur qpSchur(nv, ni);
+    // SQProblem qpSchur(nv, ni);
     qpSchur.setOptions(options);
     tic = getCPUtime();
     // qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
     nWSR = MAXNWSR;
-    qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR);
+
+#if BOUNDS
+        qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+#else
+        qpSchur.init(H, g, A, NULL, NULL, lbA, ubA, nWSR);
+#endif
+
     toc = getCPUtime();
     qpSchur.getPrimalSolution(y_QP);
     qpSchur.getDualSolution(lam_QP);
+    // printf("dual solution:\n");
+    // for (int i = 0; i < ni + nv; i++)
+    //     printf("%f\n", lam_QP[i]);
+    // exit(1);
     fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
     // exit(1);
 
-    for(int j = 0; j < 10; j ++) { 
+    for(int j = 0; j < 2; j ++) { 
         // outer loop
         printf("in outer loop\n");
         
@@ -366,21 +379,27 @@ int main( )
 
             lbA[i] = -(double) myvector(i);
             ubA[i] = -(double) myvector(i);
+            lb[i] = -YMAX - y[i];
+            ub[i] = YMAX - y[i];
         }
 
         // solve with sparse matrices (Schur complement) 
         nWSR = MAXNWSR;
         // SQProblemSchur qrecipeSchur(1, 1);
         tic = getCPUtime();
+
+#if BOUNDS
         qpSchur.hotstart(H, g, A, lb, ub, lbA, ubA, nWSR);
+#else
+        qpSchur.hotstart(H, g, A, NULL, NULL, lbA, ubA, nWSR);
+#endif
         toc = getCPUtime();
         qpSchur.getPrimalSolution(y_QP);
         qpSchur.getDualSolution(lam_QP);
 
         fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
-#if 1
     
-        for(int k = 0; k < 10; k ++) { 
+        for(int k = 0; k < 2; k ++) { 
             // inner loop
             printf("in inner loop\n");
             // update vectors and solve hotstarted QP
@@ -420,7 +439,12 @@ int main( )
             
             nWSR = MAXNWSR;
             tic = getCPUtime();
-            qpSchur.hotstart(g, lb, ub, lbA, ubA, nWSR);
+
+#if BOUNDS
+        qpSchur.hotstart(g, lb, ub, lbA, ubA, nWSR);
+#else
+        qpSchur.hotstart(g, NULL, NULL, lbA, ubA, nWSR);
+#endif
             toc = getCPUtime();
             qpSchur.getPrimalSolution(y_QP);
             qpSchur.getDualSolution(lam_QP);
@@ -437,7 +461,6 @@ int main( )
     delete[] lam_QP;
 
 	// return 0;
-#endif
 }
 
 
