@@ -2,8 +2,8 @@ import casadi as ca
 import numpy as np
 from os import system 
 
-nv = 10
-ni = 1
+nv = 1000
+ni = 50
 
 y = ca.SX.sym('y', nv, 1)
 lam = ca.SX.sym('lam', ni, 1)
@@ -19,7 +19,7 @@ system('gcc -fPIC -shared -O3 ca_dfdy.c -o ../bin/libca_dfdy.so')
 system('gcc -fPIC -shared -O3 ca_dfdy.c -o ../bin/ca_dfdy.so')
 
 # constraints
-g = y[0] - 2*y[1] + 0.5*y[8] 
+g = ca.vertcat(y[0]**2 - y[1], y[0:49])
 
 ca_g = ca.Function('ca_g', [y], [g])
 ca_g.generate('ca_g', opts)
