@@ -52,9 +52,11 @@ int main( )
     #define nv 10
     #define ni 1
 
+    vector<double> y(nv, 1);
+    vector<double> lam(ni, 0);
+
     Function ca_dfdy = external("ca_dfdy");
-    vector<double> y = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-    vector<double> lam = {1};
+
     vector<DM> ca_arg = {reshape(DM(y), nv, 1)};
     vector<DM> dfdy_eval = ca_dfdy(ca_arg);
     cout << "result (0): " << dfdy_eval.at(0) << endl;
@@ -102,7 +104,7 @@ int main( )
     const casadi_int *row = sp_i + ncol+1; /* Row nonzero */
     nnz = sp_i[ncol]; /* Number of nonzeros */
 
-    sparse_int_t A_ir[nrow];
+    sparse_int_t A_ir[nnz];
     sparse_int_t A_jc[ncol];
     real_t A_val[nnz];
 
@@ -110,14 +112,23 @@ int main( )
     printf("  Dimension: %lld-by-%lld (%lld nonzeros)\n", nrow, ncol, nnz);
     printf("  Nonzeros: {");
     casadi_int rr,cc,el;
+    int zcounter = 0;
     for(cc=0; cc<ncol; ++cc){                    /* loop over columns */
+      A_jc[cc] = colind[cc];
       for(el=colind[cc]; el<colind[cc+1]; ++el){ /* loop over the nonzeros entries of the column */
+        
         if(el!=0) printf(", ");                  /* Separate the entries */
         rr = row[el];                            /* Get the row */
+        A_ir[zcounter] = rr;
+        zcounter+=1;
         printf("{%lld,%lld}",rr,cc);                 /* Print the nonzero */
       }
     }
     printf("}\n\n");
+    for (int i = 0; i < nnz; i++) 
+        printf("A_ir[%i] = %i\n", i, A_ir[i]);
+    for (int i = 0; i < ncol; i++) 
+        printf("A_jc[%i] = %i\n", i, A_jc[i]);
 
     // evaluate A
 
@@ -178,22 +189,32 @@ int main( )
     row = sp_i + ncol+1; /* Row nonzero */
     nnz = sp_i[ncol]; /* Number of nonzeros */
 
-    sparse_int_t H_ir[nrow];
+    sparse_int_t H_ir[nnz];
     sparse_int_t H_jc[ncol];
     real_t H_val[nnz];
 
     /* Print the pattern */
     printf("  Dimension: %lld-by-%lld (%lld nonzeros)\n", nrow, ncol, nnz);
     printf("  Nonzeros: {");
+    zcounter = 0;
     for(cc=0; cc<ncol; ++cc){                    /* loop over columns */
+      H_jc[cc] = colind[cc];
       for(el=colind[cc]; el<colind[cc+1]; ++el){ /* loop over the nonzeros entries of the column */
         if(el!=0) printf(", ");                  /* Separate the entries */
         rr = row[el];                            /* Get the row */
+        H_ir[zcounter] = rr;
+        zcounter+=1;
         printf("{%lld,%lld}",rr,cc);                 /* Print the nonzero */
       }
     }
+
     printf("}\n\n");
 
+    for (int i = 0; i < nnz; i++) 
+        printf("H_ir[%i] = %i\n", i, H_ir[i]);
+
+    for (int i = 0; i < ncol; i++) 
+        printf("H_jc[%i] = %i\n", i, H_jc[i]);
     // evaluate H
 
     /* Allocate input/output buffers and work vectors*/
@@ -231,10 +252,42 @@ int main( )
 	real_t *y3 = new real_t[nv + ni];
 
 	// create sparse matrices
-	SymSparseMat *H = new SymSparseMat(nv, nv, H_ir, H_jc, H_val);
-	SparseMatrix *A = new SparseMatrix(ni, ni, A_ir, A_jc, A_val);
+	// SymSparseMat *H = new SymSparseMat(nv, nv, H_ir, H_jc, H_val);
+	// SparseMatrix *A = new SparseMatrix(nv, ni, A_ir, A_jc, A_val);
+
+    sparse_int_t H_ir_temp = {0};
+    sparse_int_t H_jc_temp = {0};
+    real_t H_val_temp = {1.0};
+
+    sparse_int_t A_ir_temp = {0};
+    sparse_int_t A_jc_temp = {0};
+    real_t A_val_temp = {1.0};
+
+	SymSparseMat *H = new SymSparseMat(1, 1, H_ir_temp, H_jc_temp, H_val_temp);
+	SparseMatrix *A = new SparseMatrix(1, 1, A_ir_temp, A_jc_temp, A_val_temp);
 
 	H->createDiagInfo();
+
+    real_t g[nv]; 
+    real_t lbA[ni]; 
+    real_t ubA[ni]; 
+    real_t lb[nv]; 
+    real_t ub[nv]; 
+
+    DM myvector = dfdy_eval.at(0);
+    for(int i = 0; i < nv; i++) {
+
+        // cout << "result (0): " << myvector(i) << endl;
+        // g[i] = (double)myvector(i);
+        g[i] = 0.0;
+        lb[i] = INFTY;
+        ub[i] = INFTY;
+    }
+
+    for(int i = 0; i < ni; i++) {
+        lbA[i] = 0.0;
+        ubA[i] = 0.0;
+    }
 
     for(int j = 0; j < 10; j ++) { 
         // outer loop
@@ -242,12 +295,15 @@ int main( )
         // update matrices and vectors
         // solve with sparse matrices (Schur complement) 
         nWSR = 1000;
-        SQProblemSchur qrecipeSchur(nv, ni);
+        // SQProblemSchur qrecipeSchur(nv, ni);
+        SQProblemSchur qrecipeSchur(1, 1);
         tic = getCPUtime();
         qrecipeSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0);
         toc = getCPUtime();
 
         fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
+    }
+#if 0
     
         for(int k = 0; k < 10; k ++) { 
             // inner loop
@@ -272,9 +328,7 @@ int main( )
 	delete[] x3;
 
 	// return 0;
+#endif
 }
 
 
-/*
- *	end of file
- */

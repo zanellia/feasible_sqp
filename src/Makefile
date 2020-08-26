@@ -47,7 +47,7 @@ OUTPUT_DIR = ../bin
 QPOASES_EXES = \
 	${OUTPUT_DIR}/feasibleSQP${EXE}
 
-CPPFLAGS += -std=c++11
+CPPFLAGS += -std=c++11 -g
 # LINK_LIBRARIES += -l casadi
 # QPOASES_LINK += -L ${CASADI_INSTALL_DIR}/lib
 
