@@ -2,8 +2,8 @@ import casadi as ca
 import numpy as np
 from os import system 
 
-nv = 1000
-ni = 50
+nv = 100
+ni = 1
 
 y = ca.SX.sym('y', nv, 1)
 lam = ca.SX.sym('lam', ni, 1)
@@ -13,9 +13,7 @@ optlevel = ''
 opts = dict(with_header=True)
 
 # objective function 
-f = 1.0/2.0*ca.dot(y,y) + ca.sin(y[0])
-import pdb; pdb.set_trace()
-
+f = 1.0/2.0*ca.dot(y-1,y-1)
 ca_dfdy = ca.Function('ca_dfdy', [y], [ca.jacobian(f,y)])
 ca_dfdy.generate('ca_dfdy', opts)
 print('compiling generated code for dfdy...')
@@ -23,7 +21,9 @@ system('gcc -fPIC -shared {} ca_dfdy.c -o ../bin/libca_dfdy.so'.format(optlevel)
 system('gcc -fPIC -shared {} ca_dfdy.c -o ../bin/ca_dfdy.so'.format(optlevel))
 
 # constraints
-g = ca.vertcat(y[0]**2 - ca.sin(y[1]), y[0:49])
+g = ca.vertcat(0.1*y[10]**2 - ca.sin(y[1]))
+# g = ca.vertcat(y[0] - y[1] + 1)
+# g = y[0:ni]
 
 ca_g = ca.Function('ca_g', [y], [g])
 ca_g.generate('ca_g', opts)
