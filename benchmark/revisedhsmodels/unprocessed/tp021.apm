@@ -1,0 +1,21 @@
+Model tp021
+  ! Source version 1
+
+  Variables
+    x[1] = -1, >=   2, <= 50
+    x[2] = -1, >= -50, <= 50
+    obj
+  End Variables
+
+  Equations
+    10*x[1] - x[2] - 10 >= 0
+
+    obj = (1/100)*x[1]^2 + x[2]^2 - 100
+
+    ! best known objective = -99.96
+    ! begin of best known solution
+    ! x[1] = 2
+    ! x[2] = 0
+    ! end of best known solution
+  End Equations
+End Model

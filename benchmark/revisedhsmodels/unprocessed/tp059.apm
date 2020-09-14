@@ -1,0 +1,65 @@
+Model tp059
+  ! Source version 1
+
+  Parameters
+    c20a = -0.12694   ! from CUTE and PROB.FOR
+    c20b =  0         ! from H+S
+    c12a = -3.4054e-4 ! from PROB.FOR
+    c12b = -3.405e-4  ! from H+S
+    c20  = c20a       ! my quite clear decision from data below
+    c12  = c12a       ! my quite clear decision from data below
+  End Parameters
+
+  Variables
+    x[1] = 90, >= 0, <= 75
+    x[2] = 10, >= 0, <= 65
+    obj
+  End Variables
+
+  Equations
+    x[1]*x[2] - 700 >= 0
+    x[2] - x[1]^2/125 >= 0
+    (x[2] - 50)^2 - 5*(x[1] - 55) >= 0
+
+    obj = (-75.196) + 3.8112*x[1] + c20*x[1]^2                     &
+        + 0.0020567*x[1]^3 - 1.0345e-5*x[1]^4 + 6.8306*x[2]        &
+        - 0.030234*x[1]*x[2] + 1.28134e-3*x[2]*x[1]^2              &
+        + 2.266e-7*x[1]^4*x[2] - 0.25645*x[2]^2 + 0.0034604*x[2]^3 &
+        - 1.3514e-5*x[2]^4 + 28.106/(x[2] + 1)                     &
+        + 5.2375e-6*x[1]^2*x[2]^2 + 6.3e-8*x[1]^3*x[2]^2           &
+        - 7e-10*x[1]^3*x[2]^3 + c12*x[1]*x[2]^2                    &
+        + 1.6638e-6*x[1]*x[2]^3 + 2.8673*exp(0.0005*x[1]*x[2])     &
+        - 3.5256e-5*x[1]^3*x[2]
+
+    ! best known objective = -7.804235953664777
+    ! begin of best known solution
+    ! x[1] = 13.55008884043414
+    ! x[2] = 51.6601778957467
+    ! end of best known solution
+
+    ! c20 = c20a, c12 = c12a ! best known objective = -7.804235953664777
+    ! c20 = c20a, c12 = c12a ! begin of best known solution
+    ! c20 = c20a, c12 = c12a ! x[1] = 13.55008884043414
+    ! c20 = c20a, c12 = c12a ! x[2] = 51.6601778957467
+    ! c20 = c20a, c12 = c12a ! end of best known solution
+
+    ! c20 = c20a, c12 = c12b ! best known objective = -7.802789471538381
+    ! c20 = c20a, c12 = c12b ! begin of best known solution
+    ! c20 = c20a, c12 = c12b ! x[1] = 13.55014232375912
+    ! c20 = c20a, c12 = c12b ! x[2] = 51.65997398954288
+    ! c20 = c20a, c12 = c12b ! end of best known solution
+
+    ! c20 = c20b, c12 = c12a ! best known objective = 13.35512839020782
+    ! c20 = c20b, c12 = c12a ! begin of best known solution
+    ! c20 = c20b, c12 = c12a ! x[1] = 12.40643637885028
+    ! c20 = c20b, c12 = c12a ! x[2] = 56.42232617202764
+    ! c20 = c20b, c12 = c12a ! end of best known solution
+
+    ! c20 = c20b, c12 = c12b ! best known objective = 13.35670821326782
+    ! c20 = c20b, c12 = c12b ! begin of best known solution
+    ! c20 = c20b, c12 = c12b ! x[1] = 12.4064689347364
+    ! c20 = c20b, c12 = c12b ! x[2] = 56.42217811387869
+    ! c20 = c20b, c12 = c12b ! end of best known solution
+
+  End Equations
+End Model

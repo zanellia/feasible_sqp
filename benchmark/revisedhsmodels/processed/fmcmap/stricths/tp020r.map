@@ -1,0 +1,22 @@
+fmcTitle("tp020r"):
+# Source version 1
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+lbx1hs := -1/2:
+lbx1r := 0:
+lbx1 := lbx1hs:
+fmcInitialValue('x_1', -2):
+fmcStrongLowerBound('x_1', lbx1):
+fmcStrongUpperBound('x_1', 1/2):
+fmcInitialValue('x_2', 1):
+obj := 100*(x_2 - x_1^2)^2 + (1 - x_1)^2:
+fmcMinimum(obj):
+fmcInequality('ci_1', x_1 + x_2^2):
+fmcInequality('ci_2', x_1^2 + x_2):
+fmcInequality('ci_3', x_1^2 + x_2^2 - 1):
+fmcEscortFloat('obj', obj):
+fmcControlMinimum(1, 0):
+# End Model

@@ -1,0 +1,25 @@
+Model tp035
+  ! Source version 1
+
+  Variables
+    x[1] = 0.5, >= 0
+    x[2] = 0.5, >= 0
+    x[3] = 0.5, >= 0
+    obj
+  End Variables
+
+  Equations
+    3 - x[1] - x[2] - 2*x[3] >= 0
+
+    obj = 9 - 8*x[1] - 6*x[2] - 4*x[3] &
+        + 2*x[1]^2 + 2*x[2]^2 + x[3]^2 &
+        + 2*x[1]*x[2] + 2*x[1]*x[3]
+
+    ! best known objective = 1/9 = 0.1111111111111111
+    ! begin of best known solution
+    ! x[1] = 4/3 = 1.333333333333333
+    ! x[2] = 7/9 = 0.7777777777777778
+    ! x[3] = 4/9 = 0.4444444444444444
+    ! end of best known solution
+  End Equations
+End Model

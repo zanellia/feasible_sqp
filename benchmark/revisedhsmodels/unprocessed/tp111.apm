@@ -1,0 +1,57 @@
+Model tp111
+  ! Source version 1
+
+  Parameters
+    c[ 1] =  -6.089
+    c[ 2] = -17.164
+    c[ 3] = -34.054
+    c[ 4] =  -5.914
+    c[ 5] = -24.721
+    c[ 6] = -14.986
+    c[ 7] = -24.100
+    c[ 8] = -10.708
+    c[ 9] = -26.662
+    c[10] = -22.179
+    si[0] = 0
+    so[0] = 0
+  End Parameters
+
+  Variables
+    x[1:10] = -2.3, >= -100, <= 100
+    obj
+  End Variables
+
+  Intermediates
+    cf[1] = exp(x[1]) + 2*exp(x[2]) + 2*exp(x[3]) &
+          + exp(x[6]) + exp(x[10]) - 2
+    cf[2] = exp(x[4]) + 2*exp(x[5]) + exp(x[6])   &
+          + exp(x[7]) - 1
+    cf[3] = exp(x[3]) + exp(x[7]) + exp(x[8])     &
+          + 2*exp(x[9]) + exp(x[10]) - 1
+    si[1:10] = si[0:9] + exp(x[1:10])
+    aux = log(si[10])
+    so[1:10] = so[0:9] &
+             + exp(x[1:10])*(c[1:10] + x[1:10] - aux)
+    mf = so[10]
+  End Intermediates
+
+  Equations
+    cf[1:3] = 0
+
+    obj = mf
+
+    ! best known objective = -47.76109085936586
+    ! begin of best known solution
+    ! x[ 1] = -3.202311588551215
+    ! x[ 2] = -1.912366597080981
+    ! x[ 3] = -0.2444267477503837
+    ! x[ 4] = -6.561177271658377
+    ! x[ 5] = -0.7230979632953046
+    ! x[ 6] = -7.27423228018815
+    ! x[ 7] = -3.59723742232778
+    ! x[ 8] = -4.020316730690851
+    ! x[ 9] = -3.288376881360255
+    ! x[10] = -2.334371739220618
+    ! end of best known solution
+  End Equations
+End Model

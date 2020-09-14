@@ -1,0 +1,167 @@
+fmcTitle("tp087r1"):
+# Source version 7
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+bv1 := 1.48477:
+bv2 := 1.48577:
+bv := bv1:
+ubx5hsv1 := 1000:
+ubx5hsv2 := 10000:
+ubx5hsv := ubx5hsv1:
+a := 131.078:
+b := bv:
+c := 0.90798:
+arg := 1.47588:
+d := cos(arg):
+e := sin(arg):
+ivx5hs := 198.175:
+lbx5hs := -1000:
+lbx5r := -18:
+lbx5 := lbx5r:
+ubx5hs := ubx5hsv:
+ubx5r := -10.7:
+ubx5 := ubx5r:
+ivx5 := (1/2)*(ivx5hs + ubx5 - abs(ivx5hs - ubx5)):
+midget := 2.0e-38:
+c2 := 2:
+c4 := 4:
+c8 := 8:
+c16 := 16:
+ct10 := -2186927100809997/c16:
+ct11 := 9112324500347/c4:
+ct12 := -121498919997/c8:
+ct13 := 101249775/c2:
+ct14 := -1350001/c16:
+ct15 := 225/c4:
+ct20 := -2999100089997/c16:
+ct21 := 37493500189/c4:
+ct22 := -1499879997/c8:
+ct23 := 3749925/c2:
+ct24 := -150001/c16:
+ct25 := 75/c4:
+ct30 := -191985600359997/c16:
+ct31 := 299987000067:
+ct32 := -23999519997/c8:
+ct33 := 14999925:
+ct34 := -600001/c16:
+ct35 := 75/c2:
+sign1_0 := 1:
+sign1_3 := -1:
+sign2_0 := 1:
+sign2_5 := -1:
+fmcInitialValue('x_1', 390):
+fmcStrongLowerBound('x_1', 0):
+fmcStrongUpperBound('x_1', 400):
+fmcInitialValue('x_2', 1000):
+fmcStrongLowerBound('x_2', 0):
+fmcStrongUpperBound('x_2', 1000):
+fmcInitialValue('x_3', 419.5):
+fmcStrongLowerBound('x_3', 340):
+fmcStrongUpperBound('x_3', 420):
+fmcInitialValue('x_4', 340.5):
+fmcStrongLowerBound('x_4', 340):
+fmcStrongUpperBound('x_4', 420):
+fmcInitialValue('x_5', ivx5):
+fmcStrongLowerBound('x_5', lbx5):
+fmcStrongUpperBound('x_5', ubx5):
+fmcInitialValue('x_6', 0.5):
+fmcStrongLowerBound('x_6', 0):
+fmcStrongUpperBound('x_6', 0.5236):
+cons_1 := 300 - x_1 - x_3*x_4*cos(b - x_6)/a + c*d*x_3^2/a:
+cons_2 := (-1)*x_2 - x_3*x_4*cos(b + x_6)/a + c*d*x_4^2/a:
+cons_3 := (-1)*x_5 - x_3*x_4*sin(b + x_6)/a + c*e*x_4^2/a:
+cons_4 := 200 - x_3*x_4*sin(b - x_6)/a + c*e*x_3^2/a:
+comp1_1 := x_1 - 299:
+comp1_2 := x_1 - 301:
+comp2_1 := x_2 - 99:
+comp2_2 := x_2 - 101:
+comp2_3 := x_2 - 199:
+comp2_4 := x_2 - 201:
+sign1x_1 := comp1_1/sqrt(comp1_1^2 + midget):
+sign1x_2 := comp1_2/sqrt(comp1_2^2 + midget):
+sign2x_1 := comp2_1/sqrt(comp2_1^2 + midget):
+sign2x_2 := comp2_2/sqrt(comp2_2^2 + midget):
+sign2x_3 := comp2_3/sqrt(comp2_3^2 + midget):
+sign2x_4 := comp2_4/sqrt(comp2_4^2 + midget):
+sign1_1 := fsign2(comp1_1):
+sign1_2 := fsign2(comp1_2):
+sign2_1 := fsign2(comp2_1):
+sign2_2 := fsign2(comp2_2):
+sign2_3 := fsign2(comp2_3):
+sign2_4 := fsign2(comp2_4):
+step1_1 := (1 + sign1_0)*(1 - sign1_1)/4:
+step1_2 := (1 + sign1_1)*(1 - sign1_2)/4:
+step1_3 := (1 + sign1_2)*(1 - sign1_3)/4:
+step2_1 := (1 + sign2_0)*(1 - sign2_1)/4:
+step2_2 := (1 + sign2_1)*(1 - sign2_2)/4:
+step2_3 := (1 + sign2_2)*(1 - sign2_3)/4:
+step2_4 := (1 + sign2_3)*(1 - sign2_4)/4:
+step2_5 := (1 + sign2_4)*(1 - sign2_5)/4:
+f1_1 := 30*x_1:
+f1_2 := (((((ct15)*x_1 + ct14)*x_1 + ct13)*x_1 + ct12)*x_1 + ct11)*x_1 + ct10:
+f1_3 := 31*x_1:
+f2_1 := 28*x_2:
+f2_2 := (((((ct25)*x_2 + ct24)*x_2 + ct23)*x_2 + ct22)*x_2 + ct21)*x_2 + ct20:
+f2_3 := 29*x_2:
+f2_4 := (((((ct35)*x_2 + ct34)*x_2 + ct33)*x_2 + ct32)*x_2 + ct31)*x_2 + ct30:
+f2_5 := 30*x_2:
+f1comb_1 := f1_1*step1_1:
+f1comb_2 := f1comb_1 + f1_2*step1_2:
+f1comb_3 := f1comb_2 + f1_3*step1_3:
+f2comb_1 := f2_1*step2_1:
+f2comb_2 := f2comb_1 + f2_2*step2_2:
+f2comb_3 := f2comb_2 + f2_3*step2_3:
+f2comb_4 := f2comb_3 + f2_4*step2_4:
+f2comb_5 := f2comb_4 + f2_5*step2_5:
+mf := f1comb_3 + f2comb_5:
+myminfun := mf:
+myabsdevnod0_0 := myownabs(myminfun - 8854.997011124169):
+myreldevnod0_0 := myownabs(myminfun/8854.997011124169 - 1):
+myabsdevnod0_1 := myownabs(x_1 - 202.7039339773582):
+myreldevnod0_1 := myownabs(x_1/202.7039339773582 - 1):
+myabsdevnod0_2 := myownabs(x_2 - 99.06588958062389):
+myreldevnod0_2 := myownabs(x_2/99.06588958062389 - 1):
+myabsdevnod0_3 := myownabs(x_3 - 383.1404626009829):
+myreldevnod0_3 := myownabs(x_3/383.1404626009829 - 1):
+myabsdevnod0_4 := myownabs(x_4 - 420):
+myreldevnod0_4 := myownabs(x_4/420 - 1):
+myabsdevnod0_5 := myownabs(x_5 + 11.11782763722497):
+myreldevnod0_5 := myownabs(x_5/11.11782763722497 + 1):
+myabsdevnod0_6 := myownabs(x_6 - 0.07238952863601766):
+myreldevnod0_6 := myownabs(x_6/0.07238952863601766 - 1):
+myabsdevnod1_0 := (1/2)*(myownabs(myabsdevnod0_0 - myabsdevnod0_1) + (myabsdevnod0_0 + myabsdevnod0_1)):
+myreldevnod1_0 := (1/2)*(myownabs(myreldevnod0_0 - myreldevnod0_1) + (myreldevnod0_0 + myreldevnod0_1)):
+myabsdevnod1_2 := (1/2)*(myownabs(myabsdevnod0_2 - myabsdevnod0_3) + (myabsdevnod0_2 + myabsdevnod0_3)):
+myreldevnod1_2 := (1/2)*(myownabs(myreldevnod0_2 - myreldevnod0_3) + (myreldevnod0_2 + myreldevnod0_3)):
+myabsdevnod1_4 := (1/2)*(myownabs(myabsdevnod0_4 - myabsdevnod0_5) + (myabsdevnod0_4 + myabsdevnod0_5)):
+myreldevnod1_4 := (1/2)*(myownabs(myreldevnod0_4 - myreldevnod0_5) + (myreldevnod0_4 + myreldevnod0_5)):
+myabsdevnod1_6 := myabsdevnod0_6:
+myreldevnod1_6 := myreldevnod0_6:
+myabsdevnod2_0 := (1/2)*(myownabs(myabsdevnod1_0 - myabsdevnod1_2) + (myabsdevnod1_0 + myabsdevnod1_2)):
+myreldevnod2_0 := (1/2)*(myownabs(myreldevnod1_0 - myreldevnod1_2) + (myreldevnod1_0 + myreldevnod1_2)):
+myabsdevnod2_4 := (1/2)*(myownabs(myabsdevnod1_4 - myabsdevnod1_6) + (myabsdevnod1_4 + myabsdevnod1_6)):
+myreldevnod2_4 := (1/2)*(myownabs(myreldevnod1_4 - myreldevnod1_6) + (myreldevnod1_4 + myreldevnod1_6)):
+myabsdevnod3_0 := (1/2)*(myownabs(myabsdevnod2_0 - myabsdevnod2_4) + (myabsdevnod2_0 + myabsdevnod2_4)):
+myreldevnod3_0 := (1/2)*(myownabs(myreldevnod2_0 - myreldevnod2_4) + (myreldevnod2_0 + myreldevnod2_4)):
+zmyabsdevmax := myabsdevnod3_0:
+zmyreldevmax := myreldevnod3_0:
+obj := myminfun:
+fmcMinimum(obj):
+fmcEquality('ce_1', cons_1):
+fmcEquality('ce_2', cons_2):
+fmcEquality('ce_3', cons_3):
+fmcEquality('ce_4', cons_4):
+fmcEscortFloat('x_1', x_1):
+fmcEscortFloat('x_2', x_2):
+fmcEscortFloat('x_3', x_3):
+fmcEscortFloat('x_4', x_4):
+fmcEscortFloat('x_5', x_5):
+fmcEscortFloat('x_6', x_6):
+fmcEscortFloat('myminfun', myminfun):
+fmcEscortFloat('zmyabsdevmax', zmyabsdevmax):
+fmcEscortFloat('zmyreldevmax', zmyreldevmax):
+fmcControlMinimum(1, 0):
+# End Model

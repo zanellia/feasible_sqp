@@ -1,0 +1,49 @@
+Model tp045r
+! Source version 8
+! Simple APM canonicalizer version 1.3
+! APM back end version 1.1
+Parameters
+eps = 10^(-4)
+lbxi = eps
+End Parameters
+Variables
+x_1 = 2, >= lbxi, <= 1
+x_2 = 2, >= lbxi, <= 2
+x_3 = 2, >= lbxi, <= 3
+x_4 = 2, >= lbxi, <= 4
+x_5 = 2, >= lbxi, <= 5
+obj
+End Variables
+Intermediates
+myminfun = 2 - (1/120)*x_1*x_2*x_3*x_4*x_5
+myabsdevnod0_0 = abs(myminfun - 1)
+myreldevnod0_0 = abs(myminfun - 1)
+myabsdevnod0_1 = abs(x_1 - 1)
+myreldevnod0_1 = abs(x_1 - 1)
+myabsdevnod0_2 = abs(x_2 - 2)
+myreldevnod0_2 = abs(x_2/2 - 1)
+myabsdevnod0_3 = abs(x_3 - 3)
+myreldevnod0_3 = abs(x_3/3 - 1)
+myabsdevnod0_4 = abs(x_4 - 4)
+myreldevnod0_4 = abs(x_4/4 - 1)
+myabsdevnod0_5 = abs(x_5 - 5)
+myreldevnod0_5 = abs(x_5/5 - 1)
+myabsdevnod1_0 = (1/2)*(abs(myabsdevnod0_0 - myabsdevnod0_1) + (myabsdevnod0_0 + myabsdevnod0_1))
+myreldevnod1_0 = (1/2)*(abs(myreldevnod0_0 - myreldevnod0_1) + (myreldevnod0_0 + myreldevnod0_1))
+myabsdevnod1_2 = (1/2)*(abs(myabsdevnod0_2 - myabsdevnod0_3) + (myabsdevnod0_2 + myabsdevnod0_3))
+myreldevnod1_2 = (1/2)*(abs(myreldevnod0_2 - myreldevnod0_3) + (myreldevnod0_2 + myreldevnod0_3))
+myabsdevnod1_4 = (1/2)*(abs(myabsdevnod0_4 - myabsdevnod0_5) + (myabsdevnod0_4 + myabsdevnod0_5))
+myreldevnod1_4 = (1/2)*(abs(myreldevnod0_4 - myreldevnod0_5) + (myreldevnod0_4 + myreldevnod0_5))
+myabsdevnod2_0 = (1/2)*(abs(myabsdevnod1_0 - myabsdevnod1_2) + (myabsdevnod1_0 + myabsdevnod1_2))
+myreldevnod2_0 = (1/2)*(abs(myreldevnod1_0 - myreldevnod1_2) + (myreldevnod1_0 + myreldevnod1_2))
+myabsdevnod2_4 = myabsdevnod1_4
+myreldevnod2_4 = myreldevnod1_4
+myabsdevnod3_0 = (1/2)*(abs(myabsdevnod2_0 - myabsdevnod2_4) + (myabsdevnod2_0 + myabsdevnod2_4))
+myreldevnod3_0 = (1/2)*(abs(myreldevnod2_0 - myreldevnod2_4) + (myreldevnod2_0 + myreldevnod2_4))
+zmyabsdevmax = myabsdevnod3_0
+zmyreldevmax = myreldevnod3_0
+End Intermediates
+Equations
+obj = myminfun
+End Equations
+End Model

@@ -1,0 +1,44 @@
+Model tp025v1
+  ! Source version 1
+
+  ! Exact formulation of #25.
+  ! Using IEEE 754 double precision,
+  ! we might be in some trouble here due to
+  !   mf =  3.283499999966359e+01
+  !   g1 = -7.729789390213997e-11
+  !   g2 = -1.757065490859908e-09
+  !   g3 =  1.994386449392023e-08
+  ! at the starting point.
+
+  Parameters
+    ai[1] = 1
+    ai[2:99] = ai[1:98] + 1
+    u[1:99] = 25 + (-50*log(ai[1:99]/100))^(2/3)
+  End Parameters
+
+  Variables
+    x[1] = 100,   >= 0.1, <= 100
+    x[2] =  12.5, >= 0,   <=  25.6
+    x[3] =   3,   >= 0,   <=   5
+    obj
+  End Variables
+
+  Intermediates
+    f[1:99] = (-1/100)*ai[1:99] &
+            + exp((-1/x[1])*(u[1:99] - x[2])^x[3])
+    s[1] = f[1]^2
+    s[2:99] = s[1:98] + f[2:99]^2
+    mf = s[99]
+  End Intermediates
+
+  Equations
+    obj = mf
+
+    ! best known objective = 0
+    ! begin of best known solution
+    ! x[1] = 50
+    ! x[2] = 25
+    ! x[3] =  1.5
+    ! end of best known solution
+  End Equations
+End Model

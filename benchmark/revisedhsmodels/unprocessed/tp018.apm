@@ -1,0 +1,22 @@
+Model tp018
+  ! Source version 1
+
+  Variables
+    x[1] = 2, >= 2, <= 50
+    x[2] = 2, >= 0, <= 50
+    obj
+  End Variables
+
+  Equations
+    x[1]*x[2] - 25 >= 0
+    x[1]^2 + x[2]^2 - 25 >= 0
+
+    obj = (1/100)*x[1]^2 + x[2]^2
+
+    ! best known objective = 5
+    ! begin of best known solution
+    ! x[1] = sqrt(250) = 15.8113883008419
+    ! x[2] = sqrt(2.5) = 1.58113883008419
+    ! end of best known solution
+  End Equations
+End Model

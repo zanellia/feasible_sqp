@@ -1,0 +1,61 @@
+Model tp099
+  ! Source version 1
+
+  Parameters
+    a[1] =   0
+    a[2] =  50
+    a[3] =  50
+    a[4] =  75
+    a[5] =  75
+    a[6] =  75
+    a[7] = 100
+    a[8] = 100
+    b = 32
+    t[1] =   0
+    t[2] =  25
+    t[3] =  50
+    t[4] = 100
+    t[5] = 150
+    t[6] = 200
+    t[7] = 290
+    t[8] = 380
+    s[1] = 0
+    q[1] = 0
+    r[1] = 0
+  End Parameters
+
+  Variables
+    x[1:7] = 0.5, >= 0, <= 1.58
+    obj
+  End Variables
+
+  Intermediates
+    s[2:8] = s[1:7] &
+           + (t[2:8] - t[1:7])*(a[2:8]*sin(x[1:7]) - b)
+    q[2:8] = q[1:7]                                           &
+           + 0.5*(t[2:8] - t[1:7])^2*(a[2:8]*sin(x[1:7]) - b) &
+           + (t[2:8] - t[1:7])*s[1:7]
+    c[1] = q[8] - 100000
+    c[2] = s[8] - 1000
+    r[2:8] = r[1:7] &
+           + a[2:8]*(t[2:8] - t[1:7])*cos(x[1:7])
+    mf = -r[8]^2
+  End Intermediates
+
+  Equations
+    c[1:2] = 0
+
+    obj = mf
+
+    ! best known objective = -831079891.5101075
+    ! begin of best known solution
+    ! x[1] = 0.542467816212317
+    ! x[2] = 0.5290214242019767
+    ! x[3] = 0.5084491553164001
+    ! x[4] = 0.4802688509618159
+    ! x[5] = 0.4512363497966467
+    ! x[6] = 0.4091830824209853
+    ! x[7] = 0.3527878917811228
+    ! end of best known solution
+  End Equations
+End Model

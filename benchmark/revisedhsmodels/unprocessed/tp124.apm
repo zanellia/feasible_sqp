@@ -1,0 +1,110 @@
+Model tp124
+  ! Source version 1
+
+  ! Stephan K.H. Seidl
+  ! Describes the artificial test problem `3 Balls in a Spheric Cage'.
+  ! Created in 1988, this problem has been used over the years
+  ! to study the behavior of NLO algorithms.
+
+  ! Benevolent initialization, feasible, rcage = 10.
+
+  Parameters
+    mypi = 4*atan(1)
+    c2 = 2
+    c3 = 3
+    c10 = 10
+    c20 = 20
+    c1000 = 1000
+    c100000 = 100000
+    rrough = ((50/c1000)/((2700 + 19300 + 7860)*(4/c3)*mypi))^(1/c3)
+    rcage = c10
+  End Parameters
+
+  Variables
+    ! Benevolent initialization, feasible.
+    x[ 1] = rrough
+    x[ 2] = rrough
+    x[ 3] = rrough
+    x[ 4] = (-1)/c20
+    x[ 5] = 1/c20
+    x[ 6] = (-1)/c20
+    x[ 7] = (-1)/c20
+    x[ 8] = (-1)*rrough/c10
+    x[ 9] = 1/c20
+    x[10] = 1/c10
+    x[11] = 1/c10
+    x[12] = 1/c10
+    ! Traditional initialization, not feasible.
+  ! x[ 1] = 1.020462601383630
+  ! x[ 2] = 1.067249920905851
+  ! x[ 3] = -10
+  ! x[ 4] = 1.056302685455057
+  ! x[ 5] = 0.9888734173342870
+  ! x[ 6] = 1.030255683555398
+  ! x[ 7] = 1.002173322039949
+  ! x[ 8] = 0.9898553374984422
+  ! x[ 9] = 1.074494882526627
+  ! x[10] = 1.095044196509762
+  ! x[11] = -1000
+  ! x[12] = 1.089828605856584
+    obj
+  End Variables
+
+  Intermediates
+    massa =  2700*(4/c3)*mypi*x[1]^3
+    massg = 19300*(4/c3)*mypi*x[2]^3
+    massi =  7860*(4/c3)*mypi*x[3]^3
+    dista0p2 = x[4]^2 + x[7]^2 + x[10]^2
+    distg0p2 = x[5]^2 + x[8]^2 + x[11]^2
+    disti0p2 = x[6]^2 + x[9]^2 + x[12]^2
+    distag = sqrt((x[4] - x[5])^2 + (x[7] - x[8])^2 + (x[10] - x[11])^2)
+    distgi = sqrt((x[5] - x[6])^2 + (x[8] - x[9])^2 + (x[11] - x[12])^2)
+    distia = sqrt((x[6] - x[4])^2 + (x[9] - x[7])^2 + (x[12] - x[10])^2)
+    rsumag = x[1] + x[2]
+    rsumgi = x[2] + x[3]
+    rsumia = x[3] + x[1]
+    mf = (980665/c100000)*(massa*x[10] + massg*x[11] + massi*x[12])
+    c[ 1] = x[8] + x[2]/c10
+    c[ 2] = massa + massg + massi - 50/c1000
+    c[ 3] = (x[1]^2 + 2*rcage*(x[10] - x[1]) - dista0p2)/rrough
+    c[ 4] = (x[2]^2 + 2*rcage*(x[11] - x[2]) - distg0p2)/rrough
+    c[ 5] = (x[3]^2 + 2*rcage*(x[12] - x[3]) - disti0p2)/rrough
+    c[ 6] = distag - rsumag
+    c[ 7] = distgi - rsumgi
+    c[ 8] = distia - rsumia
+    c[ 9] = (-1)*(x[4] + x[1]/c10)
+    c[10] = x[5] - x[2]/c10
+    c[11] = (-1)*(x[6] + x[3]/c10)
+    c[12] = (-1)*(x[7] + x[1]/c10)
+    c[13] = x[9] - x[3]/c10
+    c[14] = x[1] - x[2]/c2
+    c[15] = x[1] - x[3]/c2
+    c[16] = x[2] - x[1]/c2
+    c[17] = x[2] - x[3]/c2
+    c[18] = x[3] - x[1]/c2
+    c[19] = x[3] - x[2]/c2
+  End Intermediates
+
+  Equations
+    c[1:2] = 0
+    c[3:19] >= 0
+
+    obj = mf
+
+    ! best known objective = 0.003613399978959025
+    ! begin of best known solution
+    ! x[ 1] =  0.007362147911252038
+    ! x[ 2] =  0.007368187804536048
+    ! x[ 3] =  0.007364020066820026
+    ! x[ 4] = -0.007186816148083809
+    ! x[ 5] =  0.004624558029378723
+    ! x[ 6] = -0.008907886813874873
+    ! x[ 7] = -0.009538763471247417
+    ! x[ 8] = -0.0007368187804536048
+    ! x[ 9] =  0.005086486580691817
+    ! x[10] =  0.007369285085037246
+    ! x[11] =  0.007369285085037246
+    ! x[12] =  0.007369285085037246
+    ! end of best known solution
+  End Equations
+End Model

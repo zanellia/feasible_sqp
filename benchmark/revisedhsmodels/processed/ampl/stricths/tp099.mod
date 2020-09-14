@@ -1,0 +1,68 @@
+# Model tp099
+# Source version 1
+# Simple APM canonicalizer version 1.3
+# AMPL back end version 1.1
+param a_1 := 0;
+param a_2 := 50;
+param a_3 := 50;
+param a_4 := 75;
+param a_5 := 75;
+param a_6 := 75;
+param a_7 := 100;
+param a_8 := 100;
+param b := 32;
+param t_1 := 0;
+param t_2 := 25;
+param t_3 := 50;
+param t_4 := 100;
+param t_5 := 150;
+param t_6 := 200;
+param t_7 := 290;
+param t_8 := 380;
+param s_1 := 0;
+param q_1 := 0;
+param r_1 := 0;
+var x_1 >= 0, <= 1.58;
+let x_1 := 0.5;
+var x_2 >= 0, <= 1.58;
+let x_2 := 0.5;
+var x_3 >= 0, <= 1.58;
+let x_3 := 0.5;
+var x_4 >= 0, <= 1.58;
+let x_4 := 0.5;
+var x_5 >= 0, <= 1.58;
+let x_5 := 0.5;
+var x_6 >= 0, <= 1.58;
+let x_6 := 0.5;
+var x_7 >= 0, <= 1.58;
+let x_7 := 0.5;
+var s_2 = s_1 + (t_2 - t_1)*(a_2*sin(x_1) - b);
+var s_3 = s_2 + (t_3 - t_2)*(a_3*sin(x_2) - b);
+var s_4 = s_3 + (t_4 - t_3)*(a_4*sin(x_3) - b);
+var s_5 = s_4 + (t_5 - t_4)*(a_5*sin(x_4) - b);
+var s_6 = s_5 + (t_6 - t_5)*(a_6*sin(x_5) - b);
+var s_7 = s_6 + (t_7 - t_6)*(a_7*sin(x_6) - b);
+var s_8 = s_7 + (t_8 - t_7)*(a_8*sin(x_7) - b);
+var q_2 = q_1 + 0.5*(t_2 - t_1)^2*(a_2*sin(x_1) - b) + (t_2 - t_1)*s_1;
+var q_3 = q_2 + 0.5*(t_3 - t_2)^2*(a_3*sin(x_2) - b) + (t_3 - t_2)*s_2;
+var q_4 = q_3 + 0.5*(t_4 - t_3)^2*(a_4*sin(x_3) - b) + (t_4 - t_3)*s_3;
+var q_5 = q_4 + 0.5*(t_5 - t_4)^2*(a_5*sin(x_4) - b) + (t_5 - t_4)*s_4;
+var q_6 = q_5 + 0.5*(t_6 - t_5)^2*(a_6*sin(x_5) - b) + (t_6 - t_5)*s_5;
+var q_7 = q_6 + 0.5*(t_7 - t_6)^2*(a_7*sin(x_6) - b) + (t_7 - t_6)*s_6;
+var q_8 = q_7 + 0.5*(t_8 - t_7)^2*(a_8*sin(x_7) - b) + (t_8 - t_7)*s_7;
+var c_1 = q_8 - 100000;
+var c_2 = s_8 - 1000;
+var r_2 = r_1 + a_2*(t_2 - t_1)*cos(x_1);
+var r_3 = r_2 + a_3*(t_3 - t_2)*cos(x_2);
+var r_4 = r_3 + a_4*(t_4 - t_3)*cos(x_3);
+var r_5 = r_4 + a_5*(t_5 - t_4)*cos(x_4);
+var r_6 = r_5 + a_6*(t_6 - t_5)*cos(x_5);
+var r_7 = r_6 + a_7*(t_7 - t_6)*cos(x_6);
+var r_8 = r_7 + a_8*(t_8 - t_7)*cos(x_7);
+var mf = -r_8^2;
+minimize obj: mf;
+subject to ce_1: c_1 = 0;
+subject to ce_2: c_2 = 0;
+solve;
+display obj;
+# End Model

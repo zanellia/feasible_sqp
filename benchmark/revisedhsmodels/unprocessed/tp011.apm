@@ -1,0 +1,23 @@
+Model tp011
+  ! Source version 1
+
+  Variables
+    x[1] = 4.9
+    x[2] = 0.1
+    obj
+  End Variables
+
+  Equations
+    (-1)*x[1]^2 + x[2] >= 0
+
+    obj = (x[1] - 5)^2 + x[2]^2 - 25
+
+    ! best known objective = -8.498464223154677
+    ! aux1 = (1/6)*(270 + 6*sqrt(2031))^(1/3) - (270 + 6*sqrt(2031))^(-1/3)
+    ! begin of best known solution
+    ! x[1] = aux1 = 1.234772825053297
+    ! x[2] = x[1]^2 = 1.5246639294901
+    ! end of best known solution
+    ! pay attention, H+S give erroneous formulae for x[1] and x[2] 
+  End Equations
+End Model

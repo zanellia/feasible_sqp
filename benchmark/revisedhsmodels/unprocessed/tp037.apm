@@ -1,0 +1,22 @@
+Model tp037
+  ! Source version 1
+
+  Variables
+    x[1:3] = 10, >= 0, <= 42
+    obj
+  End Variables
+
+  Equations
+    72 - x[1] - 2*x[2] - 2*x[3] >= 0
+    x[1] + 2*x[2] + 2*x[3] >= 0
+
+    obj = -x[1]*x[2]*x[3]
+
+    ! best known objective = -3456
+    ! begin of best known solution
+    ! x[1] = 24
+    ! x[2] = 12
+    ! x[3] = 12
+    ! end of best known solution
+  End Equations
+End Model

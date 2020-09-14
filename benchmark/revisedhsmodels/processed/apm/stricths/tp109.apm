@@ -1,0 +1,53 @@
+Model tp109
+! Source version 1
+! Simple APM canonicalizer version 1.3
+! APM back end version 1.1
+Parameters
+c22938a = -22.938
+c22938b = 22.938
+c22938 = c22938a
+a = 50.176
+arg = 0.25
+b = sin(arg)
+c = cos(arg)
+End Parameters
+Variables
+x_1 = 0, >= 0
+x_2 = 0, >= 0
+x_3 = 0, >= -0.55, <= 0.55
+x_4 = 0, >= -0.55, <= 0.55
+x_5 = 0, >= 196, <= 252
+x_6 = 0, >= 196, <= 252
+x_7 = 0, >= 196, <= 252
+x_8 = 0, >= -400, <= 800
+x_9 = 0, >= -400, <= 800
+obj
+End Variables
+Intermediates
+cf_1 = x_4 - x_3 + .55
+cf_2 = x_3 - x_4 + .55
+cf_3 = 2250000 - x_1^2 - x_8^2
+cf_4 = 2250000 - x_2^2 - x_9^2
+cf_5 = x_5*x_6*sin((-1)*x_3 - 1/4) + x_5*x_7*sin((-1)*x_4 - 1/4) + 2*b*x_5^2 - a*x_1 + 400*a
+cf_6 = x_5*x_6*sin(x_3 - 1/4) + x_6*x_7*sin(x_3 - x_4 - 1/4) + 2*b*x_6^2 - a*x_2 + 400*a
+cf_7 = x_5*x_7*sin(x_4 - 1/4) + x_6*x_7*sin(x_4 - x_3 - 1/4) + 2*b*x_7^2 + 881.779*a
+cf_8 = a*x_8 + x_5*x_6*cos((-1)*x_3 - 1/4) + x_5*x_7*cos((-1)*x_4 - 1/4) - 200*a - 2*c*x_5^2 + &
+0.7533e-3*a*x_5^2
+cf_9 = a*x_9 + x_5*x_6*cos(x_3 - 1/4) + x_6*x_7*cos(x_3 - x_4 - 1/4) - 2*c*x_6^2 + 0.7533e-3*a*x_6^2 - 200*a
+cf_10 = x_5*x_7*cos(x_4 - 1/4) + x_6*x_7*cos(x_4 - x_3 - 1/4) - 2*c*x_7^2 + c22938*a + 0.7533e-3*a*x_7^2
+mf = 3*x_1 + 1.0e-6*x_1^3 + 2*x_2 + 0.522074e-6*x_2^3
+End Intermediates
+Equations
+obj = mf
+cf_5 = 0
+cf_6 = 0
+cf_7 = 0
+cf_8 = 0
+cf_9 = 0
+cf_10 = 0
+cf_1 >= 0
+cf_2 >= 0
+cf_3 >= 0
+cf_4 >= 0
+End Equations
+End Model

@@ -1,0 +1,28 @@
+Model tp043
+  ! Source version 1
+
+  Variables
+    x[1:4] = 0
+    obj
+  End Variables
+
+  Equations
+    8 - x[1]^2 - x[2]^2 - x[3]^2 - x[4]^2 &
+      - x[1] + x[2] - x[3] + x[4] >= 0
+    10 - x[1]^2 - 2*x[2]^2 - x[3]^2 - 2*x[4]^2 &
+       + x[1] + x[4] >= 0
+    5 - 2*x[1]^2 - x[2]^2 - x[3]^2 &
+      - 2*x[1] + x[2] + x[4] >= 0
+
+    obj = x[1]^2 + x[2]^2 + 2*x[3]^2 + x[4]^2 &
+        - 5*x[1] - 5*x[2] - 21*x[3] + 7*x[4]
+
+    ! best known objective = -44
+    ! begin of best known solution
+    ! x[1] =  0
+    ! x[2] =  1
+    ! x[3] =  2
+    ! x[4] = -1
+    ! end of best known solution
+  End Equations
+End Model

@@ -1,0 +1,52 @@
+Model tp054v1
+  ! Source version 1
+
+  ! Exact formulation of #54.
+  ! Using IEEE 754 double precision,
+  ! we might be in some trouble here due to
+  ! the fact that the variables, x[i], move
+  ! in different orders of magnitude.
+  ! R.J.Vanderbei and J.D.Hedengren used the y[i]
+  ! instead of the x[i] here as the variables,
+  ! and J.D.Hedengren additionally
+  ! replaced -exp(-(...)/2) by (...),
+  ! simplifying the objective function once more.
+
+  Variables
+    x[1] =     6000    , >=   0, <=     20000
+    x[2] =        1.5  , >= -10, <=        10
+    x[3] =  4000000    , >=   0, <=  10000000
+    x[4] =        2    , >=   0, <=        20
+    x[5] =        0.003, >=  -1, <=         1
+    x[6] = 50000000    , >=   0, <= 200000000
+    obj
+  End Variables
+
+  Intermediates
+    y[1] = (x[1] - 10000)/8000
+    y[2] = (x[2] - 1)/1
+    y[3] = (x[3] - 2000000)/7000000
+    y[4] = (x[4] - 10)/50
+    y[5] = (x[5] - 1/1000)*20
+    y[6] = (x[6] - 100000000)/500000000
+    h1 = (y[1]^2 + y[1]*y[2]*2/5 + y[2]^2)*25/24
+    h2 = y[3]^2 + y[4]^2 + y[5]^2 + y[6]^2
+    mf = -exp(-(h1 + h2)/2)
+  End Intermediates
+
+  Equations
+    x[1] + 4000*x[2] - 17600 = 0
+
+    obj = mf
+
+    ! best known objective = -exp(-27/280) = -0.9080747577659853
+    ! begin of best known solution
+    ! x[1] = 91600/7 = 13085.71428571429
+    ! x[2] = 79/70 = 1.128571428571429
+    ! x[3] = 2000000
+    ! x[4] = 10
+    ! x[5] = 1/1000 = 0.001
+    ! x[6] = 100000000
+    ! end of best known solution
+  End Equations
+End Model

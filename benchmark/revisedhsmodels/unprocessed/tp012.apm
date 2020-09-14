@@ -1,0 +1,21 @@
+Model tp012
+  ! Source version 1
+
+  Variables
+    x[1] = 0
+    x[2] = 0
+    obj
+  End Variables
+
+  Equations
+    25 - 4*x[1]^2 - x[2]^2 >= 0
+
+    obj = (1/2)*x[1]^2 + x[2]^2 - x[1]*x[2] - 7*x[1] - 7*x[2]
+
+    ! best known objective = -30
+    ! begin of best known solution
+    ! x[1] = 2
+    ! x[2] = 3
+    ! end of best known solution
+  End Equations
+End Model

@@ -1,0 +1,29 @@
+Model tp062
+  ! Source version 1
+
+  Variables
+    x[1] = 0.7, >= 0, <= 1
+    x[2] = 0.2, >= 0, <= 1
+    x[3] = 0.1, >= 0, <= 1
+    obj
+  End Variables
+
+  Equations
+    x[1] + x[2] + x[3] - 1 = 0
+
+    obj = (-32.174)                                    &
+        * (255*log((x[1] + x[2] + x[3] + 0.03)/        &
+                   (0.09*x[1] + x[2] + x[3] + 0.03)) + &
+           280*log((x[2] + x[3] + 0.03)/               &
+                   (0.07*x[2] + x[3] + 0.03)) +        &
+           290*log((x[3] + 0.03)/                      &
+                   (0.13*x[3] + 0.03)))
+
+    ! best known objective = -26272.51448731826
+    ! begin of best known solution
+    ! x[1] = 0.6178126908126925
+    ! x[2] = 0.3282022231196691
+    ! x[3] = 0.05398508606763844
+    ! end of best known solution
+  End Equations
+End Model

@@ -1,0 +1,23 @@
+Model tp028
+  ! Source version 1
+
+  Variables
+    x[1] = -4
+    x[2] =  1
+    x[3] =  1
+    obj
+  End Variables
+
+  Equations
+    x[1] + 2*x[2] + 3*x[3] - 1 = 0
+
+    obj = (x[1] + x[2])^2 + (x[2] + x[3])^2
+
+    ! best known objective = 0
+    ! begin of best known solution
+    ! x[1] =  0.5
+    ! x[2] = -0.5
+    ! x[3] =  0.5
+    ! end of best known solution
+  End Equations
+End Model

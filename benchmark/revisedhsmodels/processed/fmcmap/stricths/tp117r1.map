@@ -1,0 +1,334 @@
+fmcTitle("tp117r1"):
+# Source version 1
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+a24a := 4/10:
+a24b := 4:
+a24 := a24a:
+a_1_1 := -16:
+a_1_2 := 2:
+a_1_3 := 0:
+a_1_4 := 1:
+a_1_5 := 0:
+a_2_1 := 0:
+a_2_2 := -2:
+a_2_3 := 0:
+a_2_4 := a24:
+a_2_5 := 2:
+a_3_1 := -35/10:
+a_3_2 := 0:
+a_3_3 := 2:
+a_3_4 := 0:
+a_3_5 := 0:
+a_4_1 := 0:
+a_4_2 := -2:
+a_4_3 := 0:
+a_4_4 := -4:
+a_4_5 := -1:
+a_5_1 := 0:
+a_5_2 := -9:
+a_5_3 := -2:
+a_5_4 := 1:
+a_5_5 := -28/10:
+a_6_1 := 2:
+a_6_2 := 0:
+a_6_3 := -4:
+a_6_4 := 0:
+a_6_5 := 0:
+a_7_1 := -1:
+a_7_2 := -1:
+a_7_3 := -1:
+a_7_4 := -1:
+a_7_5 := -1:
+a_8_1 := -1:
+a_8_2 := -2:
+a_8_3 := -3:
+a_8_4 := -2:
+a_8_5 := -1:
+a_9_1 := 1:
+a_9_2 := 2:
+a_9_3 := 3:
+a_9_4 := 4:
+a_9_5 := 5:
+a_10_1 := 1:
+a_10_2 := 1:
+a_10_3 := 1:
+a_10_4 := 1:
+a_10_5 := 1:
+b_1 := -40:
+b_2 := -2:
+b_3 := -1/4:
+b_4 := -4:
+b_5 := -4:
+b_6 := -1:
+b_7 := -40:
+b_8 := -60:
+b_9 := 5:
+b_10 := 1:
+c_1_1 := 30:
+c_1_2 := -20:
+c_1_3 := -10:
+c_1_4 := 32:
+c_1_5 := -10:
+c_2_1 := -20:
+c_2_2 := 39:
+c_2_3 := -6:
+c_2_4 := -31:
+c_2_5 := 32:
+c_3_1 := -10:
+c_3_2 := -6:
+c_3_3 := 10:
+c_3_4 := -6:
+c_3_5 := -10:
+c_4_1 := 32:
+c_4_2 := -31:
+c_4_3 := -6:
+c_4_4 := 39:
+c_4_5 := -20:
+c_5_1 := -10:
+c_5_2 := 32:
+c_5_3 := -10:
+c_5_4 := -20:
+c_5_5 := 30:
+d_1 := 4:
+d_2 := 8:
+d_3 := 10:
+d_4 := 6:
+d_5 := 2:
+e_1 := -15:
+e_2 := -27:
+e_3 := -36:
+e_4 := -18:
+e_5 := -12:
+ivxhs_1 := 0.001:
+ivxhs_2 := 0.001:
+ivxhs_3 := 0.001:
+ivxhs_4 := 0.001:
+ivxhs_5 := 0.001:
+ivxhs_6 := 0.001:
+ivxhs_7 := 60:
+ivxhs_8 := 0.001:
+ivxhs_9 := 0.001:
+ivxhs_10 := 0.001:
+ivxhs_11 := 0.001:
+ivxhs_12 := 0.001:
+ivxhs_13 := 0.001:
+ivxhs_14 := 0.001:
+ivxhs_15 := 0.001:
+lbx_1 := 0:
+lbx_2 := 0:
+lbx_3 := 0:
+lbx_4 := 0:
+lbx_5 := 0:
+lbx_6 := 0:
+lbx_7 := 0:
+lbx_8 := 0:
+lbx_9 := 0:
+lbx_10 := 0:
+lbx_11 := 0:
+lbx_12 := 0:
+lbx_13 := 0:
+lbx_14 := 0:
+lbx_15 := 0:
+ivx_1 := (1/2)*(abs(ivxhs_1 - lbx_1) + (ivxhs_1 + lbx_1)):
+ivx_2 := (1/2)*(abs(ivxhs_2 - lbx_2) + (ivxhs_2 + lbx_2)):
+ivx_3 := (1/2)*(abs(ivxhs_3 - lbx_3) + (ivxhs_3 + lbx_3)):
+ivx_4 := (1/2)*(abs(ivxhs_4 - lbx_4) + (ivxhs_4 + lbx_4)):
+ivx_5 := (1/2)*(abs(ivxhs_5 - lbx_5) + (ivxhs_5 + lbx_5)):
+ivx_6 := (1/2)*(abs(ivxhs_6 - lbx_6) + (ivxhs_6 + lbx_6)):
+ivx_7 := (1/2)*(abs(ivxhs_7 - lbx_7) + (ivxhs_7 + lbx_7)):
+ivx_8 := (1/2)*(abs(ivxhs_8 - lbx_8) + (ivxhs_8 + lbx_8)):
+ivx_9 := (1/2)*(abs(ivxhs_9 - lbx_9) + (ivxhs_9 + lbx_9)):
+ivx_10 := (1/2)*(abs(ivxhs_10 - lbx_10) + (ivxhs_10 + lbx_10)):
+ivx_11 := (1/2)*(abs(ivxhs_11 - lbx_11) + (ivxhs_11 + lbx_11)):
+ivx_12 := (1/2)*(abs(ivxhs_12 - lbx_12) + (ivxhs_12 + lbx_12)):
+ivx_13 := (1/2)*(abs(ivxhs_13 - lbx_13) + (ivxhs_13 + lbx_13)):
+ivx_14 := (1/2)*(abs(ivxhs_14 - lbx_14) + (ivxhs_14 + lbx_14)):
+ivx_15 := (1/2)*(abs(ivxhs_15 - lbx_15) + (ivxhs_15 + lbx_15)):
+sumcx_1_0 := 0:
+sumcx_2_0 := 0:
+sumcx_3_0 := 0:
+sumcx_4_0 := 0:
+sumcx_5_0 := 0:
+sumax_1_0 := 0:
+sumax_2_0 := 0:
+sumax_3_0 := 0:
+sumax_4_0 := 0:
+sumax_5_0 := 0:
+sumbx_0 := 0:
+sumcxxi_1_0 := 0:
+sumcxxi_2_0 := 0:
+sumcxxi_3_0 := 0:
+sumcxxi_4_0 := 0:
+sumcxxi_5_0 := 0:
+sumcxx_0 := 0:
+sumdx_0 := 0:
+fmcInitialValue('x_1', ivx_1):
+fmcStrongLowerBound('x_1', lbx_1):
+fmcInitialValue('x_2', ivx_2):
+fmcStrongLowerBound('x_2', lbx_2):
+fmcInitialValue('x_3', ivx_3):
+fmcStrongLowerBound('x_3', lbx_3):
+fmcInitialValue('x_4', ivx_4):
+fmcStrongLowerBound('x_4', lbx_4):
+fmcInitialValue('x_5', ivx_5):
+fmcStrongLowerBound('x_5', lbx_5):
+fmcInitialValue('x_6', ivx_6):
+fmcStrongLowerBound('x_6', lbx_6):
+fmcInitialValue('x_7', ivx_7):
+fmcStrongLowerBound('x_7', lbx_7):
+fmcInitialValue('x_8', ivx_8):
+fmcStrongLowerBound('x_8', lbx_8):
+fmcInitialValue('x_9', ivx_9):
+fmcStrongLowerBound('x_9', lbx_9):
+fmcInitialValue('x_10', ivx_10):
+fmcStrongLowerBound('x_10', lbx_10):
+fmcInitialValue('x_11', ivx_11):
+fmcStrongLowerBound('x_11', lbx_11):
+fmcInitialValue('x_12', ivx_12):
+fmcStrongLowerBound('x_12', lbx_12):
+fmcInitialValue('x_13', ivx_13):
+fmcStrongLowerBound('x_13', lbx_13):
+fmcInitialValue('x_14', ivx_14):
+fmcStrongLowerBound('x_14', lbx_14):
+fmcInitialValue('x_15', ivx_15):
+fmcStrongLowerBound('x_15', lbx_15):
+sumcx_1_1 := sumcx_1_0 + c_1_1*x_11:
+sumcx_1_2 := sumcx_1_1 + c_2_1*x_12:
+sumcx_1_3 := sumcx_1_2 + c_3_1*x_13:
+sumcx_1_4 := sumcx_1_3 + c_4_1*x_14:
+sumcx_1_5 := sumcx_1_4 + c_5_1*x_15:
+sumcx_2_1 := sumcx_2_0 + c_1_2*x_11:
+sumcx_2_2 := sumcx_2_1 + c_2_2*x_12:
+sumcx_2_3 := sumcx_2_2 + c_3_2*x_13:
+sumcx_2_4 := sumcx_2_3 + c_4_2*x_14:
+sumcx_2_5 := sumcx_2_4 + c_5_2*x_15:
+sumcx_3_1 := sumcx_3_0 + c_1_3*x_11:
+sumcx_3_2 := sumcx_3_1 + c_2_3*x_12:
+sumcx_3_3 := sumcx_3_2 + c_3_3*x_13:
+sumcx_3_4 := sumcx_3_3 + c_4_3*x_14:
+sumcx_3_5 := sumcx_3_4 + c_5_3*x_15:
+sumcx_4_1 := sumcx_4_0 + c_1_4*x_11:
+sumcx_4_2 := sumcx_4_1 + c_2_4*x_12:
+sumcx_4_3 := sumcx_4_2 + c_3_4*x_13:
+sumcx_4_4 := sumcx_4_3 + c_4_4*x_14:
+sumcx_4_5 := sumcx_4_4 + c_5_4*x_15:
+sumcx_5_1 := sumcx_5_0 + c_1_5*x_11:
+sumcx_5_2 := sumcx_5_1 + c_2_5*x_12:
+sumcx_5_3 := sumcx_5_2 + c_3_5*x_13:
+sumcx_5_4 := sumcx_5_3 + c_4_5*x_14:
+sumcx_5_5 := sumcx_5_4 + c_5_5*x_15:
+sumax_1_1 := sumax_1_0 + a_1_1*x_1:
+sumax_1_2 := sumax_1_1 + a_2_1*x_2:
+sumax_1_3 := sumax_1_2 + a_3_1*x_3:
+sumax_1_4 := sumax_1_3 + a_4_1*x_4:
+sumax_1_5 := sumax_1_4 + a_5_1*x_5:
+sumax_1_6 := sumax_1_5 + a_6_1*x_6:
+sumax_1_7 := sumax_1_6 + a_7_1*x_7:
+sumax_1_8 := sumax_1_7 + a_8_1*x_8:
+sumax_1_9 := sumax_1_8 + a_9_1*x_9:
+sumax_1_10 := sumax_1_9 + a_10_1*x_10:
+sumax_2_1 := sumax_2_0 + a_1_2*x_1:
+sumax_2_2 := sumax_2_1 + a_2_2*x_2:
+sumax_2_3 := sumax_2_2 + a_3_2*x_3:
+sumax_2_4 := sumax_2_3 + a_4_2*x_4:
+sumax_2_5 := sumax_2_4 + a_5_2*x_5:
+sumax_2_6 := sumax_2_5 + a_6_2*x_6:
+sumax_2_7 := sumax_2_6 + a_7_2*x_7:
+sumax_2_8 := sumax_2_7 + a_8_2*x_8:
+sumax_2_9 := sumax_2_8 + a_9_2*x_9:
+sumax_2_10 := sumax_2_9 + a_10_2*x_10:
+sumax_3_1 := sumax_3_0 + a_1_3*x_1:
+sumax_3_2 := sumax_3_1 + a_2_3*x_2:
+sumax_3_3 := sumax_3_2 + a_3_3*x_3:
+sumax_3_4 := sumax_3_3 + a_4_3*x_4:
+sumax_3_5 := sumax_3_4 + a_5_3*x_5:
+sumax_3_6 := sumax_3_5 + a_6_3*x_6:
+sumax_3_7 := sumax_3_6 + a_7_3*x_7:
+sumax_3_8 := sumax_3_7 + a_8_3*x_8:
+sumax_3_9 := sumax_3_8 + a_9_3*x_9:
+sumax_3_10 := sumax_3_9 + a_10_3*x_10:
+sumax_4_1 := sumax_4_0 + a_1_4*x_1:
+sumax_4_2 := sumax_4_1 + a_2_4*x_2:
+sumax_4_3 := sumax_4_2 + a_3_4*x_3:
+sumax_4_4 := sumax_4_3 + a_4_4*x_4:
+sumax_4_5 := sumax_4_4 + a_5_4*x_5:
+sumax_4_6 := sumax_4_5 + a_6_4*x_6:
+sumax_4_7 := sumax_4_6 + a_7_4*x_7:
+sumax_4_8 := sumax_4_7 + a_8_4*x_8:
+sumax_4_9 := sumax_4_8 + a_9_4*x_9:
+sumax_4_10 := sumax_4_9 + a_10_4*x_10:
+sumax_5_1 := sumax_5_0 + a_1_5*x_1:
+sumax_5_2 := sumax_5_1 + a_2_5*x_2:
+sumax_5_3 := sumax_5_2 + a_3_5*x_3:
+sumax_5_4 := sumax_5_3 + a_4_5*x_4:
+sumax_5_5 := sumax_5_4 + a_5_5*x_5:
+sumax_5_6 := sumax_5_5 + a_6_5*x_6:
+sumax_5_7 := sumax_5_6 + a_7_5*x_7:
+sumax_5_8 := sumax_5_7 + a_8_5*x_8:
+sumax_5_9 := sumax_5_8 + a_9_5*x_9:
+sumax_5_10 := sumax_5_9 + a_10_5*x_10:
+ineq_1 := 2*sumcx_1_5 + 3*d_1*x_11^2 + e_1 - sumax_1_10:
+ineq_2 := 2*sumcx_2_5 + 3*d_2*x_12^2 + e_2 - sumax_2_10:
+ineq_3 := 2*sumcx_3_5 + 3*d_3*x_13^2 + e_3 - sumax_3_10:
+ineq_4 := 2*sumcx_4_5 + 3*d_4*x_14^2 + e_4 - sumax_4_10:
+ineq_5 := 2*sumcx_5_5 + 3*d_5*x_15^2 + e_5 - sumax_5_10:
+sumbx_1 := sumbx_0 + b_1*x_1:
+sumbx_2 := sumbx_1 + b_2*x_2:
+sumbx_3 := sumbx_2 + b_3*x_3:
+sumbx_4 := sumbx_3 + b_4*x_4:
+sumbx_5 := sumbx_4 + b_5*x_5:
+sumbx_6 := sumbx_5 + b_6*x_6:
+sumbx_7 := sumbx_6 + b_7*x_7:
+sumbx_8 := sumbx_7 + b_8*x_8:
+sumbx_9 := sumbx_8 + b_9*x_9:
+sumbx_10 := sumbx_9 + b_10*x_10:
+sumcxxi_1_1 := sumcxxi_1_0 + c_1_1*x_11*x_11:
+sumcxxi_1_2 := sumcxxi_1_1 + c_2_1*x_12*x_11:
+sumcxxi_1_3 := sumcxxi_1_2 + c_3_1*x_13*x_11:
+sumcxxi_1_4 := sumcxxi_1_3 + c_4_1*x_14*x_11:
+sumcxxi_1_5 := sumcxxi_1_4 + c_5_1*x_15*x_11:
+sumcxxi_2_1 := sumcxxi_2_0 + c_1_2*x_11*x_12:
+sumcxxi_2_2 := sumcxxi_2_1 + c_2_2*x_12*x_12:
+sumcxxi_2_3 := sumcxxi_2_2 + c_3_2*x_13*x_12:
+sumcxxi_2_4 := sumcxxi_2_3 + c_4_2*x_14*x_12:
+sumcxxi_2_5 := sumcxxi_2_4 + c_5_2*x_15*x_12:
+sumcxxi_3_1 := sumcxxi_3_0 + c_1_3*x_11*x_13:
+sumcxxi_3_2 := sumcxxi_3_1 + c_2_3*x_12*x_13:
+sumcxxi_3_3 := sumcxxi_3_2 + c_3_3*x_13*x_13:
+sumcxxi_3_4 := sumcxxi_3_3 + c_4_3*x_14*x_13:
+sumcxxi_3_5 := sumcxxi_3_4 + c_5_3*x_15*x_13:
+sumcxxi_4_1 := sumcxxi_4_0 + c_1_4*x_11*x_14:
+sumcxxi_4_2 := sumcxxi_4_1 + c_2_4*x_12*x_14:
+sumcxxi_4_3 := sumcxxi_4_2 + c_3_4*x_13*x_14:
+sumcxxi_4_4 := sumcxxi_4_3 + c_4_4*x_14*x_14:
+sumcxxi_4_5 := sumcxxi_4_4 + c_5_4*x_15*x_14:
+sumcxxi_5_1 := sumcxxi_5_0 + c_1_5*x_11*x_15:
+sumcxxi_5_2 := sumcxxi_5_1 + c_2_5*x_12*x_15:
+sumcxxi_5_3 := sumcxxi_5_2 + c_3_5*x_13*x_15:
+sumcxxi_5_4 := sumcxxi_5_3 + c_4_5*x_14*x_15:
+sumcxxi_5_5 := sumcxxi_5_4 + c_5_5*x_15*x_15:
+sumcxx_1 := sumcxx_0 + sumcxxi_1_5:
+sumcxx_2 := sumcxx_1 + sumcxxi_2_5:
+sumcxx_3 := sumcxx_2 + sumcxxi_3_5:
+sumcxx_4 := sumcxx_3 + sumcxxi_4_5:
+sumcxx_5 := sumcxx_4 + sumcxxi_5_5:
+sumdx_1 := sumdx_0 + d_1*x_11^3:
+sumdx_2 := sumdx_1 + d_2*x_12^3:
+sumdx_3 := sumdx_2 + d_3*x_13^3:
+sumdx_4 := sumdx_3 + d_4*x_14^3:
+sumdx_5 := sumdx_4 + d_5*x_15^3:
+mf := (-1)*sumbx_10 + sumcxx_5 + 2*sumdx_5:
+obj := mf:
+fmcMinimum(obj):
+fmcInequality('ci_1', ineq_1):
+fmcInequality('ci_2', ineq_2):
+fmcInequality('ci_3', ineq_3):
+fmcInequality('ci_4', ineq_4):
+fmcInequality('ci_5', ineq_5):
+fmcEscortFloat('obj', obj):
+fmcControlMinimum(1, 0):
+# End Model

@@ -1,0 +1,36 @@
+Model tp106
+! Source version 1
+! Simple APM canonicalizer version 1.3
+! APM back end version 1.1
+Parameters
+End Parameters
+Variables
+x_1 = 5000, >= 100, <= 10000
+x_2 = 5000, >= 1000, <= 10000
+x_3 = 5000, >= 1000, <= 10000
+x_4 = 200, >= 10, <= 1000
+x_5 = 350, >= 10, <= 1000
+x_6 = 150, >= 10, <= 1000
+x_7 = 225, >= 10, <= 1000
+x_8 = 425, >= 10, <= 1000
+obj
+End Variables
+Intermediates
+c_1 = 1 - .0025*(x_4 + x_6)
+c_2 = 1 - .0025*(x_5 + x_7 - x_4)
+c_3 = 1 - .01*(x_8 - x_5)
+c_4 = x_1*x_6 - 833.33252*x_4 - 100*x_1 + 83333.333
+c_5 = x_2*x_7 - 1250*x_5 - x_2*x_4 + 1250*x_4
+c_6 = x_3*x_8 - 1250000 - x_3*x_5 + 2500*x_5
+mf = x_1 + x_2 + x_3
+End Intermediates
+Equations
+obj = mf
+c_1 >= 0
+c_2 >= 0
+c_3 >= 0
+c_4 >= 0
+c_5 >= 0
+c_6 >= 0
+End Equations
+End Model

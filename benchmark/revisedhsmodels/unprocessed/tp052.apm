@@ -1,0 +1,26 @@
+Model tp052
+  ! Source version 1
+
+  Variables
+    x[1:5] = 2
+    obj
+  End Variables
+
+  Equations
+    x[1] + 3*x[2] = 0
+    x[3] + x[4] - 2*x[5] = 0
+    x[2] - x[5] = 0
+
+    obj = (4*x[1] - x[2])^2 + (x[2] + x[3] - 2)^2 &
+        + (x[4] - 1)^2 + (x[5] - 1)^2
+
+    ! best known objective = 1859/349 = 5.326647564469914
+    ! begin of best known solution
+    ! x[1] =  -33/349 = -0.09455587392550143
+    ! x[2] =   11/349 =  0.03151862464183381
+    ! x[3] =  180/349 =  0.5157593123209169
+    ! x[4] = -158/349 = -0.4527220630372493
+    ! x[5] =   11/349 =  0.03151862464183381
+    ! end of best known solution
+  End Equations
+End Model

@@ -1,0 +1,22 @@
+Model tp014
+  ! Source version 1
+
+  Variables
+    x[1] = 2
+    x[2] = 2
+    obj
+  End Variables
+
+  Equations
+    (-1/4)*x[1]^2 - x[2]^2 + 1 >= 0
+    x[1] - 2*x[2] + 1 = 0
+
+    obj = (x[1] - 2)^2 + (x[2] - 1)^2
+
+    ! best known objective = 9 - 2.875*sqrt(7) = 1.393464980689302
+    ! begin of best known solution
+    ! x[1] = 0.5*(sqrt(7) - 1) = 0.8228756555322953
+    ! x[2] = 0.25*(sqrt(7) + 1) = 0.9114378277661476
+    ! end of best known solution
+  End Equations
+End Model

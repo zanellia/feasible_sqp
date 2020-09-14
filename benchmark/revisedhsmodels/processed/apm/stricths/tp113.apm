@@ -1,0 +1,43 @@
+Model tp113
+! Source version 1
+! Simple APM canonicalizer version 1.3
+! APM back end version 1.1
+Parameters
+End Parameters
+Variables
+x_1 = 2
+x_2 = 3
+x_3 = 5
+x_4 = 5
+x_5 = 1
+x_6 = 2
+x_7 = 7
+x_8 = 3
+x_9 = 6
+x_10 = 10
+obj
+End Variables
+Intermediates
+c_1 = 105 - 4*x_1 - 5*x_2 + 3*x_7 - 9*x_8
+c_2 = (-1)*10*x_1 + 8*x_2 + 17*x_7 - 2*x_8
+c_3 = 8*x_1 - 2*x_2 - 5*x_9 + 2*x_10 + 12
+c_4 = (-3)*(x_1 - 2)^2 - 4*(x_2 - 3)^2 - 2*x_3^2 + 7*x_4 + 120
+c_5 = (-5)*x_1^2 - 8*x_2 - (x_3 - 6)^2 + 2*x_4 + 40
+c_6 = (-1/2)*(x_1 - 8)^2 - 2*(x_2 - 4)^2 - 3*x_5^2 + x_6 + 30
+c_7 = (-1)*x_1^2 - 2*(x_2 - 2)^2 + 2*x_1*x_2 - 14*x_5 + 6*x_6
+c_8 = 3*x_1 - 6*x_2 - 12*(x_9 - 8)^2 + 7*x_10
+mf = x_1^2 + x_2^2 + x_1*x_2 - 14*x_1 - 16*x_2 + (x_3 - 10)^2 + 4*(x_4 - 5)^2 + (x_5 - 3)^2 + 2*(x_6 - 1)^2 &
++ 5*x_7^2 + 7*(x_8 - 11)^2 + 2*(x_9 - 10)^2 + (x_10 - 7)^2 + 45
+End Intermediates
+Equations
+obj = mf
+c_1 >= 0
+c_2 >= 0
+c_3 >= 0
+c_4 >= 0
+c_5 >= 0
+c_6 >= 0
+c_7 >= 0
+c_8 >= 0
+End Equations
+End Model

@@ -1,0 +1,21 @@
+Model tp010
+  ! Source version 1
+
+  Variables
+    x[1] = -10
+    x[2] =  10
+    obj
+  End Variables
+
+  Equations
+    (-3)*x[1]^2 + 2*x[1]*x[2] - x[2]^2 + 1 >= 0
+
+    obj = x[1] - x[2]
+
+    ! best known objective = -1
+    ! begin of best known solution
+    ! x[1] = 0
+    ! x[2] = 1
+    ! end of best known solution
+  End Equations
+End Model

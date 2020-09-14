@@ -1,0 +1,24 @@
+Model tp042
+  ! Source version 1
+
+  Variables
+    x[1:4] = 1
+    obj
+  End Variables
+
+  Equations
+    x[1] - 2 = 0
+    x[3]^2 + x[4]^2 - 2 = 0
+
+    obj = (x[1] - 1)^2 + (x[2] - 2)^2 &
+        + (x[3] - 3)^2 + (x[4] - 4)^2
+
+    ! best known objective = 28 - 10*sqrt(2) = 13.85786437626905
+    ! begin of best known solution
+    ! x[1] = 2
+    ! x[2] = 2
+    ! x[3] = (3/5)*sqrt(2) = 0.848528137423857
+    ! x[4] = (4/5)*sqrt(2) = 1.131370849898476
+    ! end of best known solution
+  End Equations
+End Model

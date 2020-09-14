@@ -1,0 +1,123 @@
+fmcTitle("tp119"):
+# Source version 1
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+fmcInitialValue('x_1', 10):
+fmcStrongLowerBound('x_1', 0):
+fmcStrongUpperBound('x_1', 5):
+fmcInitialValue('x_2', 10):
+fmcStrongLowerBound('x_2', 0):
+fmcStrongUpperBound('x_2', 5):
+fmcInitialValue('x_3', 10):
+fmcStrongLowerBound('x_3', 0):
+fmcStrongUpperBound('x_3', 5):
+fmcInitialValue('x_4', 10):
+fmcStrongLowerBound('x_4', 0):
+fmcStrongUpperBound('x_4', 5):
+fmcInitialValue('x_5', 10):
+fmcStrongLowerBound('x_5', 0):
+fmcStrongUpperBound('x_5', 5):
+fmcInitialValue('x_6', 10):
+fmcStrongLowerBound('x_6', 0):
+fmcStrongUpperBound('x_6', 5):
+fmcInitialValue('x_7', 10):
+fmcStrongLowerBound('x_7', 0):
+fmcStrongUpperBound('x_7', 5):
+fmcInitialValue('x_8', 10):
+fmcStrongLowerBound('x_8', 0):
+fmcStrongUpperBound('x_8', 5):
+fmcInitialValue('x_9', 10):
+fmcStrongLowerBound('x_9', 0):
+fmcStrongUpperBound('x_9', 5):
+fmcInitialValue('x_10', 10):
+fmcStrongLowerBound('x_10', 0):
+fmcStrongUpperBound('x_10', 5):
+fmcInitialValue('x_11', 10):
+fmcStrongLowerBound('x_11', 0):
+fmcStrongUpperBound('x_11', 5):
+fmcInitialValue('x_12', 10):
+fmcStrongLowerBound('x_12', 0):
+fmcStrongUpperBound('x_12', 5):
+fmcInitialValue('x_13', 10):
+fmcStrongLowerBound('x_13', 0):
+fmcStrongUpperBound('x_13', 5):
+fmcInitialValue('x_14', 10):
+fmcStrongLowerBound('x_14', 0):
+fmcStrongUpperBound('x_14', 5):
+fmcInitialValue('x_15', 10):
+fmcStrongLowerBound('x_15', 0):
+fmcStrongUpperBound('x_15', 5):
+fmcInitialValue('x_16', 10):
+fmcStrongLowerBound('x_16', 0):
+fmcStrongUpperBound('x_16', 5):
+c_1 := 0.22*x_1 + 0.2*x_2 + 0.19*x_3 + 0.25*x_4 + 0.15*x_5 + 0.11*x_6 + 0.12*x_7 + 0.13*x_8 + x_9 - 2.5:
+c_2 := (-1.46)*x_1 - 1.3*x_3 + 1.82*x_4 - 1.15*x_5 + 0.8*x_7 + x_10 - 1.1:
+c_3 := 1.29*x_1 - 0.89*x_2 - 1.16*x_5 - 0.96*x_6 - 0.49*x_8 + x_11 + 3.1:
+c_4 := (-1.1)*x_1 - 1.06*x_2 + 0.95*x_3 - 0.54*x_4 - 1.78*x_6 - 0.41*x_7 + x_12 + 3.5:
+c_5 := (-1.43)*x_4 + 1.51*x_5 + 0.59*x_6 - 0.33*x_7 - 0.43*x_8 + x_13 - 1.3:
+c_6 := (-1.72)*x_2 - 0.33*x_3 + 1.62*x_5 + 1.24*x_6 + 0.21*x_7 - 0.26*x_8 + x_14 - 2.1:
+c_7 := 1.12*x_1 + 0.31*x_4 + 1.12*x_7 - 0.36*x_9 + x_15 - 2.3:
+c_8 := 0.45*x_2 + 0.26*x_3 - 1.1*x_4 + 0.58*x_5 - 1.03*x_7 + 0.1*x_8 + x_16 + 1.5:
+s_1 := (x_1^2 + x_1 + 1) * (x_1^2 + x_1 + 1):
+s_2 := s_1 + (x_1^2 + x_1 + 1) * (x_4^2 + x_4 + 1):
+s_3 := s_2 + (x_1^2 + x_1 + 1) * (x_7^2 + x_7 + 1):
+s_4 := s_3 + (x_1^2 + x_1 + 1) * (x_8^2 + x_8 + 1):
+s_5 := s_4 + (x_1^2 + x_1 + 1) * (x_16^2 + x_16 + 1):
+s_6 := s_5 + (x_2^2 + x_2 + 1) * (x_2^2 + x_2 + 1):
+s_7 := s_6 + (x_2^2 + x_2 + 1) * (x_3^2 + x_3 + 1):
+s_8 := s_7 + (x_2^2 + x_2 + 1) * (x_7^2 + x_7 + 1):
+s_9 := s_8 + (x_2^2 + x_2 + 1) * (x_10^2 + x_10 + 1):
+s_10 := s_9 + (x_3^2 + x_3 + 1) * (x_3^2 + x_3 + 1):
+s_11 := s_10 + (x_3^2 + x_3 + 1) * (x_7^2 + x_7 + 1):
+s_12 := s_11 + (x_3^2 + x_3 + 1) * (x_9^2 + x_9 + 1):
+s_13 := s_12 + (x_3^2 + x_3 + 1) * (x_10^2 + x_10 + 1):
+s_14 := s_13 + (x_3^2 + x_3 + 1) * (x_14^2 + x_14 + 1):
+s_15 := s_14 + (x_4^2 + x_4 + 1) * (x_4^2 + x_4 + 1):
+s_16 := s_15 + (x_4^2 + x_4 + 1) * (x_7^2 + x_7 + 1):
+s_17 := s_16 + (x_4^2 + x_4 + 1) * (x_11^2 + x_11 + 1):
+s_18 := s_17 + (x_4^2 + x_4 + 1) * (x_15^2 + x_15 + 1):
+s_19 := s_18 + (x_5^2 + x_5 + 1) * (x_5^2 + x_5 + 1):
+s_20 := s_19 + (x_5^2 + x_5 + 1) * (x_6^2 + x_6 + 1):
+s_21 := s_20 + (x_5^2 + x_5 + 1) * (x_10^2 + x_10 + 1):
+s_22 := s_21 + (x_5^2 + x_5 + 1) * (x_12^2 + x_12 + 1):
+s_23 := s_22 + (x_5^2 + x_5 + 1) * (x_16^2 + x_16 + 1):
+s_24 := s_23 + (x_6^2 + x_6 + 1) * (x_6^2 + x_6 + 1):
+s_25 := s_24 + (x_6^2 + x_6 + 1) * (x_8^2 + x_8 + 1):
+s_26 := s_25 + (x_6^2 + x_6 + 1) * (x_15^2 + x_15 + 1):
+s_27 := s_26 + (x_7^2 + x_7 + 1) * (x_7^2 + x_7 + 1):
+s_28 := s_27 + (x_7^2 + x_7 + 1) * (x_11^2 + x_11 + 1):
+s_29 := s_28 + (x_7^2 + x_7 + 1) * (x_13^2 + x_13 + 1):
+s_30 := s_29 + (x_8^2 + x_8 + 1) * (x_8^2 + x_8 + 1):
+s_31 := s_30 + (x_8^2 + x_8 + 1) * (x_10^2 + x_10 + 1):
+s_32 := s_31 + (x_8^2 + x_8 + 1) * (x_15^2 + x_15 + 1):
+s_33 := s_32 + (x_9^2 + x_9 + 1) * (x_9^2 + x_9 + 1):
+s_34 := s_33 + (x_9^2 + x_9 + 1) * (x_12^2 + x_12 + 1):
+s_35 := s_34 + (x_9^2 + x_9 + 1) * (x_16^2 + x_16 + 1):
+s_36 := s_35 + (x_10^2 + x_10 + 1) * (x_10^2 + x_10 + 1):
+s_37 := s_36 + (x_10^2 + x_10 + 1) * (x_14^2 + x_14 + 1):
+s_38 := s_37 + (x_11^2 + x_11 + 1) * (x_11^2 + x_11 + 1):
+s_39 := s_38 + (x_11^2 + x_11 + 1) * (x_13^2 + x_13 + 1):
+s_40 := s_39 + (x_12^2 + x_12 + 1) * (x_12^2 + x_12 + 1):
+s_41 := s_40 + (x_12^2 + x_12 + 1) * (x_14^2 + x_14 + 1):
+s_42 := s_41 + (x_13^2 + x_13 + 1) * (x_13^2 + x_13 + 1):
+s_43 := s_42 + (x_13^2 + x_13 + 1) * (x_14^2 + x_14 + 1):
+s_44 := s_43 + (x_14^2 + x_14 + 1) * (x_14^2 + x_14 + 1):
+s_45 := s_44 + (x_15^2 + x_15 + 1) * (x_15^2 + x_15 + 1):
+s_46 := s_45 + (x_16^2 + x_16 + 1) * (x_16^2 + x_16 + 1):
+mf := s_46:
+obj := mf:
+fmcMinimum(obj):
+fmcEquality('ce_1', c_1):
+fmcEquality('ce_2', c_2):
+fmcEquality('ce_3', c_3):
+fmcEquality('ce_4', c_4):
+fmcEquality('ce_5', c_5):
+fmcEquality('ce_6', c_6):
+fmcEquality('ce_7', c_7):
+fmcEquality('ce_8', c_8):
+fmcEscortFloat('obj', obj):
+fmcControlMinimum(1, 0):
+# End Model

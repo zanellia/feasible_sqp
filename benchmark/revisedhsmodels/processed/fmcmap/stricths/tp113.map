@@ -1,0 +1,40 @@
+fmcTitle("tp113"):
+# Source version 1
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+fmcInitialValue('x_1', 2):
+fmcInitialValue('x_2', 3):
+fmcInitialValue('x_3', 5):
+fmcInitialValue('x_4', 5):
+fmcInitialValue('x_5', 1):
+fmcInitialValue('x_6', 2):
+fmcInitialValue('x_7', 7):
+fmcInitialValue('x_8', 3):
+fmcInitialValue('x_9', 6):
+fmcInitialValue('x_10', 10):
+c_1 := 105 - 4*x_1 - 5*x_2 + 3*x_7 - 9*x_8:
+c_2 := (-1)*10*x_1 + 8*x_2 + 17*x_7 - 2*x_8:
+c_3 := 8*x_1 - 2*x_2 - 5*x_9 + 2*x_10 + 12:
+c_4 := (-3)*(x_1 - 2)^2 - 4*(x_2 - 3)^2 - 2*x_3^2 + 7*x_4 + 120:
+c_5 := (-5)*x_1^2 - 8*x_2 - (x_3 - 6)^2 + 2*x_4 + 40:
+c_6 := (-1/2)*(x_1 - 8)^2 - 2*(x_2 - 4)^2 - 3*x_5^2 + x_6 + 30:
+c_7 := (-1)*x_1^2 - 2*(x_2 - 2)^2 + 2*x_1*x_2 - 14*x_5 + 6*x_6:
+c_8 := 3*x_1 - 6*x_2 - 12*(x_9 - 8)^2 + 7*x_10:
+mf := x_1^2 + x_2^2 + x_1*x_2 - 14*x_1 - 16*x_2 + (x_3 - 10)^2 + 4*(x_4 - 5)^2 + (x_5 - 3)^2 + 2*(x_6 - 1)^2
++ 5*x_7^2 + 7*(x_8 - 11)^2 + 2*(x_9 - 10)^2 + (x_10 - 7)^2 + 45:
+obj := mf:
+fmcMinimum(obj):
+fmcInequality('ci_1', c_1):
+fmcInequality('ci_2', c_2):
+fmcInequality('ci_3', c_3):
+fmcInequality('ci_4', c_4):
+fmcInequality('ci_5', c_5):
+fmcInequality('ci_6', c_6):
+fmcInequality('ci_7', c_7):
+fmcInequality('ci_8', c_8):
+fmcEscortFloat('obj', obj):
+fmcControlMinimum(1, 0):
+# End Model

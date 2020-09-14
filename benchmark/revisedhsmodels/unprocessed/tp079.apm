@@ -1,0 +1,26 @@
+Model tp079
+  ! Source version 1
+
+  Variables
+    x[1:5] = 2
+    obj
+  End Variables
+
+  Equations
+    x[1] + x[2]^2 + x[3]^3 - 2 - 3*sqrt(2) = 0
+    x[2] - x[3]^2 + x[4] + 2 - 2*sqrt(2) = 0
+    x[1]*x[5] - 2 = 0
+
+    obj = (x[1] - 1)^2 + (x[1] - x[2])^2 + (x[2] - x[3])^2 &
+        + (x[3] - x[4])^4 + (x[4] - x[5])^4
+
+    ! best known objective = 0.0787768208710569
+    ! begin of best known solution
+    ! x[1] = 1.191127456311051
+    ! x[2] = 1.362603164961742
+    ! x[3] = 1.472817931512088
+    ! x[4] = 1.635016619167993
+    ! x[5] = 1.679081436166408
+    ! end of best known solution
+  End Equations
+End Model

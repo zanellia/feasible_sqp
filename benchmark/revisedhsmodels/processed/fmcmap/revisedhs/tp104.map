@@ -1,0 +1,102 @@
+fmcTitle("tp104"):
+# Source version 1
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+fmcInitialValue('x_1', 6):
+fmcStrongLowerBound('x_1', .1):
+fmcStrongUpperBound('x_1', 10):
+fmcInitialValue('x_2', 3):
+fmcStrongLowerBound('x_2', .1):
+fmcStrongUpperBound('x_2', 10):
+fmcInitialValue('x_3', .4):
+fmcStrongLowerBound('x_3', .1):
+fmcStrongUpperBound('x_3', 10):
+fmcInitialValue('x_4', .2):
+fmcStrongLowerBound('x_4', .1):
+fmcStrongUpperBound('x_4', 10):
+fmcInitialValue('x_5', 6):
+fmcStrongLowerBound('x_5', .1):
+fmcStrongUpperBound('x_5', 10):
+fmcInitialValue('x_6', 6):
+fmcStrongLowerBound('x_6', .1):
+fmcStrongUpperBound('x_6', 10):
+fmcInitialValue('x_7', 1):
+fmcStrongLowerBound('x_7', .1):
+fmcStrongUpperBound('x_7', 10):
+fmcInitialValue('x_8', .5):
+fmcStrongLowerBound('x_8', .1):
+fmcStrongUpperBound('x_8', 10):
+c_1 := 1 - .0588*x_5*x_7 - .1*x_1:
+c_2 := 1 - .0588*x_6*x_8 - .1*x_1 - .1*x_2:
+c_3 := 1 - 4*x_3/x_5 - 2/(x_3^.71*x_5) - .0588*x_7/x_3^1.3:
+c_4 := 1 - 4*x_4/x_6 - 2/(x_4^.71*x_6) - .0588*x_8/x_4^1.3:
+mf := .4*(x_1/x_7)^.67 + .4*(x_2/x_8)^.67 + 10 - x_1 - x_2:
+c_5 := mf - 1:
+c_6 := 4.2 - mf:
+myminfun := mf:
+myabsdevnod0_0 := myownabs(myminfun - 3.951163440103356):
+myreldevnod0_0 := myownabs(myminfun/3.951163440103356 - 1):
+myabsdevnod0_1 := myownabs(x_1 - 6.465114028369101):
+myreldevnod0_1 := myownabs(x_1/6.465114028369101 - 1):
+myabsdevnod0_2 := myownabs(x_2 - 2.232708647985228):
+myreldevnod0_2 := myownabs(x_2/2.232708647985228 - 1):
+myabsdevnod0_3 := myownabs(x_3 - 0.6673974912866293):
+myreldevnod0_3 := myownabs(x_3/0.6673974912866293 - 1):
+myabsdevnod0_4 := myownabs(x_4 - 0.595756422900371):
+myreldevnod0_4 := myownabs(x_4/0.595756422900371 - 1):
+myabsdevnod0_5 := myownabs(x_5 - 5.932675677909848):
+myreldevnod0_5 := myownabs(x_5/5.932675677909848 - 1):
+myabsdevnod0_6 := myownabs(x_6 - 5.527234564976939):
+myreldevnod0_6 := myownabs(x_6/5.527234564976939 - 1):
+myabsdevnod0_7 := myownabs(x_7 - 1.013322008902561):
+myreldevnod0_7 := myownabs(x_7/1.013322008902561 - 1):
+myabsdevnod0_8 := myownabs(x_8 - 0.400668229125703):
+myreldevnod0_8 := myownabs(x_8/0.400668229125703 - 1):
+myabsdevnod1_0 := (1/2)*(myownabs(myabsdevnod0_0 - myabsdevnod0_1) + (myabsdevnod0_0 + myabsdevnod0_1)):
+myreldevnod1_0 := (1/2)*(myownabs(myreldevnod0_0 - myreldevnod0_1) + (myreldevnod0_0 + myreldevnod0_1)):
+myabsdevnod1_2 := (1/2)*(myownabs(myabsdevnod0_2 - myabsdevnod0_3) + (myabsdevnod0_2 + myabsdevnod0_3)):
+myreldevnod1_2 := (1/2)*(myownabs(myreldevnod0_2 - myreldevnod0_3) + (myreldevnod0_2 + myreldevnod0_3)):
+myabsdevnod1_4 := (1/2)*(myownabs(myabsdevnod0_4 - myabsdevnod0_5) + (myabsdevnod0_4 + myabsdevnod0_5)):
+myreldevnod1_4 := (1/2)*(myownabs(myreldevnod0_4 - myreldevnod0_5) + (myreldevnod0_4 + myreldevnod0_5)):
+myabsdevnod1_6 := (1/2)*(myownabs(myabsdevnod0_6 - myabsdevnod0_7) + (myabsdevnod0_6 + myabsdevnod0_7)):
+myreldevnod1_6 := (1/2)*(myownabs(myreldevnod0_6 - myreldevnod0_7) + (myreldevnod0_6 + myreldevnod0_7)):
+myabsdevnod1_8 := myabsdevnod0_8:
+myreldevnod1_8 := myreldevnod0_8:
+myabsdevnod2_0 := (1/2)*(myownabs(myabsdevnod1_0 - myabsdevnod1_2) + (myabsdevnod1_0 + myabsdevnod1_2)):
+myreldevnod2_0 := (1/2)*(myownabs(myreldevnod1_0 - myreldevnod1_2) + (myreldevnod1_0 + myreldevnod1_2)):
+myabsdevnod2_4 := (1/2)*(myownabs(myabsdevnod1_4 - myabsdevnod1_6) + (myabsdevnod1_4 + myabsdevnod1_6)):
+myreldevnod2_4 := (1/2)*(myownabs(myreldevnod1_4 - myreldevnod1_6) + (myreldevnod1_4 + myreldevnod1_6)):
+myabsdevnod2_8 := myabsdevnod1_8:
+myreldevnod2_8 := myreldevnod1_8:
+myabsdevnod3_0 := (1/2)*(myownabs(myabsdevnod2_0 - myabsdevnod2_4) + (myabsdevnod2_0 + myabsdevnod2_4)):
+myreldevnod3_0 := (1/2)*(myownabs(myreldevnod2_0 - myreldevnod2_4) + (myreldevnod2_0 + myreldevnod2_4)):
+myabsdevnod3_8 := myabsdevnod2_8:
+myreldevnod3_8 := myreldevnod2_8:
+myabsdevnod4_0 := (1/2)*(myownabs(myabsdevnod3_0 - myabsdevnod3_8) + (myabsdevnod3_0 + myabsdevnod3_8)):
+myreldevnod4_0 := (1/2)*(myownabs(myreldevnod3_0 - myreldevnod3_8) + (myreldevnod3_0 + myreldevnod3_8)):
+zmyabsdevmax := myabsdevnod4_0:
+zmyreldevmax := myreldevnod4_0:
+obj := myminfun:
+fmcMinimum(obj):
+fmcInequality('ci_1', c_1):
+fmcInequality('ci_2', c_2):
+fmcInequality('ci_3', c_3):
+fmcInequality('ci_4', c_4):
+fmcInequality('ci_5', c_5):
+fmcInequality('ci_6', c_6):
+fmcEscortFloat('x_1', x_1):
+fmcEscortFloat('x_2', x_2):
+fmcEscortFloat('x_3', x_3):
+fmcEscortFloat('x_4', x_4):
+fmcEscortFloat('x_5', x_5):
+fmcEscortFloat('x_6', x_6):
+fmcEscortFloat('x_7', x_7):
+fmcEscortFloat('x_8', x_8):
+fmcEscortFloat('myminfun', myminfun):
+fmcEscortFloat('zmyabsdevmax', zmyabsdevmax):
+fmcEscortFloat('zmyreldevmax', zmyreldevmax):
+fmcControlMinimum(1, 0):
+# End Model

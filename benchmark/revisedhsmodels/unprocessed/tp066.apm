@@ -1,0 +1,24 @@
+Model tp066
+  ! Source version 1
+
+  Variables
+    x[1] = 0,    >= 0, <= 100
+    x[2] = 1.05, >= 0, <= 100
+    x[3] = 2.9,  >= 0, <=  10
+    obj
+  End Variables
+
+  Equations
+    x[2] - exp(x[1]) >= 0
+    x[3] - exp(x[2]) >= 0
+
+    obj = 0.2*x[3] - 0.8*x[1]
+
+    ! best known objective = 0.518163274181541
+    ! begin of best known solution
+    ! x[1] = 0.1841264879228477
+    ! x[2] = 1.202167873197043
+    ! x[3] = 3.327322322599096
+    ! end of best known solution
+  End Equations
+End Model

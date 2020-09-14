@@ -1,0 +1,66 @@
+fmcTitle ("tp067v3"):
+
+# Source version 1
+
+# FMC's first native input language.
+# The Hock & Schittkowski test problem #67.
+# This is a free, more intuitive formulation of #67,
+# without discontinuities, as it would probably be defined
+# by a modeler of our days.
+# The solution is equal to the one obtained with tp067v1,
+# i.e., it is sensible but not exact in the sense of #67.
+
+y2 := tp067v3x (fmc_ident_tcb, 2, 0, x1, x2, x3):
+y3 := tp067v3x (fmc_ident_tcb, 3, 0, x1, x2, x3):
+y4 := tp067v3x (fmc_ident_tcb, 4, 0, x1, x2, x3):
+y5 := tp067v3x (fmc_ident_tcb, 5, 0, x1, x2, x3):
+y6 := tp067v3x (fmc_ident_tcb, 6, 0, x1, x2, x3):
+y7 := tp067v3x (fmc_ident_tcb, 7, 0, x1, x2, x3):
+y8 := tp067v3x (fmc_ident_tcb, 8, 0, x1, x2, x3):
+
+fmcFunctionDiffHint ([ tp067v3x, 0, 0, 0,
+  tp067v3x ( fmcFunctionArg1,  fmcFunctionArg2,  1,
+             fmcFunctionArg4,  fmcFunctionArg5,  fmcFunctionArg6 ),
+  tp067v3x ( fmcFunctionArg1,  fmcFunctionArg2,  2,
+             fmcFunctionArg4,  fmcFunctionArg5,  fmcFunctionArg6 ),
+  tp067v3x ( fmcFunctionArg1,  fmcFunctionArg2,  3,
+             fmcFunctionArg4,  fmcFunctionArg5,  fmcFunctionArg6 ) ]):
+
+fmcExternalCodePath ("../../doc/RevisedHockSchittkowski/src/tp067v3x.c"):
+
+fmcMinimum (-(0.063*y2*y5 - 5.04*x1 - 3.36*y3 - 0.035*x2 - 10*x3)):
+
+fmcInequality (i1,  y2 -     0):
+fmcInequality (i2,  y3 -     0):
+fmcInequality (i3,  y4 -    85):
+fmcInequality (i4,  y5 -    90):
+fmcInequality (i5,  y6 -     3):
+fmcInequality (i6,  y7 - 1/100):
+fmcInequality (i7,  y8 -   145):
+
+fmcInequality (i8, 5000 - y2):
+fmcInequality (i9, 2000 - y3):
+fmcInequality (i10,  93 - y4):
+fmcInequality (i11,  95 - y5):
+fmcInequality (i12,  12 - y6):
+fmcInequality (i13,   4 - y7):
+fmcInequality (i14, 162 - y8):
+
+fmcStrongLowerBound (x1, 10^(-5)):
+fmcStrongLowerBound (x2, 10^(-5)):
+fmcStrongLowerBound (x3, 10^(-5)):
+
+fmcStrongUpperBound (x1,  2000):
+fmcStrongUpperBound (x2, 16000):
+fmcStrongUpperBound (x3,   120):
+
+fmcInitialValue (x1,  1745):
+fmcInitialValue (x2, 12000):
+fmcInitialValue (x3,   110):
+
+# best known objective = -1162.02698005969
+# begin of best known solution
+# x[1] = x1 =  1728.371443241086
+# x[2] = x2 = 16000
+# x[3] = x3 =    98.13617652300942
+# end of best known solution

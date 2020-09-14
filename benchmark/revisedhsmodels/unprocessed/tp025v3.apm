@@ -1,0 +1,48 @@
+Model tp025v3
+  ! Source version 1
+
+  ! Poor man's formulation of #25.
+  ! Initial value of x[3] changed from 3 to 5/2.
+  ! Starting point data is now
+  !   mf =  3.282352441691760e+01
+  !   g1 = -8.165342780311795e-04
+  !   g2 = -1.472192746489557e-02
+  !   g3 =  2.148313411981189e-01 ,
+  ! looking really better than
+  !   mf =  3.283499999966359e+01
+  !   g1 = -7.729789390213997e-11
+  !   g2 = -1.757065490859908e-09
+  !   g3 =  1.994386449392023e-08 .
+
+  Parameters
+    ai[1] = 1
+    ai[2:99] = ai[1:98] + 1
+    u[1:99] = 25 + (-50*log(ai[1:99]/100))^(2/3)
+  End Parameters
+
+  Variables
+    x[1] = 100,   >= 0.1, <= 100
+    x[2] =  12.5, >= 0,   <=  25.6
+    x[3] =   2.5, >= 0,   <=   5
+    obj
+  End Variables
+
+  Intermediates
+    f[1:99] = (-1/100)*ai[1:99] &
+            + exp((-1/x[1])*(u[1:99] - x[2])^x[3])
+    s[1] = f[1]^2
+    s[2:99] = s[1:98] + f[2:99]^2
+    mf = s[99]
+  End Intermediates
+
+  Equations
+    obj = mf
+
+    ! best known objective = 0
+    ! begin of best known solution
+    ! x[1] = 50
+    ! x[2] = 25
+    ! x[3] =  1.5
+    ! end of best known solution
+  End Equations
+End Model

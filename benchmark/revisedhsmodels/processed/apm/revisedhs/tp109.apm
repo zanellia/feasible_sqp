@@ -1,0 +1,98 @@
+Model tp109
+! Source version 1
+! Simple APM canonicalizer version 1.3
+! APM back end version 1.1
+Parameters
+c22938a = -22.938
+c22938b = 22.938
+c22938 = c22938a
+a = 50.176
+arg = 0.25
+b = sin(arg)
+c = cos(arg)
+End Parameters
+Variables
+x_1 = 0, >= 0
+x_2 = 0, >= 0
+x_3 = 0, >= -0.55, <= 0.55
+x_4 = 0, >= -0.55, <= 0.55
+x_5 = 0, >= 196, <= 252
+x_6 = 0, >= 196, <= 252
+x_7 = 0, >= 196, <= 252
+x_8 = 0, >= -400, <= 800
+x_9 = 0, >= -400, <= 800
+obj
+End Variables
+Intermediates
+cf_1 = x_4 - x_3 + .55
+cf_2 = x_3 - x_4 + .55
+cf_3 = 2250000 - x_1^2 - x_8^2
+cf_4 = 2250000 - x_2^2 - x_9^2
+cf_5 = x_5*x_6*sin((-1)*x_3 - 1/4) + x_5*x_7*sin((-1)*x_4 - 1/4) + 2*b*x_5^2 - a*x_1 + 400*a
+cf_6 = x_5*x_6*sin(x_3 - 1/4) + x_6*x_7*sin(x_3 - x_4 - 1/4) + 2*b*x_6^2 - a*x_2 + 400*a
+cf_7 = x_5*x_7*sin(x_4 - 1/4) + x_6*x_7*sin(x_4 - x_3 - 1/4) + 2*b*x_7^2 + 881.779*a
+cf_8 = a*x_8 + x_5*x_6*cos((-1)*x_3 - 1/4) + x_5*x_7*cos((-1)*x_4 - 1/4) - 200*a - 2*c*x_5^2 + &
+0.7533e-3*a*x_5^2
+cf_9 = a*x_9 + x_5*x_6*cos(x_3 - 1/4) + x_6*x_7*cos(x_3 - x_4 - 1/4) - 2*c*x_6^2 + 0.7533e-3*a*x_6^2 - 200*a
+cf_10 = x_5*x_7*cos(x_4 - 1/4) + x_6*x_7*cos(x_4 - x_3 - 1/4) - 2*c*x_7^2 + c22938*a + 0.7533e-3*a*x_7^2
+mf = 3*x_1 + 1.0e-6*x_1^3 + 2*x_2 + 0.522074e-6*x_2^3
+myminfun = mf
+myabsdevnod0_0 = abs(myminfun - 5362.069181109596)
+myreldevnod0_0 = abs(myminfun/5362.069181109596 - 1)
+myabsdevnod0_1 = abs(x_1 - 675.0253392597418)
+myreldevnod0_1 = abs(x_1/675.0253392597418 - 1)
+myabsdevnod0_2 = abs(x_2 - 1134.021089714841)
+myreldevnod0_2 = abs(x_2/1134.021089714841 - 1)
+myabsdevnod0_3 = abs(x_3 - 0.1334850509182756)
+myreldevnod0_3 = abs(x_3/0.1334850509182756 - 1)
+myabsdevnod0_4 = abs(x_4 + 0.37119026264778)
+myreldevnod0_4 = abs(x_4/0.37119026264778 + 1)
+myabsdevnod0_5 = abs(x_5 - 252)
+myreldevnod0_5 = abs(x_5/252 - 1)
+myabsdevnod0_6 = abs(x_6 - 252)
+myreldevnod0_6 = abs(x_6/252 - 1)
+myabsdevnod0_7 = abs(x_7 - 201.4658577338128)
+myreldevnod0_7 = abs(x_7/201.4658577338128 - 1)
+myabsdevnod0_8 = abs(x_8 - 426.6190056621182)
+myreldevnod0_8 = abs(x_8/426.6190056621182 - 1)
+myabsdevnod0_9 = abs(x_9 - 368.4881990875219)
+myreldevnod0_9 = abs(x_9/368.4881990875219 - 1)
+myabsdevnod1_0 = (1/2)*(abs(myabsdevnod0_0 - myabsdevnod0_1) + (myabsdevnod0_0 + myabsdevnod0_1))
+myreldevnod1_0 = (1/2)*(abs(myreldevnod0_0 - myreldevnod0_1) + (myreldevnod0_0 + myreldevnod0_1))
+myabsdevnod1_2 = (1/2)*(abs(myabsdevnod0_2 - myabsdevnod0_3) + (myabsdevnod0_2 + myabsdevnod0_3))
+myreldevnod1_2 = (1/2)*(abs(myreldevnod0_2 - myreldevnod0_3) + (myreldevnod0_2 + myreldevnod0_3))
+myabsdevnod1_4 = (1/2)*(abs(myabsdevnod0_4 - myabsdevnod0_5) + (myabsdevnod0_4 + myabsdevnod0_5))
+myreldevnod1_4 = (1/2)*(abs(myreldevnod0_4 - myreldevnod0_5) + (myreldevnod0_4 + myreldevnod0_5))
+myabsdevnod1_6 = (1/2)*(abs(myabsdevnod0_6 - myabsdevnod0_7) + (myabsdevnod0_6 + myabsdevnod0_7))
+myreldevnod1_6 = (1/2)*(abs(myreldevnod0_6 - myreldevnod0_7) + (myreldevnod0_6 + myreldevnod0_7))
+myabsdevnod1_8 = (1/2)*(abs(myabsdevnod0_8 - myabsdevnod0_9) + (myabsdevnod0_8 + myabsdevnod0_9))
+myreldevnod1_8 = (1/2)*(abs(myreldevnod0_8 - myreldevnod0_9) + (myreldevnod0_8 + myreldevnod0_9))
+myabsdevnod2_0 = (1/2)*(abs(myabsdevnod1_0 - myabsdevnod1_2) + (myabsdevnod1_0 + myabsdevnod1_2))
+myreldevnod2_0 = (1/2)*(abs(myreldevnod1_0 - myreldevnod1_2) + (myreldevnod1_0 + myreldevnod1_2))
+myabsdevnod2_4 = (1/2)*(abs(myabsdevnod1_4 - myabsdevnod1_6) + (myabsdevnod1_4 + myabsdevnod1_6))
+myreldevnod2_4 = (1/2)*(abs(myreldevnod1_4 - myreldevnod1_6) + (myreldevnod1_4 + myreldevnod1_6))
+myabsdevnod2_8 = myabsdevnod1_8
+myreldevnod2_8 = myreldevnod1_8
+myabsdevnod3_0 = (1/2)*(abs(myabsdevnod2_0 - myabsdevnod2_4) + (myabsdevnod2_0 + myabsdevnod2_4))
+myreldevnod3_0 = (1/2)*(abs(myreldevnod2_0 - myreldevnod2_4) + (myreldevnod2_0 + myreldevnod2_4))
+myabsdevnod3_8 = myabsdevnod2_8
+myreldevnod3_8 = myreldevnod2_8
+myabsdevnod4_0 = (1/2)*(abs(myabsdevnod3_0 - myabsdevnod3_8) + (myabsdevnod3_0 + myabsdevnod3_8))
+myreldevnod4_0 = (1/2)*(abs(myreldevnod3_0 - myreldevnod3_8) + (myreldevnod3_0 + myreldevnod3_8))
+zmyabsdevmax = myabsdevnod4_0
+zmyreldevmax = myreldevnod4_0
+End Intermediates
+Equations
+obj = myminfun
+cf_5 = 0
+cf_6 = 0
+cf_7 = 0
+cf_8 = 0
+cf_9 = 0
+cf_10 = 0
+cf_1 >= 0
+cf_2 >= 0
+cf_3 >= 0
+cf_4 >= 0
+End Equations
+End Model

@@ -1,0 +1,24 @@
+Model tp034
+  ! Source version 1
+
+  Variables
+    x[1] = 0,    >= 0, <= 100
+    x[2] = 1.05, >= 0, <= 100
+    x[3] = 2.9,  >= 0, <=  10
+    obj
+  End Variables
+
+  Equations
+    x[2] - exp(x[1]) >= 0
+    x[3] - exp(x[2]) >= 0
+
+    obj = -x[1]
+
+    ! best known objective = -log(log(10)) = -0.8340324452479558
+    ! begin of best known solution
+    ! x[1] = log(log(10)) = 0.8340324452479558
+    ! x[2] = log(10) = 2.302585092994046
+    ! x[3] = 10
+    ! end of best known solution
+  End Equations
+End Model

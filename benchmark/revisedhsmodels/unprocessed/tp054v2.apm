@@ -1,0 +1,40 @@
+Model tp054v2
+  ! Source version 1
+
+  ! Poor man's formulation of #54.
+  ! The variables have been linearly transformed.
+  ! Furthermore, -exp(-(...)/2) has been replaced by (...), and,
+  ! finally, the equality constraint has been multiplied by 10^(-3).
+
+  Variables
+    x[1] = -1/2,  >=    -5/4,  <=   5/4
+    x[2] =  1/2,  >=   -11,    <=   9
+    x[3] =  2/7,  >=    -2/7,  <=   8/7
+    x[4] = -4/25, >=    -1/5,  <=   1/5
+    x[5] =  1/25, >= -1001/50, <= 999/50
+    x[6] = -1/10, >=    -1/5,  <=   1/5
+    obj
+  End Variables
+
+  Intermediates
+    h1 = (x[1]^2 + x[1]*x[2]*2/5 + x[2]^2)*25/24
+    h2 = x[3]^2 + x[4]^2 + x[5]^2 + x[6]^2
+    mf = h1 + h2
+  End Intermediates
+
+  Equations
+    8*x[1] + 4*x[2] - 18/5 = 0
+
+    obj = mf
+
+    ! best known objective = 27/140 = 0.1928571428571429
+    ! begin of best known solution
+    ! x[1] = 27/70 = 0.3857142857142857
+    ! x[2] = 9/70 = 0.1285714285714286
+    ! x[3] = 0
+    ! x[4] = 0
+    ! x[5] = 0
+    ! x[6] = 0
+    ! end of best known solution
+  End Equations
+End Model

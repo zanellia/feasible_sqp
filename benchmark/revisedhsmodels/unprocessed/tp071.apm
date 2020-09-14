@@ -1,0 +1,26 @@
+Model tp071
+  ! Source version 2
+
+  Variables
+    x[1] = 1, >= 1, <= 5
+    x[2] = 5, >= 1, <= 5
+    x[3] = 5, >= 1, <= 5
+    x[4] = 1, >= 1, <= 5
+    obj
+  End Variables
+
+  Equations
+    x[1]*x[2]*x[3]*x[4] - 25 >= 0
+    x[1]^2 + x[2]^2 + x[3]^2 + x[4]^2 - 40 = 0
+
+    obj = x[1]*x[4]*(x[1] + x[2] + x[3]) + x[3]
+
+    ! best known objective = 17.0140172891563
+    ! begin of best known solution
+    ! x[1] = 1
+    ! x[2] = 4.742999637264417
+    ! x[3] = 3.821149984184874
+    ! x[4] = 1.379408293172672
+    ! end of best known solution
+  End Equations
+End Model

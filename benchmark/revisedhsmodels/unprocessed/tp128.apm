@@ -1,0 +1,20 @@
+Model tp128
+  ! Source version 1
+
+  Variables
+    x[1:2] = 1
+    obj
+  End Variables
+
+  Equations
+    x[1]^4 + x[2]^4 = 0
+
+    obj = x[1]^2 + x[2]^2
+
+    ! best known objective = 0
+    ! begin of best known solution
+    ! x[1] = 0
+    ! x[2] = 0
+    ! end of best known solution
+  End Equations
+End Model

@@ -1,0 +1,68 @@
+Model tp112
+! Source version 1
+! Simple APM canonicalizer version 1.3
+! APM back end version 1.1
+Parameters
+b3a = -1
+b3b = 0
+b3 = b3a
+c_1 = -6.089
+c_2 = -17.164
+c_3 = -34.054
+c_4 = -5.914
+c_5 = -24.721
+c_6 = -14.986
+c_7 = -24.100
+c_8 = -10.708
+c_9 = -26.662
+c_10 = -22.179
+si_0 = 0
+so_0 = 0
+End Parameters
+Variables
+x_1 = 0.1, >= 1.0e-6
+x_2 = 0.1, >= 1.0e-6
+x_3 = 0.1, >= 1.0e-6
+x_4 = 0.1, >= 1.0e-6
+x_5 = 0.1, >= 1.0e-6
+x_6 = 0.1, >= 1.0e-6
+x_7 = 0.1, >= 1.0e-6
+x_8 = 0.1, >= 1.0e-6
+x_9 = 0.1, >= 1.0e-6
+x_10 = 0.1, >= 1.0e-6
+obj
+End Variables
+Intermediates
+cf_1 = x_1 + 2*x_2 + 2*x_3 + x_6 + x_10 - 2
+cf_2 = x_4 + 2*x_5 + x_6 + x_7 - 1
+cf_3 = x_3 + x_7 + x_8 + 2*x_9 + x_10 + b3
+si_1 = si_0 + x_1
+si_2 = si_1 + x_2
+si_3 = si_2 + x_3
+si_4 = si_3 + x_4
+si_5 = si_4 + x_5
+si_6 = si_5 + x_6
+si_7 = si_6 + x_7
+si_8 = si_7 + x_8
+si_9 = si_8 + x_9
+si_10 = si_9 + x_10
+aux = si_10
+so_1 = so_0 + x_1*(c_1 + log(x_1/aux))
+so_2 = so_1 + x_2*(c_2 + log(x_2/aux))
+so_3 = so_2 + x_3*(c_3 + log(x_3/aux))
+so_4 = so_3 + x_4*(c_4 + log(x_4/aux))
+so_5 = so_4 + x_5*(c_5 + log(x_5/aux))
+so_6 = so_5 + x_6*(c_6 + log(x_6/aux))
+so_7 = so_6 + x_7*(c_7 + log(x_7/aux))
+so_8 = so_7 + x_8*(c_8 + log(x_8/aux))
+so_9 = so_8 + x_9*(c_9 + log(x_9/aux))
+so_10 = so_9 + x_10*(c_10 + log(x_10/aux))
+mf = so_10
+End Intermediates
+Equations
+obj = mf
+cf_1 = 0
+cf_2 = 0
+cf_3 = 0
+End Equations
+End Model

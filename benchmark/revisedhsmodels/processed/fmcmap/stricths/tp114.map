@@ -1,0 +1,67 @@
+fmcTitle("tp114"):
+# Source version 1
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+a := .99:
+b := .9:
+fmcInitialValue('x_1', 1745):
+fmcStrongLowerBound('x_1', .00001):
+fmcStrongUpperBound('x_1', 2000):
+fmcInitialValue('x_2', 12000):
+fmcStrongLowerBound('x_2', .00001):
+fmcStrongUpperBound('x_2', 16000):
+fmcInitialValue('x_3', 110):
+fmcStrongLowerBound('x_3', .00001):
+fmcStrongUpperBound('x_3', 120):
+fmcInitialValue('x_4', 3048):
+fmcStrongLowerBound('x_4', .00001):
+fmcStrongUpperBound('x_4', 5000):
+fmcInitialValue('x_5', 1974):
+fmcStrongLowerBound('x_5', .00001):
+fmcStrongUpperBound('x_5', 2000):
+fmcInitialValue('x_6', 89.2):
+fmcStrongLowerBound('x_6', 85):
+fmcStrongUpperBound('x_6', 93):
+fmcInitialValue('x_7', 92.8):
+fmcStrongLowerBound('x_7', 90):
+fmcStrongUpperBound('x_7', 95):
+fmcInitialValue('x_8', 8):
+fmcStrongLowerBound('x_8', 3):
+fmcStrongUpperBound('x_8', 12):
+fmcInitialValue('x_9', 3.6):
+fmcStrongLowerBound('x_9', 1.2):
+fmcStrongUpperBound('x_9', 4):
+fmcInitialValue('x_10', 145):
+fmcStrongLowerBound('x_10', 145):
+fmcStrongUpperBound('x_10', 162):
+g_1 := 35.82 - .222*x_10 - b*x_9:
+g_2 := (-133) + 3*x_7 - a*x_10:
+g_3 := (-1)*g_1 + x_9*(1/b - b):
+g_4 := (-1)*g_2 + (1/a - a)*x_10:
+g_5 := 1.12*x_1 + .13167*x_1*x_8 - .00667*x_1*x_8^2 - a*x_4:
+g_6 := 57.425 + 1.098*x_8 - .038*x_8^2 + .325*x_6 - a*x_7:
+g_7 := (-1)*g_5 + (1/a - a)*x_4:
+g_8 := (-1)*g_6 + (1/a - a)*x_7:
+g_9 := 1.22*x_4 - x_1 - x_5:
+g_10 := 98000*x_3/(x_4*x_9 + 1000*x_3) - x_6:
+g_11 := (x_2 + x_5)/x_1 - x_8:
+mf := 5.04*x_1 + .035*x_2 + 10*x_3 + 3.36*x_5 - .063*x_4*x_7:
+obj := mf:
+fmcMinimum(obj):
+fmcEquality('ce_1', g_9):
+fmcEquality('ce_2', g_10):
+fmcEquality('ce_3', g_11):
+fmcInequality('ci_1', g_1):
+fmcInequality('ci_2', g_2):
+fmcInequality('ci_3', g_3):
+fmcInequality('ci_4', g_4):
+fmcInequality('ci_5', g_5):
+fmcInequality('ci_6', g_6):
+fmcInequality('ci_7', g_7):
+fmcInequality('ci_8', g_8):
+fmcEscortFloat('obj', obj):
+fmcControlMinimum(1, 0):
+# End Model

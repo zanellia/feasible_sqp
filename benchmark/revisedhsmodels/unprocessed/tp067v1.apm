@@ -1,0 +1,74 @@
+Model tp067v1
+  ! Source version 1
+
+  ! This is the poor man's free formulation of #67, intuitive,
+  ! without discontinuities. The poor man's one because the sense
+  ! of #67 is to prove whether a solving software has procedure
+  ! handling capabilities. Since up to now, procedures cannot
+  ! directly be expressed in APM, this formulation has to be thought
+  ! of as a workaround. This is further a free formulation because
+  ! the obtained solution is sensible but not exact.
+  ! See also tp067v2 and tp067v3.
+  ! Both the auxiliaries below, x[4] and x[5], are initialized in such
+  ! a manner that the initial point belongs to the feasible domain.
+  ! Recall, the initial point of the original #67 is also feasible.
+
+  Parameters
+    ivx4 = 3048.289708675017
+    ivx5 =   89.19762025827802
+  End Parameters
+
+  Variables
+    x[1] =  1745, >= 10^(-5), <=  2000
+    x[2] = 12000, >= 10^(-5), <= 16000
+    x[3] =   110, >= 10^(-5), <=   120
+    x[4] =  ivx4
+    x[5] =  ivx5
+    obj
+  End Variables
+
+  Intermediates
+    y2  = x[4]
+    y3  = 1.22*y2 - x[1]
+    y6  = (x[2] + y3)/x[1]
+    y2c = 0.01*x[1]*(112 + 13.167*y6 - 0.6667*y6^2)
+    y4  = x[5]
+    y5  = 86.35 + 1.098*y6 - 0.038*y6^2 + 0.325*(y4 - 89)
+    y8  = 3*y5 - 133
+    y7  = 35.82 - 0.222*y8
+    y4c = 98000*x[3]/(y2*y7 + 1000*x[3])
+    c[ 1] =  y2c -  y2
+    c[ 2] =  y4c -  y4
+    c[ 3] =   y2 -   0
+    c[ 4] =   y3 -   0
+    c[ 5] =   y4 -  85
+    c[ 6] =   y5 -  90
+    c[ 7] =   y6 -   3
+    c[ 8] =   y7 -   1/100
+    c[ 9] =   y8 - 145
+    c[10] = 5000 -  y2
+    c[11] = 2000 -  y3
+    c[12] =   93 -  y4
+    c[13] =   95 -  y5
+    c[14] =   12 -  y6
+    c[15] =    4 -  y7
+    c[16] =  162 -  y8
+    mf = -(0.063*y2*y5 - 5.04*x[1] - 3.36*y3 - 0.035*x[2] - 10*x[3])
+  End Intermediates
+
+  Equations
+    c[1: 2]  = 0
+    c[3:16] >= 0
+
+    obj = mf
+
+    ! best known objective = -1162.02698005969
+    ! begin of best known solution
+    ! x[1] =  1728.371443241086
+    ! x[2] = 16000
+    ! x[3] =    98.13617652300942
+    ! x[4] =  3056.042166591054
+    ! x[5] =    90.61853974698703
+    ! end of best known solution
+  End Equations
+End Model

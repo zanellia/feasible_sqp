@@ -1,0 +1,90 @@
+Model tp107
+! Source version 1
+! Simple APM canonicalizer version 1.3
+! APM back end version 1.1
+Parameters
+c = (48.4/50.176)*sin(.25)
+d = (48.4/50.176)*cos(.25)
+End Parameters
+Variables
+x_1 = .8, >= 0
+x_2 = .8, >= 0
+x_3 = .2
+x_4 = .2
+x_5 = 1.0454, >= .90909, <= 1.0909
+x_6 = 1.0454, >= .90909, <= 1.0909
+x_7 = 1.0454, >= .90909, <= 1.0909
+x_8 = 0
+x_9 = 0
+obj
+End Variables
+Intermediates
+y1 = sin(x_8)
+y2 = cos(x_8)
+y3 = sin(x_9)
+y4 = cos(x_9)
+y5 = sin(x_8 - x_9)
+y6 = cos(x_8 - x_9)
+ec_1 = .4 - x_1 + 2*c*x_5^2 - x_5*x_6*(d*y1 + c*y2) - x_5*x_7*(d*y3 + c*y4)
+ec_2 = .4 - x_2 + 2*c*x_6^2 + x_5*x_6*(d*y1 - c*y2) + x_6*x_7*(d*y5 - c*y6)
+ec_3 = .8 + 2*c*x_7^2 + x_5*x_7*(d*y3 - c*y4) - x_6*x_7*(d*y5 + c*y6)
+ec_4 = .2 - x_3 + 2*d*x_5^2 + x_5*x_6*(c*y1 - d*y2) + x_5*x_7*(c*y3 - d*y4)
+ec_5 = .2 - x_4 + 2*d*x_6^2 - x_5*x_6*(c*y1 + d*y2) - x_6*x_7*(c*y5 + d*y6)
+ec_6 = (-.337) + 2*d*x_7^2 - x_5*x_7*(c*y3 + d*y4) + x_6*x_7*(c*y5 - d*y6)
+mf = 3000*x_1 + 1000*x_1^3 + 2000*x_2 + 666.667*x_2^3
+myminfun = mf
+myabsdevnod0_0 = abs(myminfun - 5055.011803543816)
+myreldevnod0_0 = abs(myminfun/5055.011803543816 - 1)
+myabsdevnod0_1 = abs(x_1 - 0.6670127623153279)
+myreldevnod0_1 = abs(x_1/0.6670127623153279 - 1)
+myabsdevnod0_2 = abs(x_2 - 1.022384717050832)
+myreldevnod0_2 = abs(x_2/1.022384717050832 - 1)
+myabsdevnod0_3 = abs(x_3 - 0.2282871446675199)
+myreldevnod0_3 = abs(x_3/0.2282871446675199 - 1)
+myabsdevnod0_4 = abs(x_4 - 0.1848217561297505)
+myreldevnod0_4 = abs(x_4/0.1848217561297505 - 1)
+myabsdevnod0_5 = abs(x_5 - 1.0909)
+myreldevnod0_5 = abs(x_5/1.0909 - 1)
+myabsdevnod0_6 = abs(x_6 - 1.0909)
+myreldevnod0_6 = abs(x_6/1.0909 - 1)
+myabsdevnod0_7 = abs(x_7 - 1.069036003142822)
+myreldevnod0_7 = abs(x_7/1.069036003142822 - 1)
+myabsdevnod0_8 = abs(x_8 - 0.1066106224065641)
+myreldevnod0_8 = abs(x_8/0.1066106224065641 - 1)
+myabsdevnod0_9 = abs(x_9 + 0.3387876190699065)
+myreldevnod0_9 = abs(x_9/0.3387876190699065 + 1)
+myabsdevnod1_0 = (1/2)*(abs(myabsdevnod0_0 - myabsdevnod0_1) + (myabsdevnod0_0 + myabsdevnod0_1))
+myreldevnod1_0 = (1/2)*(abs(myreldevnod0_0 - myreldevnod0_1) + (myreldevnod0_0 + myreldevnod0_1))
+myabsdevnod1_2 = (1/2)*(abs(myabsdevnod0_2 - myabsdevnod0_3) + (myabsdevnod0_2 + myabsdevnod0_3))
+myreldevnod1_2 = (1/2)*(abs(myreldevnod0_2 - myreldevnod0_3) + (myreldevnod0_2 + myreldevnod0_3))
+myabsdevnod1_4 = (1/2)*(abs(myabsdevnod0_4 - myabsdevnod0_5) + (myabsdevnod0_4 + myabsdevnod0_5))
+myreldevnod1_4 = (1/2)*(abs(myreldevnod0_4 - myreldevnod0_5) + (myreldevnod0_4 + myreldevnod0_5))
+myabsdevnod1_6 = (1/2)*(abs(myabsdevnod0_6 - myabsdevnod0_7) + (myabsdevnod0_6 + myabsdevnod0_7))
+myreldevnod1_6 = (1/2)*(abs(myreldevnod0_6 - myreldevnod0_7) + (myreldevnod0_6 + myreldevnod0_7))
+myabsdevnod1_8 = (1/2)*(abs(myabsdevnod0_8 - myabsdevnod0_9) + (myabsdevnod0_8 + myabsdevnod0_9))
+myreldevnod1_8 = (1/2)*(abs(myreldevnod0_8 - myreldevnod0_9) + (myreldevnod0_8 + myreldevnod0_9))
+myabsdevnod2_0 = (1/2)*(abs(myabsdevnod1_0 - myabsdevnod1_2) + (myabsdevnod1_0 + myabsdevnod1_2))
+myreldevnod2_0 = (1/2)*(abs(myreldevnod1_0 - myreldevnod1_2) + (myreldevnod1_0 + myreldevnod1_2))
+myabsdevnod2_4 = (1/2)*(abs(myabsdevnod1_4 - myabsdevnod1_6) + (myabsdevnod1_4 + myabsdevnod1_6))
+myreldevnod2_4 = (1/2)*(abs(myreldevnod1_4 - myreldevnod1_6) + (myreldevnod1_4 + myreldevnod1_6))
+myabsdevnod2_8 = myabsdevnod1_8
+myreldevnod2_8 = myreldevnod1_8
+myabsdevnod3_0 = (1/2)*(abs(myabsdevnod2_0 - myabsdevnod2_4) + (myabsdevnod2_0 + myabsdevnod2_4))
+myreldevnod3_0 = (1/2)*(abs(myreldevnod2_0 - myreldevnod2_4) + (myreldevnod2_0 + myreldevnod2_4))
+myabsdevnod3_8 = myabsdevnod2_8
+myreldevnod3_8 = myreldevnod2_8
+myabsdevnod4_0 = (1/2)*(abs(myabsdevnod3_0 - myabsdevnod3_8) + (myabsdevnod3_0 + myabsdevnod3_8))
+myreldevnod4_0 = (1/2)*(abs(myreldevnod3_0 - myreldevnod3_8) + (myreldevnod3_0 + myreldevnod3_8))
+zmyabsdevmax = myabsdevnod4_0
+zmyreldevmax = myreldevnod4_0
+End Intermediates
+Equations
+obj = myminfun
+ec_1 = 0
+ec_2 = 0
+ec_3 = 0
+ec_4 = 0
+ec_5 = 0
+ec_6 = 0
+End Equations
+End Model

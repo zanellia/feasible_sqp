@@ -1,0 +1,19 @@
+Model tp001
+  ! Source version 1
+
+  Variables
+    x[1] = -2
+    x[2] =  1, >= -3/2
+    obj
+  End Variables
+
+  Equations
+    obj = 100*(x[2] - x[1]^2)^2 + (1 - x[1])^2
+
+    ! best known objective = 0
+    ! begin of best known solution
+    ! x[1] = 1
+    ! x[2] = 1
+    ! end of best known solution
+  End Equations
+End Model

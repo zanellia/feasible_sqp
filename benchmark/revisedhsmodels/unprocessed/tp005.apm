@@ -1,0 +1,19 @@
+Model tp005
+  ! Source version 1
+
+  Variables
+    x[1] = 0, >= -1.5, <= 4
+    x[2] = 0, >= -3,   <= 3
+    obj
+  End Variables
+
+  Equations
+    obj = sin(x[1] + x[2]) + (x[1] - x[2])^2 - 1.5*x[1] + 2.5*x[2] + 1
+
+    ! best known objective = (-1)*sqrt(3)/2 - Pi/3 = -1.913222954981036
+    ! begin of best known solution
+    ! x[1] = (-1)*Pi/3 + 1/2 = -0.5471975511965977
+    ! x[2] = (-1)*Pi/3 - 1/2 = -1.547197551196598
+    ! end of best known solution
+  End Equations
+End Model

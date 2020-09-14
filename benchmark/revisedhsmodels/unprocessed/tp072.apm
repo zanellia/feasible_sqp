@@ -1,0 +1,39 @@
+Model tp072
+  ! Source version 1
+
+  Parameters
+    a11 = 4
+    a12 = 2.25
+    a13 = 1
+    a14 = 0.25
+    a21 = 0.16
+    a22 = 0.36
+    a23 = 0.64
+    a24 = 0.64
+    b1 = 0.0401
+    b2 = 0.010085
+  End Parameters
+
+  Variables
+    x[1] = 1, >= 0.001, <= 400000
+    x[2] = 1, >= 0.001, <= 300000
+    x[3] = 1, >= 0.001, <= 200000
+    x[4] = 1, >= 0.001, <= 100000
+    obj
+  End Variables
+
+  Equations
+    b1 - a11/x[1] - a12/x[2] - a13/x[3] - a14/x[4] >= 0
+    b2 - a21/x[1] - a22/x[2] - a23/x[3] - a24/x[4] >= 0
+
+    obj = 1 + x[1] + x[2] + x[3] + x[4]
+
+    ! best known objective = 727.679357789613
+    ! begin of best known solution
+    ! x[1] = 193.4074272719463
+    ! x[2] = 179.5470760322745
+    ! x[3] = 185.0180633581515
+    ! x[4] = 168.7067911272406
+    ! end of best known solution
+  End Equations
+End Model

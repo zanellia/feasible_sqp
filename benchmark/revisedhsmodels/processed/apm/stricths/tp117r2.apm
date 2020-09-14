@@ -1,0 +1,97 @@
+Model tp117r2
+! Source version 1
+! Simple APM canonicalizer version 1.3
+! APM back end version 1.1
+Parameters
+a24a = 4/10
+a24b = 4
+a24 = a24a
+ivxhs_1 = 0.001
+ivxhs_2 = 0.001
+ivxhs_3 = 0.001
+ivxhs_4 = 0.001
+ivxhs_5 = 0.001
+ivxhs_6 = 0.001
+ivxhs_7 = 60
+ivxhs_8 = 0.001
+ivxhs_9 = 0.001
+ivxhs_10 = 0.001
+ivxhs_11 = 0.001
+ivxhs_12 = 0.001
+ivxhs_13 = 0.001
+ivxhs_14 = 0.001
+ivxhs_15 = 0.001
+lbx_1 = 0
+lbx_2 = 0
+lbx_3 = 0
+lbx_4 = 0
+lbx_5 = 0
+lbx_6 = 0
+lbx_7 = 0
+lbx_8 = 0
+lbx_9 = 0
+lbx_10 = 0
+lbx_11 = 0
+lbx_12 = 0
+lbx_13 = 0
+lbx_14 = 0
+lbx_15 = 0
+ivx_1 = (1/2)*(abs(ivxhs_1 - lbx_1) + (ivxhs_1 + lbx_1))
+ivx_2 = (1/2)*(abs(ivxhs_2 - lbx_2) + (ivxhs_2 + lbx_2))
+ivx_3 = (1/2)*(abs(ivxhs_3 - lbx_3) + (ivxhs_3 + lbx_3))
+ivx_4 = (1/2)*(abs(ivxhs_4 - lbx_4) + (ivxhs_4 + lbx_4))
+ivx_5 = (1/2)*(abs(ivxhs_5 - lbx_5) + (ivxhs_5 + lbx_5))
+ivx_6 = (1/2)*(abs(ivxhs_6 - lbx_6) + (ivxhs_6 + lbx_6))
+ivx_7 = (1/2)*(abs(ivxhs_7 - lbx_7) + (ivxhs_7 + lbx_7))
+ivx_8 = (1/2)*(abs(ivxhs_8 - lbx_8) + (ivxhs_8 + lbx_8))
+ivx_9 = (1/2)*(abs(ivxhs_9 - lbx_9) + (ivxhs_9 + lbx_9))
+ivx_10 = (1/2)*(abs(ivxhs_10 - lbx_10) + (ivxhs_10 + lbx_10))
+ivx_11 = (1/2)*(abs(ivxhs_11 - lbx_11) + (ivxhs_11 + lbx_11))
+ivx_12 = (1/2)*(abs(ivxhs_12 - lbx_12) + (ivxhs_12 + lbx_12))
+ivx_13 = (1/2)*(abs(ivxhs_13 - lbx_13) + (ivxhs_13 + lbx_13))
+ivx_14 = (1/2)*(abs(ivxhs_14 - lbx_14) + (ivxhs_14 + lbx_14))
+ivx_15 = (1/2)*(abs(ivxhs_15 - lbx_15) + (ivxhs_15 + lbx_15))
+End Parameters
+Variables
+x_1 = ivx_1, >= lbx_1
+x_2 = ivx_2, >= lbx_2
+x_3 = ivx_3, >= lbx_3
+x_4 = ivx_4, >= lbx_4
+x_5 = ivx_5, >= lbx_5
+x_6 = ivx_6, >= lbx_6
+x_7 = ivx_7, >= lbx_7
+x_8 = ivx_8, >= lbx_8
+x_9 = ivx_9, >= lbx_9
+x_10 = ivx_10, >= lbx_10
+x_11 = ivx_11, >= lbx_11
+x_12 = ivx_12, >= lbx_12
+x_13 = ivx_13, >= lbx_13
+x_14 = ivx_14, >= lbx_14
+x_15 = ivx_15, >= lbx_15
+obj
+End Variables
+Intermediates
+c_1 = (-15) + 16*x_1 + (7/2)*x_3 - 2*x_6 + x_7 + x_8 - x_9 - x_10 + 60*x_11 - 40*x_12 - 20*x_13 + 64*x_14 - &
+20*x_15 + 12*x_11^2
+c_2 = (-27) - 2*x_1 + 2*x_2 + 2*x_4 + 9*x_5 + x_7 + 2*x_8 - 2*x_9 - x_10 - 40*x_11 + 78*x_12 - 12*x_13 - &
+62*x_14 + 64*x_15 + 24*x_12^2
+c_3 = (-36) - 2*x_3 + 2*x_5 + 4*x_6 + x_7 + 3*x_8 - 3*x_9 - x_10 - 20*x_11 - 12*x_12 + 20*x_13 - 12*x_14 - &
+20*x_15 + 30*x_13^2
+c_4 = (-18) - x_1 - a24*x_2 + 4*x_4 - x_5 + x_7 + 2*x_8 - 4*x_9 - x_10 + 64*x_11 - 62*x_12 - 12*x_13 + &
+78*x_14 - 40*x_15 + 18*x_14^2
+c_5 = (-12) - 2*x_2 + x_4 + (14/5)*x_5 + x_7 + x_8 - 5*x_9 - x_10 - 20*x_11 + 64*x_12 - 20*x_13 - 40*x_14 + &
+60*x_15 + 6*x_15^2
+mf = 40*x_1 + 2*x_2 + (1/4)*x_3 + 4*x_4 + 4*x_5 + x_6 + 40*x_7 + 60*x_8 - 5*x_9 - x_10 + 30*x_11^2 - &
+40*x_11*x_12 - 20*x_11*x_13 + 64*x_11*x_14 - 20*x_11*x_15 + 39*x_12^2 - 12*x_12*x_13 - 62*x_12*x_14 + &
+64*x_12*x_15 + 10*x_13^2 - 12*x_13*x_14 - 20*x_13*x_15 + 39*x_14^2 - 40*x_14*x_15 + 30*x_15^2 + 8*x_11^3 + &
+16*x_12^3 + 20*x_13^3 + 12*x_14^3 + 4*x_15^3
+End Intermediates
+Equations
+obj = mf
+c_1 >= 0
+c_2 >= 0
+c_3 >= 0
+c_4 >= 0
+c_5 >= 0
+End Equations
+End Model

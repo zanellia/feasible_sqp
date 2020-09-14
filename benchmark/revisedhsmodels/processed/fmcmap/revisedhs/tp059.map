@@ -1,0 +1,49 @@
+fmcTitle("tp059"):
+# Source version 1
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+c20a := -0.12694:
+c20b := 0:
+c12a := -3.4054e-4:
+c12b := -3.405e-4:
+c20 := c20a:
+c12 := c12a:
+fmcInitialValue('x_1', 90):
+fmcStrongLowerBound('x_1', 0):
+fmcStrongUpperBound('x_1', 75):
+fmcInitialValue('x_2', 10):
+fmcStrongLowerBound('x_2', 0):
+fmcStrongUpperBound('x_2', 65):
+myminfun := (-75.196) + 3.8112*x_1 + c20*x_1^2 + 0.0020567*x_1^3 - 1.0345e-5*x_1^4 + 6.8306*x_2 -
+0.030234*x_1*x_2 + 1.28134e-3*x_2*x_1^2 + 2.266e-7*x_1^4*x_2 - 0.25645*x_2^2 + 0.0034604*x_2^3 -
+1.3514e-5*x_2^4 + 28.106/(x_2 + 1) + 5.2375e-6*x_1^2*x_2^2 + 6.3e-8*x_1^3*x_2^2 - 7e-10*x_1^3*x_2^3 +
+c12*x_1*x_2^2 + 1.6638e-6*x_1*x_2^3 + 2.8673*exp(0.0005*x_1*x_2) - 3.5256e-5*x_1^3*x_2:
+myabsdevnod0_0 := myownabs(myminfun + 7.804235953664777):
+myreldevnod0_0 := myownabs(myminfun/7.804235953664777 + 1):
+myabsdevnod0_1 := myownabs(x_1 - 13.55008884043414):
+myreldevnod0_1 := myownabs(x_1/13.55008884043414 - 1):
+myabsdevnod0_2 := myownabs(x_2 - 51.6601778957467):
+myreldevnod0_2 := myownabs(x_2/51.6601778957467 - 1):
+myabsdevnod1_0 := (1/2)*(myownabs(myabsdevnod0_0 - myabsdevnod0_1) + (myabsdevnod0_0 + myabsdevnod0_1)):
+myreldevnod1_0 := (1/2)*(myownabs(myreldevnod0_0 - myreldevnod0_1) + (myreldevnod0_0 + myreldevnod0_1)):
+myabsdevnod1_2 := myabsdevnod0_2:
+myreldevnod1_2 := myreldevnod0_2:
+myabsdevnod2_0 := (1/2)*(myownabs(myabsdevnod1_0 - myabsdevnod1_2) + (myabsdevnod1_0 + myabsdevnod1_2)):
+myreldevnod2_0 := (1/2)*(myownabs(myreldevnod1_0 - myreldevnod1_2) + (myreldevnod1_0 + myreldevnod1_2)):
+zmyabsdevmax := myabsdevnod2_0:
+zmyreldevmax := myreldevnod2_0:
+obj := myminfun:
+fmcMinimum(obj):
+fmcInequality('ci_1', x_1*x_2 - 700):
+fmcInequality('ci_2', x_2 - x_1^2/125):
+fmcInequality('ci_3', (x_2 - 50)^2 - 5*(x_1 - 55)):
+fmcEscortFloat('x_1', x_1):
+fmcEscortFloat('x_2', x_2):
+fmcEscortFloat('myminfun', myminfun):
+fmcEscortFloat('zmyabsdevmax', zmyabsdevmax):
+fmcEscortFloat('zmyreldevmax', zmyreldevmax):
+fmcControlMinimum(1, 0):
+# End Model

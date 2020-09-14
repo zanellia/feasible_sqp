@@ -1,0 +1,23 @@
+Model tp031
+  ! Source version 1
+
+  Variables
+    x[1] = 1, >= -10, <= 10
+    x[2] = 1, >=   1, <= 10
+    x[3] = 1, >= -10, <=  1
+    obj
+  End Variables
+
+  Equations
+    x[1]*x[2] - 1 >= 0
+
+    obj = 9*x[1]^2 + x[2]^2 + 9*x[3]^2
+
+    ! best known objective = 6
+    ! begin of best known solution
+    ! x[1] = 1/sqrt(3) = 0.5773502691896258
+    ! x[2] = sqrt(3) = 1.732050807568877
+    ! x[3] = 0
+    ! end of best known solution
+  End Equations
+End Model

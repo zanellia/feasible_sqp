@@ -1,0 +1,21 @@
+Model tp007
+  ! Source version 1
+
+  Variables
+    x[1] = 2
+    x[2] = 2
+    obj
+  End Variables
+
+  Equations
+    (1 + x[1]^2)^2 + x[2]^2 - 4 = 0
+
+    obj = log(1 + x[1]^2) - x[2]
+
+    ! best known objective = -sqrt(3) = -1.732050807568877
+    ! begin of best known solution
+    ! x[1] = 0
+    ! x[2] = sqrt(3) = 1.732050807568877
+    ! end of best known solution
+  End Equations
+End Model

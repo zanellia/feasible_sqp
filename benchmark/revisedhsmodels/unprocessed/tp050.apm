@@ -1,0 +1,30 @@
+Model tp050
+  ! Source version 1
+
+  Variables
+    x[1] =  35
+    x[2] = -31
+    x[3] =  11
+    x[4] =   5
+    x[5] =  -5
+    obj
+  End Variables
+
+  Equations
+    x[1] + 2*x[2] + 3*x[3] - 6 = 0
+    x[2] + 2*x[3] + 3*x[4] - 6 = 0
+    x[3] + 2*x[4] + 3*x[5] - 6 = 0
+
+    obj = (x[1] - x[2])^2 + (x[2] - x[3])^2 &
+        + (x[3] - x[4])^4 + (x[4] - x[5])^2
+
+    ! best known objective = 0
+    ! begin of best known solution
+    ! x[1] = 1
+    ! x[2] = 1
+    ! x[3] = 1
+    ! x[4] = 1
+    ! x[5] = 1
+    ! end of best known solution
+  End Equations
+End Model

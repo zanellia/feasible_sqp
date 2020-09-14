@@ -1,0 +1,132 @@
+fmcTitle("tp087r2"):
+# Source version 7
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+bv1 := 1.48477:
+bv2 := 1.48577:
+bv := bv1:
+ubx5hsv1 := 1000:
+ubx5hsv2 := 10000:
+ubx5hsv := ubx5hsv1:
+a := 131.078:
+b := bv:
+c := 0.90798:
+arg := 1.47588:
+d := cos(arg):
+e := sin(arg):
+ivx5hs := 198.175:
+lbx5hs := -1000:
+lbx5r := -18:
+lbx5 := lbx5hs:
+ubx5hs := ubx5hsv:
+ubx5r := -10.7:
+ubx5 := ubx5hs:
+ivx5 := (1/2)*(ivx5hs + ubx5 - abs(ivx5hs - ubx5)):
+sign1_0 := 1:
+sign1_2 := -1:
+sign2_0 := 1:
+sign2_3 := -1:
+fmcInitialValue('x_1', 390):
+fmcStrongLowerBound('x_1', 0):
+fmcStrongUpperBound('x_1', 400):
+fmcInitialValue('x_2', 1000):
+fmcStrongLowerBound('x_2', 0):
+fmcStrongUpperBound('x_2', 1000):
+fmcInitialValue('x_3', 419.5):
+fmcStrongLowerBound('x_3', 340):
+fmcStrongUpperBound('x_3', 420):
+fmcInitialValue('x_4', 340.5):
+fmcStrongLowerBound('x_4', 340):
+fmcStrongUpperBound('x_4', 420):
+fmcInitialValue('x_5', ivx5):
+fmcStrongLowerBound('x_5', lbx5):
+fmcStrongUpperBound('x_5', ubx5):
+fmcInitialValue('x_6', 0.5):
+fmcStrongLowerBound('x_6', 0):
+fmcStrongUpperBound('x_6', 0.5236):
+fmcInitialValue('x_7', 0):
+fmcStrongLowerBound('x_7', 0):
+fmcStrongUpperBound('x_7', 300):
+fmcInitialValue('x_8', 90):
+fmcStrongLowerBound('x_8', 0):
+fmcStrongUpperBound('x_8', 300):
+fmcInitialValue('x_9', 0):
+fmcStrongLowerBound('x_9', 0):
+fmcStrongUpperBound('x_9', 900):
+fmcInitialValue('x_10', 900):
+fmcStrongLowerBound('x_10', 0):
+fmcStrongUpperBound('x_10', 900):
+fmcInitialValue('x_11', 0):
+fmcStrongLowerBound('x_11', 0):
+fmcStrongUpperBound('x_11', 800):
+fmcInitialValue('x_12', 800):
+fmcStrongLowerBound('x_12', 0):
+fmcStrongUpperBound('x_12', 800):
+fmcInitialValue('x_13', 1):
+fmcStrongLowerBound('x_13', -1):
+fmcStrongUpperBound('x_13', 1):
+fmcInitialValue('x_14', 1):
+fmcStrongLowerBound('x_14', -1):
+fmcStrongUpperBound('x_14', 1):
+fmcInitialValue('x_15', 1):
+fmcStrongLowerBound('x_15', -1):
+fmcStrongUpperBound('x_15', 1):
+cons_1 := 300 - x_1 - x_3*x_4*cos(b - x_6)/a + c*d*x_3^2/a:
+cons_2 := (-1)*x_2 - x_3*x_4*cos(b + x_6)/a + c*d*x_4^2/a:
+cons_3 := (-1)*x_5 - x_3*x_4*sin(b + x_6)/a + c*e*x_4^2/a:
+cons_4 := 200 - x_3*x_4*sin(b - x_6)/a + c*e*x_3^2/a:
+comp1_1 := x_1 - 300:
+comp2_1 := x_2 - 100:
+comp2_2 := x_2 - 200:
+comp1nnxa_1 := x_7:
+comp1nnxb_1 := x_8:
+comp2nnxa_1 := x_9:
+comp2nnxb_1 := x_10:
+comp2nnxa_2 := x_11:
+comp2nnxb_2 := x_12:
+cons_5 := comp1_1 + comp1nnxa_1 - comp1nnxb_1:
+cons_6 := comp2_1 + comp2nnxa_1 - comp2nnxb_1:
+cons_7 := comp2_2 + comp2nnxa_2 - comp2nnxb_2:
+comp1abs_1 := comp1nnxa_1 + comp1nnxb_1:
+comp2abs_1 := comp2nnxa_1 + comp2nnxb_1:
+comp2abs_2 := comp2nnxa_2 + comp2nnxb_2:
+sign1_1 := x_13:
+sign2_1 := x_14:
+sign2_2 := x_15:
+cons_8 := sign1_1*comp1abs_1 - comp1_1:
+cons_9 := sign2_1*comp2abs_1 - comp2_1:
+cons_10 := sign2_2*comp2abs_2 - comp2_2:
+step1_1 := (1 + sign1_0)*(1 - sign1_1)/4:
+step1_2 := (1 + sign1_1)*(1 - sign1_2)/4:
+step2_1 := (1 + sign2_0)*(1 - sign2_1)/4:
+step2_2 := (1 + sign2_1)*(1 - sign2_2)/4:
+step2_3 := (1 + sign2_2)*(1 - sign2_3)/4:
+f1_1 := 30*x_1:
+f1_2 := 31*x_1:
+f2_1 := 28*x_2:
+f2_2 := 29*x_2:
+f2_3 := 30*x_2:
+f1comb_1 := f1_1*step1_1:
+f1comb_2 := f1comb_1 + comp1nnxa_1*comp1nnxb_1 + f1_2*step1_2:
+f2comb_1 := f2_1*step2_1:
+f2comb_2 := f2comb_1 + comp2nnxa_1*comp2nnxb_1 + f2_2*step2_2:
+f2comb_3 := f2comb_2 + comp2nnxa_2*comp2nnxb_2 + f2_3*step2_3:
+mf := f1comb_2 + f2comb_3:
+obj := mf:
+fmcMinimum(obj):
+fmcEquality('ce_1', cons_1):
+fmcEquality('ce_2', cons_2):
+fmcEquality('ce_3', cons_3):
+fmcEquality('ce_4', cons_4):
+fmcEquality('ce_5', cons_5):
+fmcEquality('ce_6', cons_6):
+fmcEquality('ce_7', cons_7):
+fmcEquality('ce_8', cons_8):
+fmcEquality('ce_9', cons_9):
+fmcEquality('ce_10', cons_10):
+fmcEscortFloat('obj', obj):
+fmcControlMinimum(1, 0):
+# End Model

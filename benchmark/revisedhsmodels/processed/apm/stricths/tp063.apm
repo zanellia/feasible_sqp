@@ -1,0 +1,20 @@
+Model tp063
+! Source version 1
+! Simple APM canonicalizer version 1.3
+! APM back end version 1.1
+Parameters
+End Parameters
+Variables
+x_1 = 2, >= 0
+x_2 = 2, >= 0
+x_3 = 2, >= 0
+obj
+End Variables
+Intermediates
+End Intermediates
+Equations
+obj = 1000 - x_1^2 - 2*x_2^2 - x_3^2 - x_1*x_2 - x_1*x_3
+8*x_1 + 14*x_2 + 7*x_3 - 56 = 0
+x_1^2 + x_2^2 + x_3^2 - 25 = 0
+End Equations
+End Model

@@ -1,0 +1,82 @@
+fmcTitle("tp116"):
+# Source version 1
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+fmcInitialValue('x_1', 0.5):
+fmcStrongLowerBound('x_1', 0.1):
+fmcStrongUpperBound('x_1', 1):
+fmcInitialValue('x_2', 0.8):
+fmcStrongLowerBound('x_2', 0.1):
+fmcStrongUpperBound('x_2', 1):
+fmcInitialValue('x_3', 0.9):
+fmcStrongLowerBound('x_3', 0.1):
+fmcStrongUpperBound('x_3', 1):
+fmcInitialValue('x_4', 0.1):
+fmcStrongLowerBound('x_4', 0.0001):
+fmcStrongUpperBound('x_4', 0.1):
+fmcInitialValue('x_5', 0.14):
+fmcStrongLowerBound('x_5', 0.1):
+fmcStrongUpperBound('x_5', 0.9):
+fmcInitialValue('x_6', 0.5):
+fmcStrongLowerBound('x_6', 0.1):
+fmcStrongUpperBound('x_6', 0.9):
+fmcInitialValue('x_7', 489):
+fmcStrongLowerBound('x_7', 0.1):
+fmcStrongUpperBound('x_7', 1000):
+fmcInitialValue('x_8', 80):
+fmcStrongLowerBound('x_8', 0.1):
+fmcStrongUpperBound('x_8', 1000):
+fmcInitialValue('x_9', 650):
+fmcStrongLowerBound('x_9', 500):
+fmcStrongUpperBound('x_9', 1000):
+fmcInitialValue('x_10', 450):
+fmcStrongLowerBound('x_10', 0.1):
+fmcStrongUpperBound('x_10', 500):
+fmcInitialValue('x_11', 150):
+fmcStrongLowerBound('x_11', 1):
+fmcStrongUpperBound('x_11', 150):
+fmcInitialValue('x_12', 150):
+fmcStrongLowerBound('x_12', 0.0001):
+fmcStrongUpperBound('x_12', 150):
+fmcInitialValue('x_13', 150):
+fmcStrongLowerBound('x_13', 0.0001):
+fmcStrongUpperBound('x_13', 150):
+mf := x_11 + x_12 + x_13:
+c_1 := x_3 - x_2:
+c_2 := x_2 - x_1:
+c_3 := 1 - .002*x_7 + .002*x_8:
+c_4 := mf - 50:
+c_5 := 250 - mf:
+c_6 := x_13 - 1.262626*x_10 + 1.231059*x_3*x_10:
+c_7 := x_5 - .03475*x_2 - .975*x_2*x_5 + .00975*x_2^2:
+c_8 := x_6 - .03475*x_3 - .975*x_3*x_6 + .00975*x_3^2:
+c_9 := x_5*x_7 - x_1*x_8 - x_4*x_7 + x_4*x_8:
+c_10 := 1 - .002*(x_2*x_9 + x_5*x_8 - x_1*x_8 - x_6*x_9) - x_5 - x_6:
+c_11 := x_2*x_9 - x_3*x_10 - x_6*x_9 - 500*x_2 + 500*x_6 + x_2*x_10:
+c_12 := x_2 - .9 - .002*(x_2*x_10 - x_3*x_10):
+c_13 := x_4 - .03475*x_1 - .975*x_1*x_4 + .00975*x_1^2:
+c_14 := x_11 - 1.262626*x_8 + 1.231059*x_1*x_8:
+c_15 := x_12 - 1.262626*x_9 + 1.231059*x_2*x_9:
+obj := mf:
+fmcMinimum(obj):
+fmcInequality('ci_1', c_1):
+fmcInequality('ci_2', c_2):
+fmcInequality('ci_3', c_3):
+fmcInequality('ci_4', c_4):
+fmcInequality('ci_5', c_5):
+fmcInequality('ci_6', c_6):
+fmcInequality('ci_7', c_7):
+fmcInequality('ci_8', c_8):
+fmcInequality('ci_9', c_9):
+fmcInequality('ci_10', c_10):
+fmcInequality('ci_11', c_11):
+fmcInequality('ci_12', c_12):
+fmcInequality('ci_13', c_13):
+fmcInequality('ci_14', c_14):
+fmcInequality('ci_15', c_15):
+fmcEscortFloat('obj', obj):
+fmcControlMinimum(1, 0):
+# End Model

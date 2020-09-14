@@ -1,0 +1,46 @@
+fmcTitle("tp033r"):
+# Source version 1
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+lbx2hs := 0:
+lbx2r := 10^(-5):
+lbx2 := lbx2r:
+fmcInitialValue('x_1', 0):
+fmcStrongLowerBound('x_1', 0):
+fmcInitialValue('x_2', lbx2):
+fmcStrongLowerBound('x_2', lbx2):
+fmcInitialValue('x_3', 3):
+fmcStrongLowerBound('x_3', 0):
+fmcStrongUpperBound('x_3', 5):
+myminfun := (x_1 - 1)*(x_1 - 2)*(x_1 - 3) + x_3:
+myabsdevnod0_0 := myownabs(myminfun + 4.585786437626905):
+myreldevnod0_0 := myownabs(myminfun/4.585786437626905 + 1):
+myabsdevnod0_1 := myownabs(x_1):
+myreldevnod0_1 := myownabs(x_1):
+myabsdevnod0_2 := myownabs(x_2 - 1.414213562373095):
+myreldevnod0_2 := myownabs(x_2/1.414213562373095 - 1):
+myabsdevnod0_3 := myownabs(x_3 - 1.414213562373095):
+myreldevnod0_3 := myownabs(x_3/1.414213562373095 - 1):
+myabsdevnod1_0 := (1/2)*(myownabs(myabsdevnod0_0 - myabsdevnod0_1) + (myabsdevnod0_0 + myabsdevnod0_1)):
+myreldevnod1_0 := (1/2)*(myownabs(myreldevnod0_0 - myreldevnod0_1) + (myreldevnod0_0 + myreldevnod0_1)):
+myabsdevnod1_2 := (1/2)*(myownabs(myabsdevnod0_2 - myabsdevnod0_3) + (myabsdevnod0_2 + myabsdevnod0_3)):
+myreldevnod1_2 := (1/2)*(myownabs(myreldevnod0_2 - myreldevnod0_3) + (myreldevnod0_2 + myreldevnod0_3)):
+myabsdevnod2_0 := (1/2)*(myownabs(myabsdevnod1_0 - myabsdevnod1_2) + (myabsdevnod1_0 + myabsdevnod1_2)):
+myreldevnod2_0 := (1/2)*(myownabs(myreldevnod1_0 - myreldevnod1_2) + (myreldevnod1_0 + myreldevnod1_2)):
+zmyabsdevmax := myabsdevnod2_0:
+zmyreldevmax := myreldevnod2_0:
+obj := myminfun:
+fmcMinimum(obj):
+fmcInequality('ci_1', x_3^2 - x_2^2 - x_1^2):
+fmcInequality('ci_2', x_1^2 + x_2^2 + x_3^2 - 4):
+fmcEscortFloat('x_1', x_1):
+fmcEscortFloat('x_2', x_2):
+fmcEscortFloat('x_3', x_3):
+fmcEscortFloat('myminfun', myminfun):
+fmcEscortFloat('zmyabsdevmax', zmyabsdevmax):
+fmcEscortFloat('zmyreldevmax', zmyreldevmax):
+fmcControlMinimum(1, 0):
+# End Model

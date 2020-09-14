@@ -1,0 +1,28 @@
+Model tp044
+  ! Source version 1
+
+  Variables
+    x[1:4] = 0, >= 0
+    obj
+  End Variables
+
+  Equations
+    8 - x[1] - 2*x[2] >= 0
+    12 - 4*x[1] - x[2] >= 0
+    12 - 3*x[1] - 4*x[2] >= 0
+    8 - 2*x[3] - x[4] >= 0
+    8 - x[3] - 2*x[4] >= 0
+    5 - x[3] - x[4] >= 0
+
+    obj = x[1] - x[2] - x[3] - x[1]*x[3] &
+        + x[1]*x[4] + x[2]*x[3] - x[2]*x[4]
+
+    ! best known objective = -15
+    ! begin of best known solution
+    ! x[1] = 0
+    ! x[2] = 3
+    ! x[3] = 0
+    ! x[4] = 4
+    ! end of best known solution
+  End Equations
+End Model

@@ -1,0 +1,218 @@
+fmcTitle("tp119"):
+# Source version 1
+# Simple APM canonicalizer version 1.3
+# FMCMAP back end version 1.1
+asin := proc(x::algebraic) local y: y := arcsin(x): RETURN(y): end:
+atan := proc(x::algebraic) local y: y := arctan(x): RETURN(y): end:
+myownabs := proc(x::algebraic) local y: y := fmc_m_abs(x): RETURN(y): end:
+fmcInitialValue('x_1', 10):
+fmcStrongLowerBound('x_1', 0):
+fmcStrongUpperBound('x_1', 5):
+fmcInitialValue('x_2', 10):
+fmcStrongLowerBound('x_2', 0):
+fmcStrongUpperBound('x_2', 5):
+fmcInitialValue('x_3', 10):
+fmcStrongLowerBound('x_3', 0):
+fmcStrongUpperBound('x_3', 5):
+fmcInitialValue('x_4', 10):
+fmcStrongLowerBound('x_4', 0):
+fmcStrongUpperBound('x_4', 5):
+fmcInitialValue('x_5', 10):
+fmcStrongLowerBound('x_5', 0):
+fmcStrongUpperBound('x_5', 5):
+fmcInitialValue('x_6', 10):
+fmcStrongLowerBound('x_6', 0):
+fmcStrongUpperBound('x_6', 5):
+fmcInitialValue('x_7', 10):
+fmcStrongLowerBound('x_7', 0):
+fmcStrongUpperBound('x_7', 5):
+fmcInitialValue('x_8', 10):
+fmcStrongLowerBound('x_8', 0):
+fmcStrongUpperBound('x_8', 5):
+fmcInitialValue('x_9', 10):
+fmcStrongLowerBound('x_9', 0):
+fmcStrongUpperBound('x_9', 5):
+fmcInitialValue('x_10', 10):
+fmcStrongLowerBound('x_10', 0):
+fmcStrongUpperBound('x_10', 5):
+fmcInitialValue('x_11', 10):
+fmcStrongLowerBound('x_11', 0):
+fmcStrongUpperBound('x_11', 5):
+fmcInitialValue('x_12', 10):
+fmcStrongLowerBound('x_12', 0):
+fmcStrongUpperBound('x_12', 5):
+fmcInitialValue('x_13', 10):
+fmcStrongLowerBound('x_13', 0):
+fmcStrongUpperBound('x_13', 5):
+fmcInitialValue('x_14', 10):
+fmcStrongLowerBound('x_14', 0):
+fmcStrongUpperBound('x_14', 5):
+fmcInitialValue('x_15', 10):
+fmcStrongLowerBound('x_15', 0):
+fmcStrongUpperBound('x_15', 5):
+fmcInitialValue('x_16', 10):
+fmcStrongLowerBound('x_16', 0):
+fmcStrongUpperBound('x_16', 5):
+c_1 := 0.22*x_1 + 0.2*x_2 + 0.19*x_3 + 0.25*x_4 + 0.15*x_5 + 0.11*x_6 + 0.12*x_7 + 0.13*x_8 + x_9 - 2.5:
+c_2 := (-1.46)*x_1 - 1.3*x_3 + 1.82*x_4 - 1.15*x_5 + 0.8*x_7 + x_10 - 1.1:
+c_3 := 1.29*x_1 - 0.89*x_2 - 1.16*x_5 - 0.96*x_6 - 0.49*x_8 + x_11 + 3.1:
+c_4 := (-1.1)*x_1 - 1.06*x_2 + 0.95*x_3 - 0.54*x_4 - 1.78*x_6 - 0.41*x_7 + x_12 + 3.5:
+c_5 := (-1.43)*x_4 + 1.51*x_5 + 0.59*x_6 - 0.33*x_7 - 0.43*x_8 + x_13 - 1.3:
+c_6 := (-1.72)*x_2 - 0.33*x_3 + 1.62*x_5 + 1.24*x_6 + 0.21*x_7 - 0.26*x_8 + x_14 - 2.1:
+c_7 := 1.12*x_1 + 0.31*x_4 + 1.12*x_7 - 0.36*x_9 + x_15 - 2.3:
+c_8 := 0.45*x_2 + 0.26*x_3 - 1.1*x_4 + 0.58*x_5 - 1.03*x_7 + 0.1*x_8 + x_16 + 1.5:
+s_1 := (x_1^2 + x_1 + 1) * (x_1^2 + x_1 + 1):
+s_2 := s_1 + (x_1^2 + x_1 + 1) * (x_4^2 + x_4 + 1):
+s_3 := s_2 + (x_1^2 + x_1 + 1) * (x_7^2 + x_7 + 1):
+s_4 := s_3 + (x_1^2 + x_1 + 1) * (x_8^2 + x_8 + 1):
+s_5 := s_4 + (x_1^2 + x_1 + 1) * (x_16^2 + x_16 + 1):
+s_6 := s_5 + (x_2^2 + x_2 + 1) * (x_2^2 + x_2 + 1):
+s_7 := s_6 + (x_2^2 + x_2 + 1) * (x_3^2 + x_3 + 1):
+s_8 := s_7 + (x_2^2 + x_2 + 1) * (x_7^2 + x_7 + 1):
+s_9 := s_8 + (x_2^2 + x_2 + 1) * (x_10^2 + x_10 + 1):
+s_10 := s_9 + (x_3^2 + x_3 + 1) * (x_3^2 + x_3 + 1):
+s_11 := s_10 + (x_3^2 + x_3 + 1) * (x_7^2 + x_7 + 1):
+s_12 := s_11 + (x_3^2 + x_3 + 1) * (x_9^2 + x_9 + 1):
+s_13 := s_12 + (x_3^2 + x_3 + 1) * (x_10^2 + x_10 + 1):
+s_14 := s_13 + (x_3^2 + x_3 + 1) * (x_14^2 + x_14 + 1):
+s_15 := s_14 + (x_4^2 + x_4 + 1) * (x_4^2 + x_4 + 1):
+s_16 := s_15 + (x_4^2 + x_4 + 1) * (x_7^2 + x_7 + 1):
+s_17 := s_16 + (x_4^2 + x_4 + 1) * (x_11^2 + x_11 + 1):
+s_18 := s_17 + (x_4^2 + x_4 + 1) * (x_15^2 + x_15 + 1):
+s_19 := s_18 + (x_5^2 + x_5 + 1) * (x_5^2 + x_5 + 1):
+s_20 := s_19 + (x_5^2 + x_5 + 1) * (x_6^2 + x_6 + 1):
+s_21 := s_20 + (x_5^2 + x_5 + 1) * (x_10^2 + x_10 + 1):
+s_22 := s_21 + (x_5^2 + x_5 + 1) * (x_12^2 + x_12 + 1):
+s_23 := s_22 + (x_5^2 + x_5 + 1) * (x_16^2 + x_16 + 1):
+s_24 := s_23 + (x_6^2 + x_6 + 1) * (x_6^2 + x_6 + 1):
+s_25 := s_24 + (x_6^2 + x_6 + 1) * (x_8^2 + x_8 + 1):
+s_26 := s_25 + (x_6^2 + x_6 + 1) * (x_15^2 + x_15 + 1):
+s_27 := s_26 + (x_7^2 + x_7 + 1) * (x_7^2 + x_7 + 1):
+s_28 := s_27 + (x_7^2 + x_7 + 1) * (x_11^2 + x_11 + 1):
+s_29 := s_28 + (x_7^2 + x_7 + 1) * (x_13^2 + x_13 + 1):
+s_30 := s_29 + (x_8^2 + x_8 + 1) * (x_8^2 + x_8 + 1):
+s_31 := s_30 + (x_8^2 + x_8 + 1) * (x_10^2 + x_10 + 1):
+s_32 := s_31 + (x_8^2 + x_8 + 1) * (x_15^2 + x_15 + 1):
+s_33 := s_32 + (x_9^2 + x_9 + 1) * (x_9^2 + x_9 + 1):
+s_34 := s_33 + (x_9^2 + x_9 + 1) * (x_12^2 + x_12 + 1):
+s_35 := s_34 + (x_9^2 + x_9 + 1) * (x_16^2 + x_16 + 1):
+s_36 := s_35 + (x_10^2 + x_10 + 1) * (x_10^2 + x_10 + 1):
+s_37 := s_36 + (x_10^2 + x_10 + 1) * (x_14^2 + x_14 + 1):
+s_38 := s_37 + (x_11^2 + x_11 + 1) * (x_11^2 + x_11 + 1):
+s_39 := s_38 + (x_11^2 + x_11 + 1) * (x_13^2 + x_13 + 1):
+s_40 := s_39 + (x_12^2 + x_12 + 1) * (x_12^2 + x_12 + 1):
+s_41 := s_40 + (x_12^2 + x_12 + 1) * (x_14^2 + x_14 + 1):
+s_42 := s_41 + (x_13^2 + x_13 + 1) * (x_13^2 + x_13 + 1):
+s_43 := s_42 + (x_13^2 + x_13 + 1) * (x_14^2 + x_14 + 1):
+s_44 := s_43 + (x_14^2 + x_14 + 1) * (x_14^2 + x_14 + 1):
+s_45 := s_44 + (x_15^2 + x_15 + 1) * (x_15^2 + x_15 + 1):
+s_46 := s_45 + (x_16^2 + x_16 + 1) * (x_16^2 + x_16 + 1):
+mf := s_46:
+myminfun := mf:
+myabsdevnod0_0 := myownabs(myminfun - 244.8996975168009):
+myreldevnod0_0 := myownabs(myminfun/244.8996975168009 - 1):
+myabsdevnod0_1 := myownabs(x_1 - 0.0398473514111225):
+myreldevnod0_1 := myownabs(x_1/0.0398473514111225 - 1):
+myabsdevnod0_2 := myownabs(x_2 - 0.7919831556883808):
+myreldevnod0_2 := myownabs(x_2/0.7919831556883808 - 1):
+myabsdevnod0_3 := myownabs(x_3 - 0.202870330251036):
+myreldevnod0_3 := myownabs(x_3/0.202870330251036 - 1):
+myabsdevnod0_4 := myownabs(x_4 - 0.844357916365675):
+myreldevnod0_4 := myownabs(x_4/0.844357916365675 - 1):
+myabsdevnod0_5 := myownabs(x_5 - 1.269906452866503):
+myreldevnod0_5 := myownabs(x_5/1.269906452866503 - 1):
+myabsdevnod0_6 := myownabs(x_6 - 0.934738707824643):
+myreldevnod0_6 := myownabs(x_6/0.934738707824643 - 1):
+myabsdevnod0_7 := myownabs(x_7 - 1.681961969246919):
+myreldevnod0_7 := myownabs(x_7/1.681961969246919 - 1):
+myabsdevnod0_8 := myownabs(x_8 - 0.1553008773895687):
+myreldevnod0_8 := myownabs(x_8/0.1553008773895687 - 1):
+myabsdevnod0_9 := myownabs(x_9 - 1.567870333551801):
+myreldevnod0_9 := myownabs(x_9/1.567870333551801 - 1):
+myabsdevnod0_10 := myownabs(x_10):
+myreldevnod0_10 := myownabs(x_10):
+myabsdevnod0_11 := myownabs(x_11):
+myreldevnod0_11 := myownabs(x_11):
+myabsdevnod0_12 := myownabs(x_12):
+myreldevnod0_12 := myownabs(x_12):
+myabsdevnod0_13 := myownabs(x_13 - 0.6602040660869546):
+myreldevnod0_13 := myownabs(x_13/0.6602040660869546 - 1):
+myabsdevnod0_14 := myownabs(x_14):
+myreldevnod0_14 := myownabs(x_14):
+myabsdevnod0_15 := myownabs(x_15 - 0.6742559268682825):
+myreldevnod0_15 := myownabs(x_15/0.6742559268682825 - 1):
+myabsdevnod0_16 := myownabs(x_16):
+myreldevnod0_16 := myownabs(x_16):
+myabsdevnod1_0 := (1/2)*(myownabs(myabsdevnod0_0 - myabsdevnod0_1) + (myabsdevnod0_0 + myabsdevnod0_1)):
+myreldevnod1_0 := (1/2)*(myownabs(myreldevnod0_0 - myreldevnod0_1) + (myreldevnod0_0 + myreldevnod0_1)):
+myabsdevnod1_2 := (1/2)*(myownabs(myabsdevnod0_2 - myabsdevnod0_3) + (myabsdevnod0_2 + myabsdevnod0_3)):
+myreldevnod1_2 := (1/2)*(myownabs(myreldevnod0_2 - myreldevnod0_3) + (myreldevnod0_2 + myreldevnod0_3)):
+myabsdevnod1_4 := (1/2)*(myownabs(myabsdevnod0_4 - myabsdevnod0_5) + (myabsdevnod0_4 + myabsdevnod0_5)):
+myreldevnod1_4 := (1/2)*(myownabs(myreldevnod0_4 - myreldevnod0_5) + (myreldevnod0_4 + myreldevnod0_5)):
+myabsdevnod1_6 := (1/2)*(myownabs(myabsdevnod0_6 - myabsdevnod0_7) + (myabsdevnod0_6 + myabsdevnod0_7)):
+myreldevnod1_6 := (1/2)*(myownabs(myreldevnod0_6 - myreldevnod0_7) + (myreldevnod0_6 + myreldevnod0_7)):
+myabsdevnod1_8 := (1/2)*(myownabs(myabsdevnod0_8 - myabsdevnod0_9) + (myabsdevnod0_8 + myabsdevnod0_9)):
+myreldevnod1_8 := (1/2)*(myownabs(myreldevnod0_8 - myreldevnod0_9) + (myreldevnod0_8 + myreldevnod0_9)):
+myabsdevnod1_10 := (1/2)*(myownabs(myabsdevnod0_10 - myabsdevnod0_11) + (myabsdevnod0_10 + myabsdevnod0_11)):
+myreldevnod1_10 := (1/2)*(myownabs(myreldevnod0_10 - myreldevnod0_11) + (myreldevnod0_10 + myreldevnod0_11)):
+myabsdevnod1_12 := (1/2)*(myownabs(myabsdevnod0_12 - myabsdevnod0_13) + (myabsdevnod0_12 + myabsdevnod0_13)):
+myreldevnod1_12 := (1/2)*(myownabs(myreldevnod0_12 - myreldevnod0_13) + (myreldevnod0_12 + myreldevnod0_13)):
+myabsdevnod1_14 := (1/2)*(myownabs(myabsdevnod0_14 - myabsdevnod0_15) + (myabsdevnod0_14 + myabsdevnod0_15)):
+myreldevnod1_14 := (1/2)*(myownabs(myreldevnod0_14 - myreldevnod0_15) + (myreldevnod0_14 + myreldevnod0_15)):
+myabsdevnod1_16 := myabsdevnod0_16:
+myreldevnod1_16 := myreldevnod0_16:
+myabsdevnod2_0 := (1/2)*(myownabs(myabsdevnod1_0 - myabsdevnod1_2) + (myabsdevnod1_0 + myabsdevnod1_2)):
+myreldevnod2_0 := (1/2)*(myownabs(myreldevnod1_0 - myreldevnod1_2) + (myreldevnod1_0 + myreldevnod1_2)):
+myabsdevnod2_4 := (1/2)*(myownabs(myabsdevnod1_4 - myabsdevnod1_6) + (myabsdevnod1_4 + myabsdevnod1_6)):
+myreldevnod2_4 := (1/2)*(myownabs(myreldevnod1_4 - myreldevnod1_6) + (myreldevnod1_4 + myreldevnod1_6)):
+myabsdevnod2_8 := (1/2)*(myownabs(myabsdevnod1_8 - myabsdevnod1_10) + (myabsdevnod1_8 + myabsdevnod1_10)):
+myreldevnod2_8 := (1/2)*(myownabs(myreldevnod1_8 - myreldevnod1_10) + (myreldevnod1_8 + myreldevnod1_10)):
+myabsdevnod2_12 := (1/2)*(myownabs(myabsdevnod1_12 - myabsdevnod1_14) + (myabsdevnod1_12 + myabsdevnod1_14)):
+myreldevnod2_12 := (1/2)*(myownabs(myreldevnod1_12 - myreldevnod1_14) + (myreldevnod1_12 + myreldevnod1_14)):
+myabsdevnod2_16 := myabsdevnod1_16:
+myreldevnod2_16 := myreldevnod1_16:
+myabsdevnod3_0 := (1/2)*(myownabs(myabsdevnod2_0 - myabsdevnod2_4) + (myabsdevnod2_0 + myabsdevnod2_4)):
+myreldevnod3_0 := (1/2)*(myownabs(myreldevnod2_0 - myreldevnod2_4) + (myreldevnod2_0 + myreldevnod2_4)):
+myabsdevnod3_8 := (1/2)*(myownabs(myabsdevnod2_8 - myabsdevnod2_12) + (myabsdevnod2_8 + myabsdevnod2_12)):
+myreldevnod3_8 := (1/2)*(myownabs(myreldevnod2_8 - myreldevnod2_12) + (myreldevnod2_8 + myreldevnod2_12)):
+myabsdevnod3_16 := myabsdevnod2_16:
+myreldevnod3_16 := myreldevnod2_16:
+myabsdevnod4_0 := (1/2)*(myownabs(myabsdevnod3_0 - myabsdevnod3_8) + (myabsdevnod3_0 + myabsdevnod3_8)):
+myreldevnod4_0 := (1/2)*(myownabs(myreldevnod3_0 - myreldevnod3_8) + (myreldevnod3_0 + myreldevnod3_8)):
+myabsdevnod4_16 := myabsdevnod3_16:
+myreldevnod4_16 := myreldevnod3_16:
+myabsdevnod5_0 := (1/2)*(myownabs(myabsdevnod4_0 - myabsdevnod4_16) + (myabsdevnod4_0 + myabsdevnod4_16)):
+myreldevnod5_0 := (1/2)*(myownabs(myreldevnod4_0 - myreldevnod4_16) + (myreldevnod4_0 + myreldevnod4_16)):
+zmyabsdevmax := myabsdevnod5_0:
+zmyreldevmax := myreldevnod5_0:
+obj := myminfun:
+fmcMinimum(obj):
+fmcEquality('ce_1', c_1):
+fmcEquality('ce_2', c_2):
+fmcEquality('ce_3', c_3):
+fmcEquality('ce_4', c_4):
+fmcEquality('ce_5', c_5):
+fmcEquality('ce_6', c_6):
+fmcEquality('ce_7', c_7):
+fmcEquality('ce_8', c_8):
+fmcEscortFloat('x_1', x_1):
+fmcEscortFloat('x_2', x_2):
+fmcEscortFloat('x_3', x_3):
+fmcEscortFloat('x_4', x_4):
+fmcEscortFloat('x_5', x_5):
+fmcEscortFloat('x_6', x_6):
+fmcEscortFloat('x_7', x_7):
+fmcEscortFloat('x_8', x_8):
+fmcEscortFloat('x_9', x_9):
+fmcEscortFloat('x_10', x_10):
+fmcEscortFloat('x_11', x_11):
+fmcEscortFloat('x_12', x_12):
+fmcEscortFloat('x_13', x_13):
+fmcEscortFloat('x_14', x_14):
+fmcEscortFloat('x_15', x_15):
+fmcEscortFloat('x_16', x_16):
+fmcEscortFloat('myminfun', myminfun):
+fmcEscortFloat('zmyabsdevmax', zmyabsdevmax):
+fmcEscortFloat('zmyreldevmax', zmyreldevmax):
+fmcControlMinimum(1, 0):
+# End Model

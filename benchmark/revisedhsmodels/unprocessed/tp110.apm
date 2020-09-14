@@ -1,0 +1,38 @@
+Model tp110
+  ! Source version 1
+
+  Parameters
+    s[0] = 0
+    p[0] = 1
+  End Parameters
+
+  Variables
+    x[1:10] = 9, >= 2.001, <= 9.999
+    obj
+  End Variables
+
+  Intermediates
+    s[1:10] = s[0:9] + log(x[1:10] -  2)^2 &
+                     + log(10 - x[1:10])^2
+    p[1:10] = p[0:9]*x[1:10]
+    mf = s[10] - p[10]^(1/5)
+  End Intermediates
+
+  Equations
+    obj = mf
+
+    ! best known objective = -45.77846970744627
+    ! begin of best known solution
+    ! x[ 1] = 9.35026583306939
+    ! x[ 2] = 9.35026583306939
+    ! x[ 3] = 9.35026583306939
+    ! x[ 4] = 9.35026583306939
+    ! x[ 5] = 9.35026583306939
+    ! x[ 6] = 9.35026583306939
+    ! x[ 7] = 9.35026583306939
+    ! x[ 8] = 9.35026583306939
+    ! x[ 9] = 9.35026583306939
+    ! x[10] = 9.35026583306939
+    ! end of best known solution
+  End Equations
+End Model

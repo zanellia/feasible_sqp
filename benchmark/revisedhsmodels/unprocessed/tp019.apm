@@ -1,0 +1,22 @@
+Model tp019
+  ! Source version 1
+
+  Variables
+    x[1] = 20.1 , >= 13, <= 100
+    x[2] =  5.84, >=  0, <= 100
+    obj
+  End Variables
+
+  Equations
+    (x[1] - 5)^2 + (x[2] - 5)^2 - 100 >= 0
+    (-1)*(x[2] - 5)^2 - (x[1] - 6)^2 + 82.81 >= 0
+
+    obj = (x[1] - 10)^3 + (x[2] - 20)^3
+
+    ! best known objective = -6961.813875580139
+    ! begin of best known solution
+    ! x[1] = 14.095
+    ! x[2] =  0.8429607892154782
+    ! end of best known solution
+  End Equations
+End Model

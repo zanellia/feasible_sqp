@@ -1,0 +1,42 @@
+Model tp075
+  ! Source version 1
+
+  Parameters
+    a = 0.48
+    c3 = 3
+    l[1] =    0
+    l[2] =    0
+    l[3] =   -a
+    l[4] =   -a
+    u[1] = 1200
+    u[2] = 1200
+    u[3] =    a
+    u[4] =    a
+  End Parameters
+
+  Variables
+    x[1:4] = 0, >= l[1:4], <= u[1:4]
+    obj
+  End Variables
+
+  Equations
+    x[4] - x[3] + a >= 0
+    x[3] - x[4] + a >= 0
+    1000*sin((-1)*x[3] - 0.25) + &
+    1000*sin((-1)*x[4] - 0.25) + 894.8 - x[1] = 0
+    1000*sin(x[3] - 0.25) + &
+    1000*sin(x[3] - x[4] - 0.25) + 894.8 - x[2] = 0
+    1000*sin(x[4] - 0.25) + &
+    1000*sin(x[4] - x[3] - 0.25) + 1294.8 = 0
+
+    obj = 3*x[1] + 1.0e-6*x[1]^3 + 2*x[2] + 2.0e-6*x[2]^3/c3
+
+    ! best known objective = 5174.412695377741
+    ! begin of best known solution
+    ! x[1] = 776.1590265860596
+    ! x[2] = 925.1951384690918
+    ! x[3] =   0.05110892853835123
+    ! x[4] =  -0.4288910714616488
+    ! end of best known solution
+  End Equations
+End Model

@@ -1,0 +1,22 @@
+Model tp017
+  ! Source version 1
+
+  Variables
+    x[1] = -2, >= -1/2, <= 1/2
+    x[2] =  1,          <=   1
+    obj
+  End Variables
+
+  Equations
+    x[2]^2 - x[1] >= 0
+    x[1]^2 - x[2] >= 0
+
+    obj = 100*(x[2] - x[1]^2)^2 + (1 - x[1])^2
+
+    ! best known objective = 1
+    ! begin of best known solution
+    ! x[1] = 0
+    ! x[2] = 0
+    ! end of best known solution
+  End Equations
+End Model

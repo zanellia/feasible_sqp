@@ -1,0 +1,107 @@
+Model tp070
+  ! Source version 1
+
+  Parameters
+    e1 = -1     ! from PROB.FOR
+    e2 =  1     ! from H+S
+    d1 =  7.658 ! from PROB.FOR
+    d2 =  7.685 ! from H+S, seems to be a typo
+    e  = e1     ! my quite clear decision from data below
+    d  = d1     ! my quite clear decision from data below
+    yobs[ 1] = 0.00189
+    yobs[ 2] = 0.1038
+    yobs[ 3] = 0.268
+    yobs[ 4] = 0.506
+    yobs[ 5] = 0.577
+    yobs[ 6] = 0.604
+    yobs[ 7] = 0.725
+    yobs[ 8] = 0.898
+    yobs[ 9] = 0.947
+    yobs[10] = 0.845
+    yobs[11] = 0.702
+    yobs[12] = 0.528
+    yobs[13] = 0.385
+    yobs[14] = 0.257
+    yobs[15] = 0.159
+    yobs[16] = 0.0869
+    yobs[17] = 0.0453
+    yobs[18] = 0.01509
+    yobs[19] = 0.00189
+    c[1] = 0.1
+    c[2] = 1
+    c[3:19] = c[2:18] + 1
+    s[0] = 0
+  End Parameters
+
+  Variables
+    x[1] = 2,    >= 0.00001, <= 100
+    x[2] = 4,    >= 0.00001, <= 100
+    x[3] = 0.04, >= 0.00001, <=   1
+    x[4] = 2,    >= 0.00001, <= 100
+    obj
+  End Variables
+
+  Intermediates
+    b = x[3] + (1 - x[3])*x[4]
+    ycal[1:19] = (1 + 1/(12*x[2]))^e *            &
+                 x[3]*b^x[2] *                    &
+                 (x[2]/6.2832)^(1/2) *            &
+                 (c[1:19]/d)^(x[2] - 1) *         &
+                 exp(x[2] - b*c[1:19]*x[2]/7.658) &
+               + (1 + 1/(12*x[1]))^e *            &
+                 (1 - x[3]) *                     &
+                 (b/x[4])^x[1] *                  &
+                 (x[1]/6.2832)^(1/2) *            &
+                 (c[1:19]/7.658)^(x[1] - 1) *     &
+                 exp(x[1] - b*c[1:19]*x[1]/(7.658*x[4]))
+    s[1:19] = s[0:18] + (yobs[1:19] - ycal[1:19])^2
+    mf = s[19]
+  End Intermediates
+
+  Equations
+    b >= 0
+
+    obj = mf
+
+    ! best known objective = 0.007498463574427645
+    ! begin of best known solution
+    ! x[1] = 12.27697912756719
+    ! x[2] =  4.631748162745852
+    ! x[3] =  0.3128646302166193
+    ! x[4] =  2.029282825337289
+    ! end of best known solution
+
+    ! e = e1, d = d1 ! best known objective = 0.007498463574427645
+    ! e = e1, d = d1 ! begin of best known solution
+    ! e = e1, d = d1 ! x[1] = 12.27697912756719
+    ! e = e1, d = d1 ! x[2] =  4.631748162745852
+    ! e = e1, d = d1 ! x[3] =  0.3128646302166193
+    ! e = e1, d = d1 ! x[4] =  2.029282825337289
+    ! e = e1, d = d1 ! end of best known solution
+
+    ! e = e1, d = d2 ! best known objective = 0.007261547474631637
+    ! e = e1, d = d2 ! begin of best known solution
+    ! e = e1, d = d2 ! x[1] = 12.13773384939642
+    ! e = e1, d = d2 ! x[2] =  4.82102598947378
+    ! e = e1, d = d2 ! x[3] =  0.3031189915355265
+    ! e = e1, d = d2 ! x[4] =  2.065299221807952
+    ! e = e1, d = d2 ! end of best known solution
+
+    ! e = e2, d = d1 ! best known objective = 0.0105735495312881
+    ! e = e2, d = d1 ! begin of best known solution
+    ! e = e2, d = d1 ! x[1] = 12.02765526345873
+    ! e = e2, d = d1 ! x[2] =  4.634279639662956
+    ! e = e2, d = d1 ! x[3] =  0.3022728725783973
+    ! e = e2, d = d1 ! x[4] =  2.073537805595134
+    ! e = e2, d = d1 ! end of best known solution
+
+    ! e = e2, d = d2 ! best known objective = 0.009401973254465482
+    ! e = e2, d = d2 ! begin of best known solution
+    ! e = e2, d = d2 ! x[1] = 11.96577794613915
+    ! e = e2, d = d2 ! x[2] =  4.769875049754542
+    ! e = e2, d = d2 ! x[3] =  0.2981702392381668
+    ! e = e2, d = d2 ! x[4] =  2.091469742396469
+    ! e = e2, d = d2 ! end of best known solution
+
+  End Equations
+End Model
