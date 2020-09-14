@@ -1,0 +1,40 @@
+g9 0 1 0 1 20190616 0 4 0 496	# problem tp009r
+ 2 1 1 0 1	# vars, constraints, objectives, ranges, eqns
+ 0 1	# nonlinear constraints, objectives
+ 0 0	# network constraints: nonlinear, linear
+ 0 2 0	# nonlinear vars in constraints, objectives, both
+ 0 0 0 1	# linear network variables; functions; arith, flags
+ 0 0 0 0 0	# discrete variables: binary, integer, nonlinear (b,c,o)
+ 2 2	# nonzeros in Jacobian, gradients
+ 0 0	# max name lengths: constraints, variables
+ 0 0 0 0 1	# common exprs: b,c,o,c1,o1
+b
+0 -8.999999 2.999999
+3
+x2
+0 0
+1 0
+r
+4 0
+C0
+n0
+V2 0 2
+o2
+o41
+o2
+n0.2617993877991494
+v0
+o46
+o2
+n0.19634954084936207
+v1
+O0 0
+v2
+k1
+1
+J0 2
+0 4
+1 -3
+G0 2
+0 0
+1 0
