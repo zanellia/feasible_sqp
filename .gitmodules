@@ -1,0 +1,6 @@
+[submodule "external/qpOASES"]
+	path = external/qpOASES
+	url = https://github.com/coin-or/qpOASES.git
+[submodule "external/casadi"]
+	path = external/casadi
+	url = git@github.com:casadi/casadi.git
