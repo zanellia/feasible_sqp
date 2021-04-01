@@ -1,39 +1,10 @@
-/*
- *	This file is part of qpOASES.
- *
- *	qpOASES -- An Implementation of the Online Active Set Strategy.
- *	Copyright (C) 2007-2017 by Hans Joachim Ferreau, Andreas Potschka,
- *	Christian Kirches et al. All rights reserved.
- *
- *	qpOASES is free software; you can redistribute it and/or
- *	modify it under the terms of the GNU Lesser General Public
- *	License as published by the Free Software Foundation; either
- *	version 2.1 of the License, or (at your option) any later version.
- *
- *	qpOASES is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *	See the GNU Lesser General Public License for more details.
- *
- *	You should have received a copy of the GNU Lesser General Public
- *	License along with qpOASES; if not, write to the Free Software
- *	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
- */
-
-
 /**
- *	\file examples/feasibleSQP.cpp
+ *	\file feasibleSQP.cpp
  *	\author Andrea Zanelli
- *	\version 3.2
- *	\date 2007-2017
+ *	\version 0.1
+ *	\date 2020-2021
  *
- *	QRECIPE example from the CUTEr test set with sparse matrices.
- *	Comparison between nullspace factorization (dense and sparse) and
- *	Schur complement approach.
  */
-
-
 
 #include <qpOASES.hpp>
 #include <casadi/casadi.hpp>
@@ -112,7 +83,7 @@ int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, 
 
 }
 
-int main( )
+int {{ solver_opts.solver_name }}( )
 {
 
     vector<double> y(nv, 0);

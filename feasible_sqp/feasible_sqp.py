@@ -7,7 +7,6 @@ from jinja2.loaders import FileSystemLoader
 class feasible_sqp():
     def __init__(self, nv, solver_name = 'fsqp_solver'):
         self.y = ca.SX.sym('y', nv, 1)
-        self.solver_name = solver_name
         self.ni = 0
         self.nv = nv
         opts = dict()
@@ -16,6 +15,7 @@ class feasible_sqp():
         opts['max_outer_it'] = 100
         opts['inner_tol'] = 1E-3
         opts['outer_tol'] = 1E-6
+        opts['solver_name'] = solver_name
         self.opts = opts
 
         return
@@ -36,8 +36,8 @@ class feasible_sqp():
         y = self.y
         lam = ca.SX.sym('lam', ni, 1)
 
-        os.system('mkdir -p {}'.format(self.solver_name))
-        os.chdir(self.solver_name)
+        os.system('mkdir -p {}'.format(self.opts['solver_name']))
+        os.chdir(self.opts['solver_name'])
         ca_dfdy = ca.Function('ca_dfdy', [y], [ca.jacobian(f,y)])
         ca_dfdy.generate('ca_dfdy', opts)
         print('compiling generated code for dfdy...')
@@ -73,8 +73,23 @@ class feasible_sqp():
         with open('feasibleSQP.cpp', "w+") as f:
             f.write(code)
 
-        print('rendering templated Makefile...')
+        env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))))
+        tmpl = env.get_template("templates/feasibleSQP.in.hpp")
+        code = tmpl.render(solver_opts = self.opts)
+        with open('feasibleSQP.hpp', "w+") as f:
+            f.write(code)
 
+        print('rendering templated Makefile...')
+        tmpl = env.get_template("templates/Makefile.in")
+        build_params = dict()
+        fsqp_root = os.path.dirname(os.path.abspath(__file__)) + '/../'
+        qpoases_root = fsqp_root + 'external/qpOASES'
+        casadi_root = fsqp_root + 'external/casadi'
+        build_params['qpoases_root'] = qpoases_root
+        build_params['casadi_root'] = casadi_root
+        code = tmpl.render(build_params = build_params)
+        with open('Makefile', "w+") as f:
+            f.write(code)
 
         print('successfully generated solver!')
 
