@@ -6,21 +6,26 @@
  *
  */
 
-#include <qpOASES.hpp>
+
+// this is necessary to avoid linking problems with libqpOASES.so
+#define __USE_LONG_INTEGERS__
+#define __USE_LONG_FINTS__
+#include "qpOASES.hpp"
 #include <casadi/casadi.hpp>
 #include <casadi/casadi_c.h>
 #include "ca_dfdy.h"
 #include "ca_dgdy.h"
 #include "ca_g.h"
 #include "ca_dLdyy.h"
+#include "{{ solver_opts.solver_name }}.hpp"
 
 #define MAX_NWSR {{ solver_opts.max_nwsr }}
 #define MAX_INNER_IT {{ solver_opts.max_inner_it }}
 #define MAX_OUTER_IT {{ solver_opts.max_outer_it }}
 #define INNER_TOL {{ solver_opts.inner_tol }}
 #define OUTER_TOL {{ solver_opts.outer_tol }}
-#define nv {{ NI }}
-#define ni {{ NV }}
+#define nv {{ NV }}
+#define ni {{ NI }}
 #define YMAX 0.7
 #define YMIN -0.4
 #define BOUNDS 1
@@ -83,6 +88,7 @@ int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, 
 
 }
 
+extern "C" {
 int {{ solver_opts.solver_name }}( )
 {
 
@@ -289,10 +295,10 @@ int {{ solver_opts.solver_name }}( )
     Constraints guessedConstraints( ni );
     guessedConstraints.setupAllInactive( );
 
-    Bounds guessedBounds( nv );
+    Bounds guessedBounds( (int_t) nv );
     guessedBounds.setupAllFree( );
 
-    SQProblemSchur qpSchur(nv, ni);
+    SQProblemSchur qpSchur((int_t) nv, (int_t) ni);
     // SQProblem qpSchur(nv, ni);
     // QProblem qpSchur(nv, ni);
     qpSchur.setOptions(options);
@@ -531,6 +537,7 @@ int {{ solver_opts.solver_name }}( )
     delete[] lam_QP;
 
 	// return 0;
+}
 }
 
 

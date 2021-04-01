@@ -14,7 +14,7 @@ IFLAGS      =  -I. \
 
 OUTPUT_DIR = .
 
-CPPFLAGS += -std=c++11 -g -fPIC
+CPPFLAGS = -std=c++11 -fPIC
 
 ##
 ##	targets
@@ -27,24 +27,21 @@ casadi:
 	cd ${CASADI_ROOT_DIR}; mkdir -p build; mkdir -p installation; cd build; cmake ..; make -j4; make install DESTDIR=../installation 
 
 fsqp_solver:
-	g++ ${CPPFLAGS} -c feasibleSQP.cpp ${IFLAGS}
+	g++ ${CPPFLAGS} -c {{ build_params.solver_name }}.cpp ${IFLAGS}
 
 fsqp_solver_shared: fsqp_solver
-	g++ ${CPPFLAGS} -shared -o feasibleSQP.so feasibleSQP.o -lcasadi -lqpOASES -lca_dfdy -lca_g  -lca_dgdy -lca_dLdyy -L. -L${QPOASES_LIB_DIR} -L${CASADI_LIB_DIR}
+	g++ ${CPPFLAGS} -shared -o {{ build_params.solver_name }}.so {{ build_params.solver_name }}.o -lcasadi -lqpOASES -lca_dfdy -lca_g  -lca_dgdy -lca_dLdyy -L. -L${QPOASES_LIB_DIR} -L${CASADI_LIB_DIR}
 
 all: qpoases casadi fsqp_solver 
 
 clean_qpoases:
-	@${ECHO} "Cleaning up qpOASES"
 	cd ${QPOASES_ROOT_DIR}; make clean
 
 clean_casadi:
-	@${ECHO} "Cleaning up CasADi"
 	cd ${QPOASES_ROOT_DIR}/build; make clean
 
 clean_feasible_sqp:
-	@${ECHO} "Cleaning up"
-	@${RM} -f *.so *.o
+	rm -f *.so *.o
 
 clean: clean_qpoases clean_casadi clean_feasible_sqp
 

@@ -1,1 +1,3 @@
-int {{ solver_opts.solver_name }}( )
+extern "C" {
+int {{ solver_opts.solver_name }}( );
+}

@@ -3,6 +3,7 @@ import numpy as np
 import os
 from jinja2 import Environment
 from jinja2.loaders import FileSystemLoader
+from ctypes import *
 
 class feasible_sqp():
     def __init__(self, nv, solver_name = 'fsqp_solver'):
@@ -70,13 +71,13 @@ class feasible_sqp():
         env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))))
         tmpl = env.get_template("templates/feasibleSQP.in.cpp")
         code = tmpl.render(solver_opts = self.opts, NI = self.ni, NV = self.nv)
-        with open('feasibleSQP.cpp', "w+") as f:
+        with open('{}.cpp'.format(self.opts['solver_name']), "w+") as f:
             f.write(code)
 
         env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))))
         tmpl = env.get_template("templates/feasibleSQP.in.hpp")
         code = tmpl.render(solver_opts = self.opts)
-        with open('feasibleSQP.hpp', "w+") as f:
+        with open('{}.hpp'.format(self.opts['solver_name']), "w+") as f:
             f.write(code)
 
         print('rendering templated Makefile...')
@@ -87,11 +88,24 @@ class feasible_sqp():
         casadi_root = fsqp_root + 'external/casadi'
         build_params['qpoases_root'] = qpoases_root
         build_params['casadi_root'] = casadi_root
+        build_params['solver_name'] = self.opts['solver_name']
         code = tmpl.render(build_params = build_params)
         with open('Makefile', "w+") as f:
             f.write(code)
 
+        os.system('make {}_shared'.format(self.opts['solver_name']))
+
         print('successfully generated solver!')
+        os.chdir('..')
 
         return
+
+    def solve(self):
+        # get solver shared_lib
+        solver_name = self.opts['solver_name']
+        os.chdir(self.opts['solver_name'])
+        self.shared_lib = CDLL(solver_name + '.so')
+
+        self.shared_lib.fsqp_solver()
+
 
