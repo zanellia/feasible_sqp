@@ -4,6 +4,28 @@ import os
 from jinja2 import Environment
 from jinja2.loaders import FileSystemLoader
 from ctypes import *
+import json
+
+def install_dependencies(matlab_lib_path=None, matlab_include_path=None, \
+        blas_lib_path=None, lapack_lib_path=None, lib_solver_path=None, lib_hsl_path=None):
+
+    if (matlab_lib_path == None or matlab_include_path == None) and \
+            (blas_lib_path == None or lapack_lib_path == None or lib_solver_path == None or lib_hsl_path == None):
+        raise Exception('MA57 from the HSL library is required. Specify either matlab_lib_path and matlab_include_path or'\
+                ' blas_lib_path, lapack_lib_path, lib_solver_path and lib_hsl_path')
+
+    root_path = os.path.dirname(os.path.abspath(__file__)) + '/..'
+
+    library_paths = []
+    library_paths.append(root_path + '/external/qpOASES/bin')
+    library_paths.append(root_path + '/external/casadi/installation/lib')
+
+    os.chdir('../external')
+    if matlab_lib_path:
+        os.system('make MATLAB_LIBDIR={} MATLAB_IDIR={}'.format(matlab_lib_path, matlab_include_path))
+        library_paths.append(matlab_lib_path')
+    else:
+        os.system('make LIB_BLAS={} LIB_LAPACK={} LIB_SOLVER={} LINKHSL={}'.format(blas_lib_path, lapack_lib_path, lib_solver_path, lib_hsl_path))
 
 class feasible_sqp():
     def __init__(self, nv, solver_name = 'fsqp_solver'):
@@ -12,8 +34,8 @@ class feasible_sqp():
         self.nv = nv
         opts = dict()
         opts['max_nwsr'] = 10000
-        opts['max_inner_it'] = 100
-        opts['max_outer_it'] = 100
+        opts['max_inner_it'] = 10
+        opts['max_outer_it'] = 10
         opts['inner_tol'] = 1E-3
         opts['outer_tol'] = 1E-6
         opts['solver_name'] = solver_name

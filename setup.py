@@ -19,7 +19,6 @@ setup(name='feasible_sqp', #zeeopt, zeopt, zeos, zeosq, seors, seaorsqp
       'numpy',
       'casadi>=3.5.1',
       'jinja2',
-      'ctypes'
    ],
    package_data={'': [
        'templates/feasibleSQP.in.cpp',
