@@ -10,7 +10,7 @@ git clone https://github.com/zanellia/feasible_sqp.git
 cd feasible_sqp
 pip install .
 ```
-- build and install the dependecnies:
+- build and install the dependencies:
 ```python
 import feasible_sqp
 feasible_sqp.install_dependencies(matlab_lib_path=<...>, matlab_include_path=<...>)
