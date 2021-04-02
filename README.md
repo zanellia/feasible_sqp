@@ -46,4 +46,4 @@ solver.generate_solver(f,g, lby = lby, uby = uby)
 solver.solve()
 ```
 notice: a call to
-`solver.generate_solver()` generates a script called `set_LD_LIBRARY_PATH.sh` which must can be sourced in order to update the `LD_LIBRARY_PATH` environment variable in order to locate the shared libraries needed by the solver.
+`solver.generate_solver()` generates a script called `set_LD_LIBRARY_PATH.sh` which can be sourced in order to update the `LD_LIBRARY_PATH` environment variable such that the shared libraries needed by the solver can be located.
