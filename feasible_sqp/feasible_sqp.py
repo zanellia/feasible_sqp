@@ -21,7 +21,7 @@ class feasible_sqp():
 
         return
 
-    def generate_solver(self, f, g):
+    def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = []):
         g_shape = g.shape
 
         if g_shape[1] != 1:
@@ -29,6 +29,56 @@ class feasible_sqp():
 
         ni = g_shape[0]
         self.ni = ni
+        nv = self.nv
+
+        FSQP_INF = 1E12
+        if lby == []:
+            lby = -FSQP_INF*np.ones((nv,1))
+
+        if uby == []:
+            uby = FSQP_INF*np.ones((nv,1))
+
+        if lbg == []:
+            lbg = np.zeros((ni,1))
+
+        if ubg == []:
+            ubg = np.zeros((ni,1))
+
+        if not isinstance(lby, np.ndarray):
+            raise Exception('lby must be of type np.array, you have {}'.format(type(lby)))
+
+        if not isinstance(uby, np.ndarray):
+            raise Exception('lbu must be of type np.array, you have {}'.format(type(uby)))
+
+        if not isinstance(lbg, np.ndarray):
+            raise Exception('lbg must be of type np.array, you have {}'.format(type(lbg)))
+
+        if not isinstance(ubg, np.ndarray):
+            raise Exception('ubg must be of type np.array, you have {}'.format(type(ubg)))
+
+        lby_shape = lby.shape
+
+        if lby_shape[0] != nv or lby_shape[1] != 1:
+            raise Exception('lby must have shape (nv,1) = ({},1), you have ({},{})'\
+                .format(nv, lby_shape[0], lby_shape[1]))
+
+        uby_shape = uby.shape
+
+        if uby_shape[0] != nv or uby_shape[1] != 1:
+            raise Exception('uby must have shape (nv,1) = ({},1), you have ({},{})'\
+                .format(nv, uby_shape[0], uby_shape[1]))
+
+        lbg_shape = lbg.shape
+
+        if lbg_shape[0] != ni or lbg_shape[1] != 1:
+            raise Exception('lbg must have shape (ni,1) = ({},1), you have ({},{})'\
+                .format(nv, lbg_shape[0], lbg_shape[1]))
+
+        ubg_shape = ubg.shape
+
+        if ubg_shape[0] != ni or ubg_shape[1] != 1:
+            raise Exception('ubg must have shape (ni,1) = ({},1), you have ({},{})'\
+                .format(ni, ubg_shape[0], ubg_shape[1]))
 
         optlevel = ''
 
@@ -76,7 +126,9 @@ class feasible_sqp():
 
         env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))))
         tmpl = env.get_template("templates/feasibleSQP.in.hpp")
-        code = tmpl.render(solver_opts = self.opts)
+        code = tmpl.render(solver_opts = self.opts, NV = nv, NI = ni, \
+            lby = lby, uby = uby, lbg = lbg, ubg = ubg)
+
         with open('{}.hpp'.format(self.opts['solver_name']), "w+") as f:
             f.write(code)
 
