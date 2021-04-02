@@ -1,12 +1,40 @@
 QPOASES_ROOT_DIR = qpOASES
 CASADI_ROOT_DIR = casadi
+USE_SOLVER=MA57
+DEF_SOLVER=
+REPLACE_LINALG=0
+MATLAB_LIBDIR=/usr/local/MATLAB/R2017b/bin/glnxa64
+MATLAB_IDIR=/usr/local/MATLAB/R2017b/extern/include
+
+ifdef MATLAB_LIBDIR
+LIB_BLAS = ${MATLAB_LIBDIR}/libmwblas.so
+LIB_LAPACK = ${MATLAB_LIBDIR}/libmwlapack.so
+LIB_SOLVER = ${MATLAB_LIBDIR}/libmwma57.so
+LINKHSL = -Wl,-rpath=${MATLAB_LIBDIR}
+endif
+
+ifndef LIB_BLAS
+$(error LIB_BLAS is not set)
+endif
+
+ifndef LIB_LAPACK
+$(error LIB_LAPACK is not set)
+endif
+
+ifndef LIB_SOLVER
+$(error LIB_SOLVER is not set)
+endif
+
+ifndef LINKHSL
+$(error LINKHSL is not set)
+endif
 
 ##
 ##	targets
 ##
 
 qpoases: 
-	cd ${QPOASES_ROOT_DIR}; mkdir -p bin; make -j4 src
+	cd ${QPOASES_ROOT_DIR}; mkdir -p bin; make -j4 MATLAB_IDIR=${MATLAB_IDIR} MATLAB_LIBDIR=${MATLAB_LIBDIR} USE_SOLVER=${USE_SOLVER} LIB_BLAS=${LIB_BLAS} LIB_LAPACK=${LIB_LAPACK} REPLACE_LINALG=${REPLACE_LINALG} src
 
 casadi: 
 	cd ${CASADI_ROOT_DIR}; mkdir -p build; mkdir -p installation; cd build; cmake ..; make -j4; make install DESTDIR=../installation 
@@ -14,12 +42,10 @@ casadi:
 all: qpoases casadi
 
 clean_qpoases:
-	@${ECHO} "Cleaning up qpOASES"
 	cd ${QPOASES_ROOT_DIR}; make clean
 
 clean_casadi:
-	@${ECHO} "Cleaning up CasADi"
-	cd ${QPOASES_ROOT_DIR}/build; make clean
+	cd ${CASADI_ROOT_DIR}/build; make clean
 
 clean: clean_qpoases clean_casadi
 

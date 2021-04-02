@@ -293,10 +293,10 @@ int {{ solver_opts.solver_name }}( )
     Constraints guessedConstraints( ni );
     guessedConstraints.setupAllInactive( );
 
-    Bounds guessedBounds( (int_t) nv );
+    Bounds guessedBounds( nv );
     guessedBounds.setupAllFree( );
 
-    SQProblemSchur qpSchur((int_t) nv, (int_t) ni);
+    SQProblemSchur qpSchur(nv, ni);
     // SQProblem qpSchur(nv, ni);
     // QProblem qpSchur(nv, ni);
     qpSchur.setOptions(options);
@@ -306,6 +306,7 @@ int {{ solver_opts.solver_name }}( )
     // printf("A matrix\n");
     // A->print();
     // printf("H matrix\n");
+    // H->print();
 
     myvector = dfdy_eval.at(0);
     for(int i = 0; i < ni; i++) {
@@ -318,7 +319,6 @@ int {{ solver_opts.solver_name }}( )
         ub[i] = uby[i] - y[i];
     }
 
-    // H->print();
     int tot_iter = 0;
 #if BOUNDS
         qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
@@ -394,6 +394,8 @@ int {{ solver_opts.solver_name }}( )
         for(int i = 0; i < nv; i++) {
             lb[i] = lby[i] - y[i];
             ub[i] = uby[i] - y[i];
+            // printf("lb[%i] = %f\n", lb[i]);
+            // printf("ub[%i] = %f\n", ub[i]);
         }
 
         // solve with sparse matrices (Schur complement) 
@@ -432,6 +434,7 @@ int {{ solver_opts.solver_name }}( )
                 printf("y[%i] = %f\n", i, y[i]);
             break;
         }
+
         qpSchur.getDualSolution(lam_QP);
 
         for(int i = 0; i < nv; i++) {
@@ -465,7 +468,7 @@ int {{ solver_opts.solver_name }}( )
             }
 
             g_eval = ca_g(ca_y);
-            // cout << "new gradient: " << g_eval.at(0) << endl;
+            // cout << "new evaluation of g: " << g_eval.at(0) << endl;
             myvector = g_eval.at(0);
 
             for(int i = 0; i < ni; i++) {
