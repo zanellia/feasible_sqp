@@ -12,20 +12,32 @@ def install_dependencies(matlab_lib_path=None, matlab_include_path=None, \
     if (matlab_lib_path == None or matlab_include_path == None) and \
             (blas_lib_path == None or lapack_lib_path == None or lib_solver_path == None or lib_hsl_path == None):
         raise Exception('MA57 from the HSL library is required. Specify either matlab_lib_path and matlab_include_path or'\
-                ' blas_lib_path, lapack_lib_path, lib_solver_path and lib_hsl_path')
+                ' blas_lib_path, lapack_lib_path, lib_solver_path and lib_hsl_path.')
 
     root_path = os.path.dirname(os.path.abspath(__file__)) + '/..'
 
-    library_paths = []
-    library_paths.append(root_path + '/external/qpOASES/bin')
-    library_paths.append(root_path + '/external/casadi/installation/lib')
+    cwd = os.getcwd()
+    os.chdir(root_path)
 
-    os.chdir('../external')
+    library_paths = dict()
+    library_paths['qpoases'] = root_path + '/external/qpOASES/bin'
+    library_paths['casadi'] = root_path + '/external/casadi/installation/lib'
+
+    os.chdir('external')
     if matlab_lib_path:
         os.system('make MATLAB_LIBDIR={} MATLAB_IDIR={}'.format(matlab_lib_path, matlab_include_path))
-        library_paths.append(matlab_lib_path')
+        library_paths['matlab'] = matlab_lib_path
     else:
-        os.system('make LIB_BLAS={} LIB_LAPACK={} LIB_SOLVER={} LINKHSL={}'.format(blas_lib_path, lapack_lib_path, lib_solver_path, lib_hsl_path))
+        os.system('make LIB_BLAS={} LIB_LAPACK={} LIB_SOLVER={} LINKHSL={}'.format(blas_lib_path, \
+            lapack_lib_path, lib_solver_path, lib_hsl_path))
+
+    os.chdir('../feasible_sqp')
+
+    # store library paths
+    with open('paths.json', 'w') as f:
+        json.dump(library_paths, f)
+
+    os.chdir(cwd)
 
 class feasible_sqp():
     def __init__(self, nv, solver_name = 'fsqp_solver'):
@@ -172,14 +184,33 @@ class feasible_sqp():
         print('successfully generated solver!')
         os.chdir('..')
 
+        # generate script to set LD_LIBRARY_PATH
+        fsqp_root = os.path.dirname(os.path.abspath(__file__)) + '/../'
+        with open(fsqp_root + '/feasible_sqp/paths.json', 'r') as f:
+            library_paths = json.load(f)
+
+        paths = ''
+        cwd = os.getcwd()
+        paths = paths + ':' + cwd + '/' + self.opts['solver_name']
+        for key in library_paths:
+            paths = paths + ':' + library_paths[key]
+
+        with open('set_LD_LIBRARY_PATH.sh', 'w') as f:
+            f.write('#!/bin/bash\nexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{}'.format(paths))
+
         return
 
     def solve(self):
+
         # get solver shared_lib
         solver_name = self.opts['solver_name']
+        self.shared_lib = CDLL(solver_name + '/' + solver_name + '.so')
+
+        #TODO(andrea): why is this necessary??
         os.chdir(self.opts['solver_name'])
-        self.shared_lib = CDLL(solver_name + '.so')
 
         self.shared_lib.fsqp_solver()
+
+        os.chdir('..')
 
 
