@@ -26,8 +26,6 @@
 #define OUTER_TOL {{ solver_opts.outer_tol }}
 #define nv {{ NV }}
 #define ni {{ NI }}
-#define YMAX 0.7
-#define YMIN -0.4
 #define BOUNDS 1
 
 using namespace casadi;
@@ -275,13 +273,13 @@ int {{ solver_opts.solver_name }}( )
     for(int i = 0; i < nv; i++) {
 
         g[i] = (double) myvector(i);
-        lb[i] = YMIN;
-        ub[i] = YMAX;
+        lb[i] = lby[i];
+        ub[i] = uby[i];
     }
 
     for(int i = 0; i < ni; i++) {
-        lbA[i] = 0.0;
-        ubA[i] = 0.0;
+        lbA[i] = lbg[i];
+        ubA[i] = ubg[i];
     }
 
 	Options options;
@@ -311,13 +309,13 @@ int {{ solver_opts.solver_name }}( )
 
     myvector = dfdy_eval.at(0);
     for(int i = 0; i < ni; i++) {
-        lbA[i] = -(double) myvector(i);
-        ubA[i] = -(double) myvector(i);
+        lbA[i] = lbg[i] -(double) myvector(i);
+        ubA[i] = ubg[i] -(double) myvector(i);
     }
 
     for(int i = 0; i < nv; i++) {
-        lb[i] = YMIN - y[i];
-        ub[i] = YMAX - y[i];
+        lb[i] = lby[i] - y[i];
+        ub[i] = uby[i] - y[i];
     }
 
     // H->print();
@@ -389,13 +387,13 @@ int {{ solver_opts.solver_name }}( )
         myvector = g_eval.at(0);
 
         for(int i = 0; i < ni; i++) {
-            lbA[i] = -(double) myvector(i);
-            ubA[i] = -(double) myvector(i);
+            lbA[i] = lbg[i] -(double) myvector(i);
+            ubA[i] = ubg[i] -(double) myvector(i);
         }
 
         for(int i = 0; i < nv; i++) {
-            lb[i] = YMIN - y[i];
-            ub[i] = YMAX - y[i];
+            lb[i] = lby[i] - y[i];
+            ub[i] = uby[i] - y[i];
         }
 
         // solve with sparse matrices (Schur complement) 
@@ -471,13 +469,13 @@ int {{ solver_opts.solver_name }}( )
             myvector = g_eval.at(0);
 
             for(int i = 0; i < ni; i++) {
-                lbA[i] = -(double) myvector(i);
-                ubA[i] = -(double) myvector(i);
+                lbA[i] = lbg[i] -(double) myvector(i);
+                ubA[i] = ubg[i] -(double) myvector(i);
             }
 
             for(int i = 0; i < nv; i++) {
-                lb[i] = YMIN - y[i];
-                ub[i] = YMAX - y[i];
+                lb[i] = lby[i] - y[i];
+                ub[i] = uby[i] - y[i];
             }
             
             nWSR = MAX_NWSR;

@@ -2,6 +2,7 @@ QPOASES_ROOT_DIR =  {{ build_params.qpoases_root }}
 CASADI_ROOT_DIR  =  {{ build_params.casadi_root }}
 
 QPOASES_LIB_DIR = ${QPOASES_ROOT_DIR}/bin
+QPOASES_STATIC_LIB = ${QPOASES_ROOT_DIR}/bin/libqpOASES.a
 CASADI_LIB_DIR = ${QPOASES_ROOT_DIR}/installation/lib
 
 ##
