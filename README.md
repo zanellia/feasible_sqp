@@ -13,7 +13,7 @@ pip install .
 - build and install the dependecnies:
 ```python
 import feasible_sqp
-feasible_sqp.install_dependencies()
+feasible_sqp.install_dependencies(matlab_lib_path=<...>, matlab_include_path=<...>)
 ```
 
 ## usage
