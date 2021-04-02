@@ -42,7 +42,7 @@ using namespace std;
 
 int main(int argc, char **argv){
     // Get the problem
-    // std::string problem = (argc==2) ? argv[1] : "../benchmark/nl_files/hs107.nl";
+    std::string problem = (argc==2) ? argv[1] : "../benchmark/cuter/nl_files/hs107.nl";
     // std::string problem = (argc==2) ? argv[1] : "../benchmark/nl_files/hs112.nl";
     // std::string problem = (argc==2) ? argv[1] : "../benchmark/nl_files/gridneta.nl";
     // std::string problem = (argc==2) ? argv[1] : "../benchmark/nl_files/bdvalue.nl";
@@ -52,7 +52,7 @@ int main(int argc, char **argv){
     // std::string problem = (argc==2) ? argv[1] : "../benchmark/nl_files/broydnbd.nl";
     // std::string problem = (argc==2) ? argv[1] : "../benchmark/nl_files/clnbeam.nl";
     // std::string problem = (argc==2) ? argv[1] : "../benchmark/nl_files/corkscrw.nl";
-    std::string problem = (argc==2) ? argv[1] : "../benchmark/nl_files/dixchlnv.nl";
+    // std::string problem = (argc==2) ? argv[1] : "../benchmark/nl_files/dixchlnv.nl";
 
     // Parse an NL-file
     NlpBuilder nl;
