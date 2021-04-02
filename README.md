@@ -20,8 +20,8 @@ feasible_sqp.install_dependencies()
 ```python
 from feasible_sqp import *
 
-matlab_lib_path = '/usr/local/MATLAB/R2017b/bin/glnxa64'
-matlab_include_path = '/usr/local/MATLAB/R2017b/extern/include'
+matlab_lib_path =     <...> # e.g., '/usr/local/MATLAB/R2017b/bin/glnxa64'
+matlab_include_path = <...> # e.g., '/usr/local/MATLAB/R2017b/extern/include'
 
 install_dependencies(matlab_lib_path=matlab_lib_path,\
     matlab_include_path=matlab_include_path)
@@ -38,8 +38,8 @@ f = 1.0/2.0*ca.dot(y-10,y-10)
 # define constraints
 g = ca.vertcat(ca.sin(y[1]) - y[0])
 # define bounds
-lby = -0.4*np.ones((nv,1))
-uby = 0.7*np.ones((nv,1))
+lby = -np.ones((nv,1))
+uby = np.ones((nv,1))
 # generate solver
 solver.generate_solver(f,g, lby = lby, uby = uby)
 # solve NLP
