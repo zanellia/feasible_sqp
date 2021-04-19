@@ -3,7 +3,7 @@ CASADI_ROOT_DIR  =  {{ build_params.casadi_root }}
 
 QPOASES_LIB_DIR = ${QPOASES_ROOT_DIR}/bin
 QPOASES_STATIC_LIB = ${QPOASES_ROOT_DIR}/bin/libqpOASES.a
-CASADI_LIB_DIR = ${QPOASES_ROOT_DIR}/installation/lib
+CASADI_LIB_DIR = ${CASADI_ROOT_DIR}/installation/lib
 
 ##
 ##	flags
@@ -39,7 +39,7 @@ clean_qpoases:
 	cd ${QPOASES_ROOT_DIR}; make clean
 
 clean_casadi:
-	cd ${QPOASES_ROOT_DIR}/build; make clean
+	cd ${CASADI_ROOT_DIR}/build; make clean
 
 clean_feasible_sqp:
 	rm -f *.so *.o

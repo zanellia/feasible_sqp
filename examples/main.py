@@ -1,7 +1,10 @@
 from feasible_sqp import *
 
-install_dependencies(matlab_lib_path='/usr/local/MATLAB/R2017b/bin/glnxa64',\
-    matlab_include_path='/usr/local/MATLAB/R2017b/extern/include')
+INSTALL_DEPS = 0
+
+if INSTALL_DEPS:
+    install_dependencies(matlab_lib_path='/usr/local/MATLAB/R2017b/bin/glnxa64',\
+        matlab_include_path='/usr/local/MATLAB/R2017b/extern/include')
 
 # number of primal variables
 nv = 2

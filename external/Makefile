@@ -3,8 +3,8 @@ CASADI_ROOT_DIR = casadi
 USE_SOLVER=MA57
 REPLACE_LINALG=0
 
-MATLAB_LIBDIR=/usr/local/MATLAB/R2017b/bin/glnxa64
-MATLAB_IDIR=/usr/local/MATLAB/R2017b/extern/include
+# MATLAB_LIBDIR=/usr/local/MATLAB/R2017b/bin/glnxa64
+# MATLAB_IDIR=/usr/local/MATLAB/R2017b/extern/include
 
 # specify either 
 # MATLAB_LIBDIR and MATLAB_IDIR 
