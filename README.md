@@ -5,6 +5,10 @@
 ```bash
 git clone https://github.com/zanellia/feasible_sqp.git
 ```
+- init submodules (qpOASES, CasADi):
+```
+git submodule init
+```
 - install the Python package:
 ```bash
 cd feasible_sqp
