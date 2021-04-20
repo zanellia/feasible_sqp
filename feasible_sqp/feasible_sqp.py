@@ -7,7 +7,8 @@ from ctypes import *
 import json
 
 def install_dependencies(matlab_lib_path=None, matlab_include_path=None, \
-        blas_lib_path=None, lapack_lib_path=None, lib_solver_path=None, lib_hsl_path=None):
+        blas_lib_path=None, lapack_lib_path=None, lib_solver_path=None, lib_hsl_path=None, \
+        qpoases_root=None, casadi_root=None):
 
     if (matlab_lib_path == None or matlab_include_path == None) and \
             (blas_lib_path == None or lapack_lib_path == None or lib_solver_path == None or lib_hsl_path == None):
@@ -20,8 +21,15 @@ def install_dependencies(matlab_lib_path=None, matlab_include_path=None, \
     os.chdir(root_path)
 
     library_paths = dict()
-    library_paths['qpoases'] = root_path + '/external/qpOASES/bin'
-    library_paths['casadi'] = root_path + '/external/casadi/installation/lib'
+    if qpoases_root is None:
+        qpoases_root = root_path + '/external/qpOASES'
+        print('Warning: using default qpOASES path: {}'.format(qpoase_root))
+    if casadi_root is None:
+        casadi_root = root_path + '/external/casadi'
+        print('Warning: using default CasADi path: {}'.format(casadi_root))
+
+    library_paths['qpoases'] = qpoase_root + '/bin'
+    library_paths['casadi'] = casadi_root + '/installation/lib'
 
     os.chdir('external')
     if matlab_lib_path:
@@ -55,7 +63,7 @@ class feasible_sqp():
 
         return
 
-    def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = []):
+    def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = [], qpoases_root=None, casadi_root=None):
         g_shape = g.shape
 
         if g_shape[1] != 1:
@@ -170,8 +178,10 @@ class feasible_sqp():
         tmpl = env.get_template("templates/Makefile.in")
         build_params = dict()
         fsqp_root = os.path.dirname(os.path.abspath(__file__)) + '/../'
-        qpoases_root = fsqp_root + 'external/qpOASES'
-        casadi_root = fsqp_root + 'external/casadi'
+        if casadi_root is None:
+            casadi_root = fsqp_root + 'external/casadi'
+        if qpoases_root is None:
+            qpoases_root = fsqp_root + 'external/qpOASES'
         build_params['qpoases_root'] = qpoases_root
         build_params['casadi_root'] = casadi_root
         build_params['solver_name'] = self.opts['solver_name']
