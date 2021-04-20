@@ -44,21 +44,21 @@ endif
 ##	targets
 ##
 
+all: qpoases casadi
+
 qpoases: 
 	cd ${QPOASES_ROOT_DIR}; mkdir -p bin; make -j4 MATLAB_IDIR=${MATLAB_IDIR} MATLAB_LIBDIR=${MATLAB_LIBDIR} USE_SOLVER=${USE_SOLVER} LIB_BLAS=${LIB_BLAS} LIB_LAPACK=${LIB_LAPACK} REPLACE_LINALG=${REPLACE_LINALG} src
 
-.PHONY: casadi
-
 casadi: 
-	cd ${CASADI_ROOT_DIR}; mkdir -p build; mkdir -p installation; cd build; cmake ..; make -j4; make install DESTDIR=../installation 
+	cd ${CASADI_ROOT_DIR} && mkdir -p build && mkdir -p installation && cd build && cmake .. && make -j4 && make install DESTDIR=../installation 
 
-all: qpoases casadi
+.PHONY:	casadi 
 
 clean_qpoases:
-	cd ${QPOASES_ROOT_DIR}; make clean
+	cd ${QPOASES_ROOT_DIR} && make clean
 
 clean_casadi:
-	cd ${CASADI_ROOT_DIR}/build; make clean; cd ..; rm -r build
+	cd ${CASADI_ROOT_DIR}/build && make clean && cd ..&& rm -r build && rm -r installation
 
 clean: clean_qpoases clean_casadi
 

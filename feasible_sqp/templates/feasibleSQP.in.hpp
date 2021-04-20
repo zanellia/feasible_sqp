@@ -1,3 +1,5 @@
+#ifndef {{ solver_opts.solver_name }}_H
+#define {{ solver_opts.solver_name }}_H
 extern "C" {
 int {{ solver_opts.solver_name }}( );
 }
@@ -25,3 +27,4 @@ double ubg[{{NI}}] = {
     {{ d[0] }},
     {%- endfor %}
 };
+#endif

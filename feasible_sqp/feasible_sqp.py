@@ -166,12 +166,16 @@ class feasible_sqp():
         with open('{}.cpp'.format(self.opts['solver_name']), "w+") as f:
             f.write(code)
 
-        env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))))
         tmpl = env.get_template("templates/feasibleSQP.in.hpp")
         code = tmpl.render(solver_opts = self.opts, NV = nv, NI = ni, \
             lby = lby, uby = uby, lbg = lbg, ubg = ubg)
 
         with open('{}.hpp'.format(self.opts['solver_name']), "w+") as f:
+            f.write(code)
+
+        tmpl = env.get_template("templates/main.in.cpp")
+        code = tmpl.render(solver_opts = self.opts)
+        with open('main.cpp', "w+") as f:
             f.write(code)
 
         print('rendering templated Makefile...')
