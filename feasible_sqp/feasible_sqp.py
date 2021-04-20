@@ -23,12 +23,12 @@ def install_dependencies(matlab_lib_path=None, matlab_include_path=None, \
     library_paths = dict()
     if qpoases_root is None:
         qpoases_root = root_path + '/external/qpOASES'
-        print('Warning: using default qpOASES path: {}'.format(qpoase_root))
+        print('Warning: using default qpOASES path: {}'.format(qpoases_root))
     if casadi_root is None:
         casadi_root = root_path + '/external/casadi'
         print('Warning: using default CasADi path: {}'.format(casadi_root))
 
-    library_paths['qpoases'] = qpoase_root + '/bin'
+    library_paths['qpoases'] = qpoases_root + '/bin'
     library_paths['casadi'] = casadi_root + '/installation/lib'
 
     os.chdir('external')
