@@ -21,7 +21,10 @@ install:
     - pushd test
     - matlab -batch "fileID = fopen('matlab_root_path.txt','w'); fprintf(fileID,'%s', matlabroot); fclose(fileID);"
     - python3 install_dependencies.py 'matlab_root_path.txt' 
-    - export LD_LIBRARY_PATH=$(<matlab_root_path.txt):$LD_LIBRARY_PATH
+    - export LD_LIBRARY_PATH=$(<matlab_root_path.txt)/bin/glnxa64:$LD_LIBRARY_PATH
     - export LD_LIBRARY_PATH=$(pwd)/fsqp_solver:$LD_LIBRARY_PATH
     - echo $LD_LIBRARY_PATH
+    - pwd
+    - ls
+    - ls fsqp_solver
     - python3 test.py
