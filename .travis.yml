@@ -18,6 +18,6 @@ install:
     - python3 -m pip install -e .
     - export LD_LIBRARY_PATH=$(pwd)/external/qpOASES/bin
     - export LD_LIBRARY_PATH=$(pwd)/external/casadi/installation/lib
-    - matlab -batch 'matlab_root_path = matlabroot'
+    - matlab -batch 'setenv(MATLAB_ROOT_PATH,matlabroot)'
     - pushd test
-    - python3 test.py -matlab_root_path 
+    - python3 test.py -$MATLAB_ROOT_PATH 
