@@ -20,4 +20,7 @@ install:
     - export LD_LIBRARY_PATH=$(pwd)/external/casadi/installation/lib
     - matlab -batch 'setenv(MATLAB_ROOT_PATH,matlabroot)'
     - pushd test
-    - python3 test.py -$MATLAB_ROOT_PATH 
+    - python3 install_dependencies.py -$MATLAB_ROOT_PATH 
+
+script:
+    - python3 test.py
