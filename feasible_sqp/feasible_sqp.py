@@ -17,6 +17,7 @@ def install_dependencies(matlab_root_path=None, \
 
     matlab_lib_path = matlab_root_path + '/bin/glnxa64'
     matlab_include_path = matlab_root_path + '/extern/include'
+    import pdb; pdb.set_trace()
 
     root_path = os.path.dirname(os.path.abspath(__file__)) + '/..'
 
@@ -133,6 +134,10 @@ class feasible_sqp():
         lam = ca.SX.sym('lam', ni, 1)
 
         os.system('mkdir -p {}'.format(self.opts['solver_name']))
+        printf('system ls:')
+        os.system('ls')
+        printf('system pwd:')
+        os.system('pwd')
         os.chdir(self.opts['solver_name'])
         ca_dfdy = ca.Function('ca_dfdy', [y], [ca.jacobian(f,y)])
         ca_dfdy.generate('ca_dfdy', opts)

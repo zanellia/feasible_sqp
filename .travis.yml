@@ -26,5 +26,4 @@ install:
     - echo $LD_LIBRARY_PATH
     - pwd
     - ls
-    - ls fsqp_solver
     - python3 test.py
