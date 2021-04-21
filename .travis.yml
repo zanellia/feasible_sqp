@@ -1,0 +1,21 @@
+# this is only required to install MATLAB such that we
+# have access to HSL on the machine
+language: matlab
+
+python: 3.7
+
+git:
+    submodules: false
+
+before_install: 
+    - git submodules update --init
+    
+
+install:
+    - python3 -m pip install -e .
+    - export LD_LIBRARY_PATH=$(pwd)/external/qpOASES/bin
+    - export LD_LIBRARY_PATH=$(pwd)/external/casadi/installation/lib
+    - matlab -batch 'matlab_root_path = matlabroot'
+    - pushd test
+    - python3 test.py -matlab_root_path 
+
