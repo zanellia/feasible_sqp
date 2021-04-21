@@ -1,4 +1,5 @@
 import sys
+from feasible_sqp import *
 
 matlab_root_path = sys.argv[1]
 
