@@ -16,11 +16,11 @@ before_install:
 
 install:
     - python3 -m pip install -e .
-    - export LD_LIBRARY_PATH=$(pwd)/external/qpOASES/bin
-    - export LD_LIBRARY_PATH=$(pwd)/external/casadi/installation/lib
+    - export LD_LIBRARY_PATH=$(pwd)/external/qpOASES/bin:$LD_LIBRARY_PATH
+    - export LD_LIBRARY_PATH=$(pwd)/external/casadi/installation/lib:$LD_LIBRARY_PATH
     - pushd test
     - matlab -batch "fileID = fopen('matlab_root_path.txt','w'); fprintf(fileID,'%s', matlabroot); fclose(fileID);"
     - python3 install_dependencies.py 'matlab_root_path.txt' 
-
-script:
+    - export LD_LIBRARY_PATH=(<matlab_root_path.txt):$LD_LIBRARY_PATH
+    - echo $LD_LIBRARY_PATH
     - python3 test.py
