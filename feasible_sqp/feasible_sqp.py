@@ -203,7 +203,15 @@ class feasible_sqp():
         os.system('make {}_shared'.format(self.opts['solver_name']))
 
         print('successfully generated solver!')
+        print('system pwd:')
+        os.system('pwd')
+        print('system ls:')
+        os.system('ls')
         os.chdir('..')
+        print('system pwd:')
+        os.system('pwd')
+        print('system ls:')
+        os.system('ls')
 
         # generate script to set LD_LIBRARY_PATH
         fsqp_root = os.path.dirname(os.path.abspath(__file__)) + '/../'
@@ -229,6 +237,10 @@ class feasible_sqp():
 
         #TODO(andrea): why is this necessary??
         os.chdir(self.opts['solver_name'])
+        print('system pwd:')
+        os.system('pwd')
+        print('system ls:')
+        os.system('ls')
 
         self.shared_lib.fsqp_solver()
 
