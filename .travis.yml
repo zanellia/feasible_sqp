@@ -1,8 +1,10 @@
+dist: focal
+
 # this is only required to install MATLAB such that we
 # have access to HSL on the machine
 language: matlab
 
-python: 3.7
+python: 3.7 # is this actually used when language: matlab is in place?
 
 git:
     submodules: false
