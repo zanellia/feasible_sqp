@@ -5,6 +5,7 @@ from jinja2 import Environment
 from jinja2.loaders import FileSystemLoader
 from ctypes import *
 import json
+import sys
 
 def install_dependencies(matlab_root_path=None, \
         blas_lib_path=None, lapack_lib_path=None, lib_solver_path=None, lib_hsl_path=None, \
@@ -232,8 +233,10 @@ class feasible_sqp():
     def solve(self):
 
         # get solver shared_lib
+        cwd = os.getcwd()
         solver_name = self.opts['solver_name']
-        self.shared_lib = CDLL(solver_name + '/' + solver_name + '.so')
+        cdll.LoadLibrary(cwd + '/' + solver_name + '/' + 'libca_dgdy.so')
+        self.shared_lib = CDLL(cwd + '/' + solver_name + '/' + solver_name + '.so')
 
         #TODO(andrea): why is this necessary??
         os.chdir(self.opts['solver_name'])
