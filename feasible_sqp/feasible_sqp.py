@@ -17,7 +17,6 @@ def install_dependencies(matlab_root_path=None, \
 
     matlab_lib_path = matlab_root_path + '/bin/glnxa64'
     matlab_include_path = matlab_root_path + '/extern/include'
-    import pdb; pdb.set_trace()
 
     root_path = os.path.dirname(os.path.abspath(__file__)) + '/..'
 
