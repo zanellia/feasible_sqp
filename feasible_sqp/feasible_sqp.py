@@ -6,14 +6,17 @@ from jinja2.loaders import FileSystemLoader
 from ctypes import *
 import json
 
-def install_dependencies(matlab_lib_path=None, matlab_include_path=None, \
+def install_dependencies(matlab_root_path=None, \
         blas_lib_path=None, lapack_lib_path=None, lib_solver_path=None, lib_hsl_path=None, \
         qpoases_root=None, casadi_root=None):
 
-    if (matlab_lib_path == None or matlab_include_path == None) and \
+    if (matlab_root_path == None) and \
             (blas_lib_path == None or lapack_lib_path == None or lib_solver_path == None or lib_hsl_path == None):
-        raise Exception('MA57 from the HSL library is required. Specify either matlab_lib_path and matlab_include_path or'\
+        raise Exception('MA57 from the HSL library is required. Specify either matlab_root_path or'\
                 ' blas_lib_path, lapack_lib_path, lib_solver_path and lib_hsl_path.')
+
+    matlab_lib_path = matlab_root_path + '/bin/glnxa64'
+    matlab_include_path = matlab_root_path + '/extern/include'
 
     root_path = os.path.dirname(os.path.abspath(__file__)) + '/..'
 
@@ -32,7 +35,7 @@ def install_dependencies(matlab_lib_path=None, matlab_include_path=None, \
     library_paths['casadi'] = casadi_root + '/installation/lib'
 
     os.chdir('external')
-    if matlab_lib_path:
+    if matlab_root_path:
         os.system('make MATLAB_LIBDIR={} MATLAB_IDIR={}'.format(matlab_lib_path, matlab_include_path))
         library_paths['matlab'] = matlab_lib_path
     else:

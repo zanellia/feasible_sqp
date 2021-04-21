@@ -18,4 +18,3 @@ install:
     - matlab -batch 'matlab_root_path = matlabroot'
     - pushd test
     - python3 test.py -matlab_root_path 
-
