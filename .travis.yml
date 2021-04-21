@@ -10,6 +10,7 @@ git:
 before_install: 
     - git submodule update --init
     - sudo apt-get -y install python3-pip
+    - sudo apt-get -y install python3-setuptools
 
 install:
     - python3 -m pip install -e .
