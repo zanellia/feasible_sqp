@@ -50,7 +50,7 @@ qpoases:
 	cd ${QPOASES_ROOT_DIR}; mkdir -p bin; make -j4 MATLAB_IDIR=${MATLAB_IDIR} MATLAB_LIBDIR=${MATLAB_LIBDIR} USE_SOLVER=${USE_SOLVER} LIB_BLAS=${LIB_BLAS} LIB_LAPACK=${LIB_LAPACK} REPLACE_LINALG=${REPLACE_LINALG} src
 
 casadi: 
-	cd ${CASADI_ROOT_DIR} && mkdir -p build && mkdir -p installation && cd build && cmake .. && make -j4 && make install DESTDIR=../installation 
+	cd ${CASADI_ROOT_DIR} && mkdir -p build && mkdir -p installation && cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/../installation .. && make -j4 && make install
 
 .PHONY:	casadi 
 

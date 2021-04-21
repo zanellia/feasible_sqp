@@ -1,6 +1,6 @@
 from feasible_sqp import *
 
-INSTALL_DEPS = 0
+INSTALL_DEPS = 1
 
 if INSTALL_DEPS:
     install_dependencies(matlab_root_path='/usr/local/MATLAB/R2017b')
