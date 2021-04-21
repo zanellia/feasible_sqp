@@ -133,9 +133,9 @@ class feasible_sqp():
         lam = ca.SX.sym('lam', ni, 1)
 
         os.system('mkdir -p {}'.format(self.opts['solver_name']))
-        printf('system ls:')
+        print('system ls:')
         os.system('ls')
-        printf('system pwd:')
+        print('system pwd:')
         os.system('pwd')
         os.chdir(self.opts['solver_name'])
         ca_dfdy = ca.Function('ca_dfdy', [y], [ca.jacobian(f,y)])
