@@ -235,11 +235,11 @@ class feasible_sqp():
         # get solver shared_lib
         cwd = os.getcwd()
         solver_name = self.opts['solver_name']
-        cdll.LoadLibrary(cwd + '/' + solver_name + '/' + 'libca_dgdy.so')
-        self.shared_lib = CDLL(cwd + '/' + solver_name + '/' + solver_name + '.so')
-
         #TODO(andrea): why is this necessary??
         os.chdir(self.opts['solver_name'])
+
+        self.shared_lib = CDLL(cwd + '/' + solver_name + '/' + solver_name + '.so')
+
         print('system pwd:')
         os.system('pwd')
         print('system ls:')
