@@ -1,4 +1,11 @@
 # A feasible sequential quadratic programming strategy with iterated second-order corrections
+This package provides a solver for nonconvex programs of the form
+
+<p>min_y f(y)
+</p>
+<p>s.t.  lb_g <= g(y) <= ub_g,
+</p>
+<p>      lb_y <= y <= ub_y,
 
 ## installation
 - clone the repo: 
