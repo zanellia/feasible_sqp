@@ -30,20 +30,26 @@ install_dependencies(matlab_root_path=matlab_root_path)
 
 # number of primal variables
 nv = 2
+
 # create solver
 solver = feasible_sqp(nv)
+
 # get primal variables
 y = solver.y
 
 # define cost
 f = 1.0/2.0*ca.dot(y-10,y-10)
+
 # define constraints
 g = ca.vertcat(ca.sin(y[1]) - y[0])
+
 # define bounds
 lby = -np.ones((nv,1))
 uby = np.ones((nv,1))
+
 # generate solver
 solver.generate_solver(f,g, lby = lby, uby = uby)
+
 # solve NLP
 solver.solve()
 ```
