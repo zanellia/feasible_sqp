@@ -1,4 +1,12 @@
+[![Build Status](https://travis-ci.com/zanellia/feasible_sqp.svg?branch=master)](https://travis-ci.com/zanellia/feasible_sqp)
 # A feasible sequential quadratic programming strategy with iterated second-order corrections
+This package provides a solver for nonconvex programs of the form
+
+<p>min_y f(y)
+</p>
+<p>s.t.  lb_g <= g(y) <= ub_g,
+</p>
+<p>      lb_y <= y <= ub_y,
 
 ## installation
 - clone the repo: 
@@ -12,40 +20,44 @@ git submodule update --init
 - install the Python package:
 ```bash
 cd feasible_sqp
-pip install .
+pip install -e .
 ```
 - build and install the dependencies:
 ```python
 import feasible_sqp
-feasible_sqp.install_dependencies(matlab_lib_path=<...>, matlab_include_path=<...>)
+feasible_sqp.install_dependencies(matlab_root_path=<...>)
 ```
 
 ## usage
 ```python
 from feasible_sqp import *
 
-matlab_lib_path =     <...> # e.g., '/usr/local/MATLAB/R2017b/bin/glnxa64'
-matlab_include_path = <...> # e.g., '/usr/local/MATLAB/R2017b/extern/include'
+matlab_root_path =     <...> # e.g., '/usr/local/MATLAB/R2017b'
 
-install_dependencies(matlab_lib_path=matlab_lib_path,\
-    matlab_include_path=matlab_include_path)
+install_dependencies(matlab_root_path=matlab_root_path)
 
 # number of primal variables
 nv = 2
+
 # create solver
 solver = feasible_sqp(nv)
+
 # get primal variables
 y = solver.y
 
 # define cost
 f = 1.0/2.0*ca.dot(y-10,y-10)
+
 # define constraints
 g = ca.vertcat(ca.sin(y[1]) - y[0])
+
 # define bounds
 lby = -np.ones((nv,1))
 uby = np.ones((nv,1))
+
 # generate solver
 solver.generate_solver(f,g, lby = lby, uby = uby)
+
 # solve NLP
 solver.solve()
 ```
