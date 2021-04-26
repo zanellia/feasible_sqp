@@ -36,7 +36,7 @@ fsqp_solver_main:
 	g++ ${CPPFLAGS} -c main.cpp ${IFLAGS}
 
 fsqp_solver_shared: fsqp_solver
-	g++ ${CPPFLAGS} -shared -o {{ build_params.solver_name }}.so {{ build_params.solver_name }}.o -lcasadi -lqpOASES -lca_dfdy -lca_g  -lca_dgdy -lca_dLdyy -L. -L${QPOASES_LIB_DIR} -L${CASADI_LIB_DIR}
+	g++ ${CPPFLAGS} -shared -o {{ build_params.solver_name }}.so {{ build_params.solver_name }}.o -lcasadi -lqpOASES -lca_dfdy -lca_g -lca_dgdy -lca_dLdyy -L. -L${QPOASES_LIB_DIR} -L${CASADI_LIB_DIR}
 
 example: fsqp_solver fsqp_solver_main
 	g++ ${CPPFLAGS} -o {{ build_params.solver_name }}_example main.o {{ build_params.solver_name }}.o -lcasadi -lqpOASES -lca_dfdy -lca_g  -lca_dgdy -lca_dLdyy -L. -L${QPOASES_LIB_DIR} -L${CASADI_LIB_DIR}
