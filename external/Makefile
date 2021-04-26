@@ -48,7 +48,7 @@ all: qpoases casadi
 
 qpoases: 
 	# cd ${QPOASES_ROOT_DIR}; mkdir -p bin; make -j4 MATLAB_IDIR=${MATLAB_IDIR} MATLAB_LIBDIR=${MATLAB_LIBDIR} USE_SOLVER=${USE_SOLVER} LIB_BLAS=${LIB_BLAS} LIB_LAPACK=${LIB_LAPACK} REPLACE_LINALG=${REPLACE_LINALG} src
-	cd ${QPOASES_ROOT_DIR}; mkdir -p bin; make -j4 MATLAB_IDIR=${MATLAB_IDIR} MATLAB_LIBDIR=${MATLAB_LIBDIR} USE_SOLVER=${USE_SOLVER} LIB_BLAS=/usr/lib/libblas.so.3 ${MATLAB_LIBDIR}/libmwblas.so LIB_LAPACK=/usr/lib/liblapack.so REPLACE_LINALG=${REPLACE_LINALG} src
+	cd ${QPOASES_ROOT_DIR}; mkdir -p bin; make -j4 MATLAB_IDIR=${MATLAB_IDIR} MATLAB_LIBDIR=${MATLAB_LIBDIR} USE_SOLVER=${USE_SOLVER} LIB_BLAS=/usr/lib/libblas.so.3 ${MATLAB_LIBDIR}/libmwblas.so LIB_LAPACK=/usr/lib/x86_64-linux-gnu/lapack/liblapack.so REPLACE_LINALG=${REPLACE_LINALG} src
 
 casadi: 
 	cd ${CASADI_ROOT_DIR} && mkdir -p build && cd build && cmake -DCMAKE_INSTALL_PREFIX=../installation .. && make -j4 && make install
