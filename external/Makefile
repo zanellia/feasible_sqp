@@ -24,13 +24,13 @@ LIB_SOLVER = ${MATLAB_LIBDIR}/libmwma57.so
 LINKHSL = -Wl,-rpath=${MATLAB_LIBDIR}
 endif
 
-ifndef LIB_BLAS
-$(error LIB_BLAS is not set)
-endif
+# ifndef LIB_BLAS
+# $(error LIB_BLAS is not set)
+# endif
 
-ifndef LIB_LAPACK
-$(error LIB_LAPACK is not set)
-endif
+# ifndef LIB_LAPACK
+# $(error LIB_LAPACK is not set)
+# endif
 
 ifndef LIB_SOLVER
 $(error LIB_SOLVER is not set)
