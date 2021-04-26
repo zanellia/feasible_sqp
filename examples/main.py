@@ -23,7 +23,7 @@ uby = 0.7*np.ones((nv,1))
 lbg = -0.0001*np.ones((1,1))
 ubg = 0.0001*np.ones((1,1))
 # generate solver
-# solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg)
-solver.generate_solver(f,g, lby = lby, uby = uby)
+solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg)
+# solver.generate_solver(f,g, lby = lby, uby = uby)
 # solve NLP
 solver.solve()
