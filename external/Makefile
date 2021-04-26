@@ -3,8 +3,8 @@ CASADI_ROOT_DIR = casadi
 USE_SOLVER=MA57
 REPLACE_LINALG=0
 
-# MATLAB_LIBDIR=/usr/local/MATLAB/R2017b/bin/glnxa64
-# MATLAB_IDIR=/usr/local/MATLAB/R2017b/extern/include
+MATLAB_LIBDIR=/usr/local/MATLAB/R2017b/bin/glnxa64
+MATLAB_IDIR=/usr/local/MATLAB/R2017b/extern/include
 
 # specify either 
 # MATLAB_LIBDIR and MATLAB_IDIR 
@@ -18,8 +18,8 @@ ifdef MATLAB_LIBDIR
 ifndef MATLAB_IDIR
 $(error MATLAB_IDIR is not set)
 endif
-LIB_BLAS = ${MATLAB_LIBDIR}/libmwblas.so
-LIB_LAPACK = ${MATLAB_LIBDIR}/libmwlapack.so
+# LIB_BLAS = ${MATLAB_LIBDIR}/libmwblas.so
+# LIB_LAPACK = ${MATLAB_LIBDIR}/libmwlapack.so
 LIB_SOLVER = ${MATLAB_LIBDIR}/libmwma57.so
 LINKHSL = -Wl,-rpath=${MATLAB_LIBDIR}
 endif
