@@ -1,4 +1,5 @@
-dist: focal
+# dist: focal
+dist: bionic
 
 # this is only required to install MATLAB such that we
 # have access to HSL on the machine
