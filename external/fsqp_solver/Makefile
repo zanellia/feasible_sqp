@@ -1,0 +1,51 @@
+QPOASES_ROOT_DIR =  /home/andrea/feasible_sqp/feasible_sqp/../external/qpOASES
+CASADI_ROOT_DIR  =  /home/andrea/feasible_sqp/feasible_sqp/../external/casadi
+
+QPOASES_LIB_DIR = ${QPOASES_ROOT_DIR}/bin
+QPOASES_STATIC_LIB = ${QPOASES_ROOT_DIR}/bin/libqpOASES.a
+CASADI_LIB_DIR = ${QPOASES_ROOT_DIR}/installation/lib
+
+##
+##	flags
+##
+
+IFLAGS      =  -I. \
+               -I${QPOASES_ROOT_DIR}/include \
+			   -I${CASADI_ROOT_DIR}/installation/include
+
+OUTPUT_DIR = .
+
+CPPFLAGS = -std=c++11 -fPIC
+
+##
+##	targets
+##
+
+qpoases: 
+	cd ${QPOASES_ROOT_DIR}; mkdir -p bin; make -j4 src
+
+casadi: 
+	cd ${CASADI_ROOT_DIR}; mkdir -p build; mkdir -p installation; cd build; cmake ..; make -j4; make install DESTDIR=../installation 
+
+fsqp_solver:
+	g++ ${CPPFLAGS} -c fsqp_solver.cpp ${IFLAGS}
+
+fsqp_solver_shared: fsqp_solver
+	g++ ${CPPFLAGS} -shared -o fsqp_solver.so fsqp_solver.o -lcasadi -lqpOASES -lca_dfdy -lca_g  -lca_dgdy -lca_dLdyy -L. -L${QPOASES_LIB_DIR} -L${CASADI_LIB_DIR}
+
+all: qpoases casadi fsqp_solver 
+
+clean_qpoases:
+	cd ${QPOASES_ROOT_DIR}; make clean
+
+clean_casadi:
+	cd ${QPOASES_ROOT_DIR}/build; make clean
+
+clean_feasible_sqp:
+	rm -f *.so *.o
+
+clean: clean_qpoases clean_casadi clean_feasible_sqp
+
+##
+##	end of file
+##
