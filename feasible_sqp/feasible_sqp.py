@@ -8,13 +8,13 @@ import json
 import sys
 
 def install_dependencies(matlab_root_path=None, \
-        blas_lib_path=None, lapack_lib_path=None, lib_solver_path=None, \
+        blas_lib_path=None, lapack_lib_path=None, hsl_lib_path=None, \
         qpoases_root=None, casadi_root=None):
 
     if (matlab_root_path == None) and \
-            (blas_lib_path == None or lapack_lib_path == None or lib_solver_path == None):
+            (blas_lib_path == None or lapack_lib_path == None or hsl_lib_path == None):
         raise Exception('MA57 from the HSL library is required. Specify either matlab_root_path or'\
-                ' blas_lib_path, lapack_lib_path, lib_solver_path.')
+                ' blas_lib_path, lapack_lib_path, hsl_lib_path.')
 
     root_path = os.path.dirname(os.path.abspath(__file__)) + '/..'
 
@@ -47,10 +47,10 @@ def install_dependencies(matlab_root_path=None, \
 
         library_paths['matlab'] = matlab_lib_dir
     else:
-        hsl_lib_dir = '/'.join(lib_solver_path.split('/')[0:-1])
+        hsl_lib_dir = '/'.join(hsl_lib_path.split('/')[0:-1])
 
         cmd = 'make LIB_BLAS={} LIB_LAPACK={} LIB_SOLVER={} LIB_HSL_DIR={} CASADI_ROOT_DIR={} QPOASES_ROOT_DIR={}'.format(\
-            blas_lib_path, lapack_lib_path, lib_solver_path, hsl_lib_dir, casadi_root, qpoases_root)
+            blas_lib_path, lapack_lib_path, hsl_lib_path, hsl_lib_dir, casadi_root, qpoases_root)
 
         status = os.system(cmd)
 
