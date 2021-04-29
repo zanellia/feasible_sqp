@@ -8,16 +8,13 @@ import json
 import sys
 
 def install_dependencies(matlab_root_path=None, \
-        blas_lib_path=None, lapack_lib_path=None, lib_solver_path=None, lib_hsl_path=None, \
+        blas_lib_path=None, lapack_lib_path=None, lib_solver_path=None, \
         qpoases_root=None, casadi_root=None):
 
     if (matlab_root_path == None) and \
-            (blas_lib_path == None or lapack_lib_path == None or lib_solver_path == None or lib_hsl_path == None):
+            (blas_lib_path == None or lapack_lib_path == None or lib_solver_path == None):
         raise Exception('MA57 from the HSL library is required. Specify either matlab_root_path or'\
-                ' blas_lib_path, lapack_lib_path, lib_solver_path and lib_hsl_path.')
-
-    matlab_lib_path = matlab_root_path + '/bin/glnxa64'
-    matlab_include_path = matlab_root_path + '/extern/include'
+                ' blas_lib_path, lapack_lib_path, lib_solver_path.')
 
     root_path = os.path.dirname(os.path.abspath(__file__)) + '/..'
 
@@ -37,11 +34,34 @@ def install_dependencies(matlab_root_path=None, \
 
     os.chdir('external')
     if matlab_root_path:
-        os.system('make MATLAB_LIBDIR={} MATLAB_IDIR={}'.format(matlab_lib_path, matlab_include_path))
-        library_paths['matlab'] = matlab_lib_path
+        matlab_lib_dir = matlab_root_path + '/bin/glnxa64'
+        matlab_include_dir = matlab_root_path + '/extern/include'
+
+        cmd = 'make MATLAB_LIBDIR={} MATLAB_IDIR={} CASADI_ROOT_DIR={} QPOASES_ROOT_DIR={}'.format(\
+            matlab_lib_dir, matlab_include_dir, casadi_root, qpoases_root)
+
+        status = os.system(cmd)
+
+        if status != 0:
+            raise Exception('{} failed'.format(cmd))
+
+        library_paths['matlab'] = matlab_lib_folder
     else:
-        os.system('make LIB_BLAS={} LIB_LAPACK={} LIB_SOLVER={} LINKHSL={}'.format(blas_lib_path, \
-            lapack_lib_path, lib_solver_path, lib_hsl_path))
+        hsl_lib_dir = '/'.join(lib_solver_path.split('/')[0:-1])
+
+        cmd = 'make LIB_BLAS={} LIB_LAPACK={} LIB_SOLVER={} LIB_HSL_DIR={} CASADI_ROOT_DIR={} QPOASES_ROOT_DIR={}'.format(\
+            blas_lib_path, lapack_lib_path, lib_solver_path, hsl_lib_dir, casadi_root, qpoases_root)
+
+        status = os.system(cmd)
+
+        if status != 0:
+            raise Exception('{} failed'.format(cmd))
+
+        blas_lib_dir = '/'.join(blas_lib_path.split('/')[0:-1])
+        lapack_lib_dir = '/'.join(lapack_lib_path.split('/')[0:-1])
+        library_paths['hsl'] = hsl_lib_dir
+        library_paths['blas'] = blas_lib_dir
+        library_paths['lapack'] = lapack_lib_dir
 
     os.chdir('../feasible_sqp')
 
@@ -133,11 +153,11 @@ class feasible_sqp():
         y = self.y
         lam = ca.SX.sym('lam', ni, 1)
 
-        os.system('mkdir -p {}'.format(self.opts['solver_name']))
-        print('system ls:')
-        os.system('ls')
-        print('system pwd:')
-        os.system('pwd')
+        cmd = 'mkdir -p {}'.format(self.opts['solver_name'])
+        status = os.system(cmd)
+        if status != 0:
+            raise Exception('{} failed'.format(cmd))
+
         os.chdir(self.opts['solver_name'])
         ca_dfdy = ca.Function('ca_dfdy', [y], [ca.jacobian(f,y)])
         ca_dfdy.generate('ca_dfdy', opts)
@@ -204,15 +224,7 @@ class feasible_sqp():
         os.system('make {}_shared'.format(self.opts['solver_name']))
 
         print('successfully generated solver!')
-        print('system pwd:')
-        os.system('pwd')
-        print('system ls:')
-        os.system('ls')
         os.chdir('..')
-        print('system pwd:')
-        os.system('pwd')
-        print('system ls:')
-        os.system('ls')
 
         # generate script to set LD_LIBRARY_PATH
         fsqp_root = os.path.dirname(os.path.abspath(__file__)) + '/../'

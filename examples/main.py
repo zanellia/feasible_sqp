@@ -1,9 +1,16 @@
 from feasible_sqp import *
 
 INSTALL_DEPS = 1
+USE_MATLAB_HSL = 0
 
 if INSTALL_DEPS:
-    install_dependencies(matlab_root_path='/usr/local/MATLAB/R2017b')
+    if USE_MATLAB_HSL: 
+        install_dependencies(matlab_root_path='/usr/local/MATLAB/R2017b')
+    else:
+        install_dependencies(
+            blas_lib_path='/usr/lib/libblas.so', \
+            lapack_lib_path='/usr/lib/lapack/liblapack.so', \
+            lib_solver_path='/usr/local/lib/libhsl.so')
 
 # number of primal variables
 nv = 2
