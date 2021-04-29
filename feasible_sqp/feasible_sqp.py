@@ -45,7 +45,7 @@ def install_dependencies(matlab_root_path=None, \
         if status != 0:
             raise Exception('{} failed'.format(cmd))
 
-        library_paths['matlab'] = matlab_lib_folder
+        library_paths['matlab'] = matlab_lib_dir
     else:
         hsl_lib_dir = '/'.join(lib_solver_path.split('/')[0:-1])
 
