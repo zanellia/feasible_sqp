@@ -252,11 +252,6 @@ class feasible_sqp():
 
         self.shared_lib = CDLL(cwd + '/' + solver_name + '/' + solver_name + '.so')
 
-        print('system pwd:')
-        os.system('pwd')
-        print('system ls:')
-        os.system('ls')
-
         self.shared_lib.fsqp_solver()
 
         os.chdir('..')
