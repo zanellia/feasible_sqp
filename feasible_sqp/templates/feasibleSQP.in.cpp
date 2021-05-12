@@ -19,16 +19,6 @@
 #include "ca_dLdyy.h"
 #include "{{ solver_opts.solver_name }}.hpp"
 
-#define MAX_NWSR {{ solver_opts.max_nwsr }}
-#define MAX_INNER_IT {{ solver_opts.max_inner_it }}
-#define MAX_OUTER_IT {{ solver_opts.max_outer_it }}
-#define INNER_TOL {{ solver_opts.inner_tol }}
-#define OUTER_TOL {{ solver_opts.outer_tol }}
-#define nv {{ NV }}
-#define ni {{ NI }}
-#define np {{ NP }}
-#define BOUNDS 1
-
 using namespace casadi;
 using namespace std;
 
@@ -554,6 +544,56 @@ int {{ solver_opts.solver_name }}( )
     delete[] lam_QP;
 
 	// return 0;
+}
+
+
+int set_max_inner_it(int max_inner_it) {
+    int MAX_INNER_IT = max_inner_it;
+    return 0;
+}
+
+int set_max_outer_it(int max_outer_it) {
+    int MAX_OUTER_IT = max_outer_it;
+    return 0;
+}
+
+int set_max_nwsr(int max_nwsr) {
+    int MAX_NWSR = max_nwsr;
+    return 0;
+}
+
+int set_inner_tol(int inner_tol) {
+    int INNER_TOL = inner_tol;
+    return 0;
+}
+
+int set_outer_tol(int outer_tol) {
+    int OUTER_TOL = outer_tol;
+    return 0;
+}
+
+int get_primal_sol(double *primal_sol) {
+    for(int i = 0; i < nv; i++) {
+        primal_sol[i] = y_val[i];
+    }
+}
+
+int get_dual_sol(double *dual_sol) {
+    for(int i = 0; i < ni; i++) {
+        dual_sol[i] = lam_val[i];
+    }
+}
+
+int set_primal_guess(double *primal_guess) {
+    for(int i = 0; i < nv; i++) {
+        y_init[i] = primal_guess[i];
+    }
+}
+
+int set_dual_guess(double *dual_guess) {
+    for(int i = 0; i < ni; i++) {
+        lam_init[i] = dual_guess[i];
+    }
 }
 }
 

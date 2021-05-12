@@ -287,4 +287,53 @@ class feasible_sqp():
 
         os.chdir('..')
 
+    def set_max_inner_iter(self,  max_inner_it):
+        self.shared_lib.set_max_inner_iter(max_inner_it)
+        return
 
+    def set_max_outer_it(self,  max_outer_it):
+        self.shared_lib.set_max_outer_iter(max_outer_it)
+        return
+
+    def set_max_nwsr(self,  max_nwsr):
+        self.shared_lib.set_max_nwsr_iter(max_nwsr)
+        return
+
+    def set_inner_tol(self,  inner_tol):
+        self.shared_lib.set_inner_tol(inner_tol)
+        return
+
+    def set_outer_tol(self,  outer_tol):
+        self.shared_lib.set_outer_tol(outer_tol)
+        return
+
+    def set_primal_guess(self,  value_):
+        value_data = cast(value_.ctypes.data, POINTER(c_double))
+        self.shared_lib.set_primal_guess.argtypes = POINTER(c_double)
+        self.shared_lib.set_primal_guess.restype = c_int
+        self.shared_lib.set_primal_guess(value_data)
+
+        return
+
+    def set_dual_guess(self,  dual_guess):
+        value_data = cast(value_.ctypes.data, POINTER(c_double))
+        self.shared_lib.set_dual_guess.argtypes = POINTER(c_double)
+        self.shared_lib.set_dual_guess.restype = c_int
+        self.shared_lib.set_dual_guess(value_data)
+        return
+
+    def get_primal_sol(self):
+        out = np.ascontiguousarray(np.zeros((dims,)), dtype=np.float64)
+        out_data = cast(out.ctypes.data, POINTER(c_double))
+        self.shared_lib.get_primal_guess.argtypes = POINTER(c_double)
+        self.shared_lib.get_primal_guess.restype = c_int
+        self.shared_lib.get_primal_sol(out_data)
+        return out
+
+    def get_dual_sol(self):
+        out = np.ascontiguousarray(np.zeros((dims,)), dtype=np.float64)
+        out_data = cast(out.ctypes.data, POINTER(c_double))
+        self.shared_lib.get_dual_guess.argtypes = POINTER(c_double)
+        self.shared_lib.get_dual_guess.restype = c_int
+        self.shared_lib.get_dual_sol(out_data)
+        return out
