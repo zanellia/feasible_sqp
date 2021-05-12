@@ -26,6 +26,7 @@
 #define OUTER_TOL {{ solver_opts.outer_tol }}
 #define nv {{ NV }}
 #define ni {{ NI }}
+#define np {{ NP }}
 #define BOUNDS 1
 
 using namespace casadi;
@@ -33,13 +34,14 @@ using namespace std;
 
 USING_NAMESPACE_QPOASES
 
-int evaluate_dgdy(const double** arg, double** res, casadi_int* iw, double* w, int nnz, real_t* y_val, double* A_val) {
+int evaluate_dgdy(const double** arg, double** res, casadi_int* iw, double* w, int nnz, real_t* y_val, real_t* p_val, double* A_val) {
 
     // Allocate memory (thread-safe)
     ca_dgdy_incref();
 
     /* Evaluate the function */
     arg[0] = y_val;
+    arg[1] = p_val;
     res[0] = A_val;
 
     // Checkout thread-local memory (not thread-safe)
@@ -59,7 +61,7 @@ int evaluate_dgdy(const double** arg, double** res, casadi_int* iw, double* w, i
 
 }
 
-int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, int nnz, real_t* y_val, real_t* lam_val, double* H_val) {
+int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, int nnz, real_t* y_val, real_t* lam_val, real_t* p_val, double* H_val) {
 
     // Allocate memory (thread-safe)
     ca_dLdyy_incref();
@@ -67,6 +69,7 @@ int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, 
     /* Evaluate the function */
     arg[0] = y_val;
     arg[1] = lam_val;
+    arg[2] = p_val;
     res[0] = H_val;
 
     // Checkout thread-local memory (not thread-safe)
@@ -92,24 +95,25 @@ int {{ solver_opts.solver_name }}( )
 
     vector<double> y(nv, 0);
     vector<double> lam(ni, 0);
+    vector<double> p(ni, 0);
 
     Function ca_dfdy = external("ca_dfdy");
 
-    vector<DM> ca_y = {reshape(DM(y), nv, 1)};
-    vector<DM> dfdy_eval = ca_dfdy(ca_y);
+    vector<DM> ca_y_p = {reshape(DM(y), nv, 1), reshape(DM(p), np, 1)};
+    vector<DM> dfdy_eval = ca_dfdy(ca_y_p);
     // cout << "result (0): " << dfdy_eval.at(0) << endl;
 
     Function ca_g = external("ca_g");
-    vector<DM> g_eval = ca_g(ca_y);
+    vector<DM> g_eval = ca_g(ca_y_p);
     // cout << "result (0): " << g_eval.at(0) << endl;
 
     Function ca_dgdy = external("ca_dgdy");
-    vector<DM> dgdy_eval = ca_dgdy(ca_y);
+    vector<DM> dgdy_eval = ca_dgdy(ca_y_p);
     // cout << "result (0): " << dgdy_eval.at(0) << endl;
 
     Function ca_dLdyy = external("ca_dLdyy");
-    vector<DM> ca_z = {reshape(DM(y), nv, 1), reshape(DM(lam), ni, 1)};
-    vector<DM> dLdyy_eval = ca_dLdyy(ca_z);
+    vector<DM> ca_z_p = {reshape(DM(y), nv, 1), reshape(DM(lam), ni, 1), reshape(DM(p), np, 1)};
+    vector<DM> dLdyy_eval = ca_dLdyy(ca_z_p);
     // cout << "result (0): " << dLdyy_eval.at(0) << endl;
 
 
@@ -180,8 +184,19 @@ int {{ solver_opts.solver_name }}( )
 
     /* Function input and output */
     double y_val[nv] = {0};
+    double lam_val[ni] = {0};
 
-    evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, A_val);
+    // init y
+    for(int i = 0; i < nv; i++) {
+        y_val[i] = y_init[i];
+    }
+    
+    // init lam
+    for(int i = 0; i < ni; i++) {
+        lam_val[i] = lam_init[i];
+    }
+
+    evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
 
     // get sparsity patterns
     n_in = ca_dLdyy_n_in();
@@ -248,8 +263,7 @@ int {{ solver_opts.solver_name }}( )
     casadi_int iw_H[sz_iw];
     real_t w_H[sz_w];
 
-    double lam_val[ni] = {0};
-    evaluate_dLdyy(arg_A, res_H, iw_H, w_H, nnz_H, y_val, lam_val, H_val);
+    evaluate_dLdyy(arg_A, res_H, iw_H, w_H, nnz_H, y_val, lam_val, p_val, H_val);
 
 	long i;
 	int_t nWSR;
@@ -365,13 +379,14 @@ int {{ solver_opts.solver_name }}( )
         
 
         // update matrices and vectors
-        evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, A_val);
+        evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
         A->setVal(A_val);
-        evaluate_dLdyy(arg_H, res_H, iw_H, w_H, nnz_H, y_val, lam_val, H_val);
+        evaluate_dLdyy(arg_H, res_H, iw_H, w_H, nnz_H, y_val, lam_val, p_val, H_val);
         H->setVal(H_val);
-        ca_y[0] = reshape(DM(y), nv, 1);
+        // TODO(andrea) only setting y here! 
+        ca_y_p = {reshape(DM(y), nv, 1), reshape(DM(p), np, 1)};
 
-        dfdy_eval = ca_dfdy(ca_y);
+        dfdy_eval = ca_dfdy(ca_y_p);
         // cout << "new gradient: " << dfdy_eval.at(0) << endl;
         myvector = dfdy_eval.at(0);
 
@@ -382,7 +397,7 @@ int {{ solver_opts.solver_name }}( )
             g[i] = (double) myvector(i);
         }
 
-        g_eval = ca_g(ca_y);
+        g_eval = ca_g(ca_y_p);
         // cout << "new gradient: " << g_eval.at(0) << endl;
         myvector = g_eval.at(0);
 
@@ -454,9 +469,10 @@ int {{ solver_opts.solver_name }}( )
             // printf("in inner loop\n");
             // update vectors and solve hotstarted QP
 
-            ca_y[0] = reshape(DM(y), nv, 1);
+            // TODO(andrea): only setting y here!
+            ca_y_p = {reshape(DM(y), nv, 1), reshape(DM(p), np, 1)};
 
-            dfdy_eval = ca_dfdy(ca_y);
+            dfdy_eval = ca_dfdy(ca_y_p);
             // cout << "new gradient: " << dfdy_eval.at(0) << endl;
             myvector = dfdy_eval.at(0);
 
@@ -467,7 +483,7 @@ int {{ solver_opts.solver_name }}( )
                 g[i] = (double) myvector(i);
             }
 
-            g_eval = ca_g(ca_y);
+            g_eval = ca_g(ca_y_p);
             // cout << "new evaluation of g: " << g_eval.at(0) << endl;
             myvector = g_eval.at(0);
 

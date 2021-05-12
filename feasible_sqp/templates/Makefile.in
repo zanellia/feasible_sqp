@@ -24,7 +24,7 @@ CPPFLAGS = -std=c++11 -fPIC
 all: qpoases casadi fsqp_solver 
 
 qpoases: 
-	cd ${QPOASES_ROOT_DIR}; mkdir -p bin; make -j4 src
+	cd ${QPOASES_ROOT_DIR}; mkdir -p bin; make -j4 src  
 
 casadi: 
 	cd ${CASADI_ROOT_DIR}; mkdir -p build; mkdir -p installation; cd build; cmake ..; make -j4; make install DESTDIR=../installation 

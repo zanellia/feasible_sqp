@@ -1,5 +1,5 @@
 import casadi as ca 
-import numpy as np
+import numpy as nmp
 import os
 from jinja2 import Environment
 from jinja2.loaders import FileSystemLoader
@@ -72,10 +72,14 @@ def install_dependencies(matlab_root_path=None, \
     os.chdir(cwd)
 
 class feasible_sqp():
-    def __init__(self, nv, solver_name = 'fsqp_solver'):
+    def __init__(self, nv, np = 0, solver_name = 'fsqp_solver'):
+
+        self.p = ca.SX.sym('p', np, 1)
+
         self.y = ca.SX.sym('y', nv, 1)
         self.ni = 0
         self.nv = nv
+        self.np = np
         opts = dict()
         opts['max_nwsr'] = 10000
         opts['max_inner_it'] = 10
@@ -87,7 +91,7 @@ class feasible_sqp():
 
         return
 
-    def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = [], qpoases_root=None, casadi_root=None):
+    def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None):
         g_shape = g.shape
 
         if g_shape[1] != 1:
@@ -96,31 +100,41 @@ class feasible_sqp():
         ni = g_shape[0]
         self.ni = ni
         nv = self.nv
+        np = self.np
 
         FSQP_INF = 1E12
         if lby == []:
-            lby = -FSQP_INF*np.ones((nv,1))
+            lby = -FSQP_INF*nmp.ones((nv,1))
 
         if uby == []:
-            uby = FSQP_INF*np.ones((nv,1))
+            uby = FSQP_INF*nmp.ones((nv,1))
 
         if lbg == []:
-            lbg = np.zeros((ni,1))
+            lbg = nmp.zeros((ni,1))
 
         if ubg == []:
-            ubg = np.zeros((ni,1))
+            ubg = nmp.zeros((ni,1))
 
-        if not isinstance(lby, np.ndarray):
-            raise Exception('lby must be of type np.array, you have {}'.format(type(lby)))
+        if p0 == []:
+            p0 = nmp.zeros((np,1))
 
-        if not isinstance(uby, np.ndarray):
-            raise Exception('lbu must be of type np.array, you have {}'.format(type(uby)))
+        if y0 == []:
+            y0 = nmp.zeros((nv,1))
 
-        if not isinstance(lbg, np.ndarray):
-            raise Exception('lbg must be of type np.array, you have {}'.format(type(lbg)))
+        if lam0 == []:
+            lam0 = nmp.zeros((ni,1))
 
-        if not isinstance(ubg, np.ndarray):
-            raise Exception('ubg must be of type np.array, you have {}'.format(type(ubg)))
+        if not isinstance(lby, nmp.ndarray):
+            raise Exception('lby must be of type nmp.array, you have {}'.format(type(lby)))
+
+        if not isinstance(uby, nmp.ndarray):
+            raise Exception('lbu must be of type nmp.array, you have {}'.format(type(uby)))
+
+        if not isinstance(lbg, nmp.ndarray):
+            raise Exception('lbg must be of type nmp.array, you have {}'.format(type(lbg)))
+
+        if not isinstance(ubg, nmp.ndarray):
+            raise Exception('ubg must be of type nmp.array, you have {}'.format(type(ubg)))
 
         lby_shape = lby.shape
 
@@ -146,11 +160,28 @@ class feasible_sqp():
             raise Exception('ubg must have shape (ni,1) = ({},1), you have ({},{})'\
                 .format(ni, ubg_shape[0], ubg_shape[1]))
 
+        p0_shape = p0.shape
+
+        if p0_shape[0] != np or p0_shape[1] != 1:
+            raise Exception('p0 must have shape (np,1) = ({},1), you have ({},{})'\
+                .format(np, p0_shape[0], p0_shape[1]))
         optlevel = ''
 
+        y0_shape = y0.shape
+
+        if y0_shape[0] != nv or y0_shape[1] != 1:
+            raise Exception('y0 must have shape (nv,1) = ({},1), you have ({},{})'\
+                .format(nv, y0_shape[0], y0_shape[1]))
         opts = dict(with_header=True)
 
+        lam0_shape = lam0.shape
+
+        if lam0_shape[0] != ni or lam0_shape[1] != 1:
+            raise Exception('lam0 must have shape (ni,1) = ({},1), you have ({},{})'\
+                .format(ni, lam0_shape[0], lam0_shape[1]))
+
         y = self.y
+        p = self.p
         lam = ca.SX.sym('lam', ni, 1)
 
         cmd = 'mkdir -p {}'.format(self.opts['solver_name'])
@@ -159,13 +190,13 @@ class feasible_sqp():
             raise Exception('{} failed'.format(cmd))
 
         os.chdir(self.opts['solver_name'])
-        ca_dfdy = ca.Function('ca_dfdy', [y], [ca.jacobian(f,y)])
+        ca_dfdy = ca.Function('ca_dfdy', [y,p], [ca.jacobian(f,y)])
         ca_dfdy.generate('ca_dfdy', opts)
         print('compiling generated code for dfdy...')
         os.system('gcc -fPIC -shared {} ca_dfdy.c -o libca_dfdy.so'.format(optlevel))
         os.system('gcc -fPIC -shared {} ca_dfdy.c -o ca_dfdy.so'.format(optlevel))
 
-        ca_g = ca.Function('ca_g', [y], [g])
+        ca_g = ca.Function('ca_g', [y,p], [g])
         ca_g.generate('ca_g', opts)
         print('compiling generated code for g...')
         os.system('gcc -fPIC -shared {} ca_g.c -o libca_g.so'.format(optlevel))
@@ -173,7 +204,7 @@ class feasible_sqp():
         # ca_g.save("ca_g.casadi")
 
         print('compiling generated code for dgdy...')
-        ca_dgdy = ca.Function('ca_dgdy', [y], [ca.jacobian(g,y)])
+        ca_dgdy = ca.Function('ca_dgdy', [y,p], [ca.jacobian(g,y)])
         ca_dgdy.generate('ca_dgdy', opts)
         os.system('gcc -fPIC -shared {} ca_dgdy.c -o libca_dgdy.so'.format(optlevel))
         os.system('gcc -fPIC -shared {} ca_dgdy.c -o ca_dgdy.so'.format(optlevel))
@@ -182,7 +213,7 @@ class feasible_sqp():
         L = f + ca.dot(lam, g)
 
         print('compiling generated code for dLdyy...')
-        ca_dLdyy = ca.Function('ca_dLdyy', [y, lam], [ca.hessian(L,y)[0]])
+        ca_dLdyy = ca.Function('ca_dLdyy', [y, lam, p], [ca.hessian(L,y)[0]])
         ca_dLdyy.generate('ca_dLdyy', opts)
         os.system('gcc -fPIC -shared -O3 ca_dLdyy.c -o libca_dLdyy.so')
         os.system('gcc -fPIC -shared -O3 ca_dLdyy.c -o ca_dLdyy.so')
@@ -190,13 +221,13 @@ class feasible_sqp():
         print('rendering templated C++ code...')
         env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))))
         tmpl = env.get_template("templates/feasibleSQP.in.cpp")
-        code = tmpl.render(solver_opts = self.opts, NI = self.ni, NV = self.nv)
+        code = tmpl.render(solver_opts = self.opts, NI = self.ni, NV = self.nv, NP = self.np)
         with open('{}.cpp'.format(self.opts['solver_name']), "w+") as f:
             f.write(code)
 
         tmpl = env.get_template("templates/feasibleSQP.in.hpp")
-        code = tmpl.render(solver_opts = self.opts, NV = nv, NI = ni, \
-            lby = lby, uby = uby, lbg = lbg, ubg = ubg)
+        code = tmpl.render(solver_opts = self.opts, NV = nv, NI = ni, NP = np,\
+            lby = lby, uby = uby, lbg = lbg, ubg = ubg, p0 = p0, y0 = y0, lam0 = lam0)
 
         with open('{}.hpp'.format(self.opts['solver_name']), "w+") as f:
             f.write(code)
