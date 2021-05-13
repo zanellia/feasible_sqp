@@ -315,11 +315,18 @@ class feasible_sqp():
 
         return
 
-    def set_dual_guess(self,  dual_guess):
+    def set_dual_guess(self,  value_):
         value_data = cast(value_.ctypes.data, POINTER(c_double))
         self.shared_lib.set_dual_guess.argtypes = POINTER(c_double)
         self.shared_lib.set_dual_guess.restype = c_int
         self.shared_lib.set_dual_guess(value_data)
+        return
+
+    def set_param(self,  value_):
+        value_data = cast(value_.ctypes.data, POINTER(c_double))
+        self.shared_lib.set_param.argtypes = POINTER(c_double)
+        self.shared_lib.set_param.restype = c_int
+        self.shared_lib.set_param(value_data)
         return
 
     def get_primal_sol(self):

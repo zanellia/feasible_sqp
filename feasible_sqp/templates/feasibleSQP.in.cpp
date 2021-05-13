@@ -172,10 +172,6 @@ int {{ solver_opts.solver_name }}( )
     casadi_int iw_A[sz_iw];
     real_t w_A[sz_w];
 
-    /* Function input and output */
-    double y_val[nv] = {0};
-    double lam_val[ni] = {0};
-
     // init y
     for(int i = 0; i < nv; i++) {
         y_val[i] = y_init[i];
@@ -593,6 +589,12 @@ int set_primal_guess(double *primal_guess) {
 int set_dual_guess(double *dual_guess) {
     for(int i = 0; i < ni; i++) {
         lam_init[i] = dual_guess[i];
+    }
+}
+
+int set_param(double *par) {
+    for(int i = 0; i < np; i++) {
+        p_val[i] = par[i];
     }
 }
 }

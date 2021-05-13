@@ -31,6 +31,8 @@ int get_dual_sol(double *dual_sol);
 int set_primal_guess(double *primal_guess);
 
 int set_dual_guess(double *dual_guess);
+
+int set_param(double *par);
 }
 
 // solution
