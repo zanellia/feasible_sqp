@@ -85,7 +85,7 @@ int {{ solver_opts.solver_name }}( )
 
     vector<double> y(nv, 0);
     vector<double> lam(ni, 0);
-    vector<double> p(ni, 0);
+    vector<double> p(np, 0);
 
     Function ca_dfdy = external("ca_dfdy");
 
@@ -308,7 +308,7 @@ int {{ solver_opts.solver_name }}( )
     // printf("H matrix\n");
     // H->print();
 
-    myvector = dfdy_eval.at(0);
+    myvector = g_eval.at(0);
     for(int i = 0; i < ni; i++) {
         lbA[i] = lbg[i] -(double) myvector(i);
         ubA[i] = ubg[i] -(double) myvector(i);
