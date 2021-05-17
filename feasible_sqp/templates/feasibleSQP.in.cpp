@@ -86,6 +86,17 @@ int {{ solver_opts.solver_name }}( )
     vector<double> y(nv, 0);
     vector<double> lam(ni, 0);
     vector<double> p(np, 0);
+    
+    // init y
+    for(int i = 0; i < nv; i++) {
+        y_val[i] = y_init[i];
+        y[i] = y_init[i];
+    }
+    // init lam
+    for(int i = 0; i < ni; i++) {
+        lam_val[i] = lam_init[i];
+        lam[i] = lam_init[i];
+    }
 
     Function ca_dfdy = external("ca_dfdy");
 
@@ -171,16 +182,6 @@ int {{ solver_opts.solver_name }}( )
     double *res_A[sz_res];
     casadi_int iw_A[sz_iw];
     real_t w_A[sz_w];
-
-    // init y
-    for(int i = 0; i < nv; i++) {
-        y_val[i] = y_init[i];
-    }
-    
-    // init lam
-    for(int i = 0; i < ni; i++) {
-        lam_val[i] = lam_init[i];
-    }
 
     evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
 
