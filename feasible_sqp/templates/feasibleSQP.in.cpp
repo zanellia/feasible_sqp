@@ -545,27 +545,27 @@ int {{ solver_opts.solver_name }}( )
 
 
 int set_max_inner_it(int max_inner_it) {
-    int MAX_INNER_IT = max_inner_it;
+    MAX_INNER_IT = max_inner_it;
     return 0;
 }
 
 int set_max_outer_it(int max_outer_it) {
-    int MAX_OUTER_IT = max_outer_it;
+    MAX_OUTER_IT = max_outer_it;
     return 0;
 }
 
 int set_max_nwsr(int max_nwsr) {
-    int MAX_NWSR = max_nwsr;
+    MAX_NWSR = max_nwsr;
     return 0;
 }
 
 int set_inner_tol(int inner_tol) {
-    int INNER_TOL = inner_tol;
+    INNER_TOL = inner_tol;
     return 0;
 }
 
 int set_outer_tol(int outer_tol) {
-    int OUTER_TOL = outer_tol;
+    OUTER_TOL = outer_tol;
     return 0;
 }
 

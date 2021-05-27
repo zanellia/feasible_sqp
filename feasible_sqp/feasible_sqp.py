@@ -330,7 +330,7 @@ class feasible_sqp():
         return
 
     def get_primal_sol(self):
-        out = np.ascontiguousarray(np.zeros((dims,)), dtype=np.float64)
+        out = np.ascontiguousarray(np.zeros((self.nv,)), dtype=np.float64)
         out_data = cast(out.ctypes.data, POINTER(c_double))
         self.shared_lib.get_primal_guess.argtypes = POINTER(c_double)
         self.shared_lib.get_primal_guess.restype = c_int
@@ -338,7 +338,7 @@ class feasible_sqp():
         return out
 
     def get_dual_sol(self):
-        out = np.ascontiguousarray(np.zeros((dims,)), dtype=np.float64)
+        out = np.ascontiguousarray(np.zeros((self.ni,)), dtype=np.float64)
         out_data = cast(out.ctypes.data, POINTER(c_double))
         self.shared_lib.get_dual_guess.argtypes = POINTER(c_double)
         self.shared_lib.get_dual_guess.restype = c_int
