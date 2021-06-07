@@ -98,6 +98,10 @@ int {{ solver_opts.solver_name }}( )
         lam[i] = lam_init[i];
     }
 
+    for(int i = 0; i < np; i++) {
+        p[i] = p_val[i];
+    }
+
     Function ca_dfdy = external("ca_dfdy");
 
     vector<DM> ca_y_p = {reshape(DM(y), nv, 1), reshape(DM(p), np, 1)};
