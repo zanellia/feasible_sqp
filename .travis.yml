@@ -1,13 +1,13 @@
-# dist: focal
-dist: bionic
+dist: focal
+#dist: bionic
 
 # setting lbg/ubg works fine with bionic + MATLAB R2020a, not with focal + MATLAB R2021a (latest, default)
 
 # this is only required to install MATLAB such that we
 # have access to HSL on the machine
 language: matlab
-matlab: R2020a
-# matlab: R2021a
+# matlab: R2020a
+matlab: R2021a
 
 # python: 3.7 # this is ignored when `language: matlab` is in place
 
@@ -20,12 +20,12 @@ before_install:
     - sudo apt-get -y install python3-setuptools
      
     # ONLY FOR FOCAL
-    # - sudo apt-get install libgfortran5
-    # - sudo apt-get install liblapack-dev
-    # - sudo apt-get install libblas-dev
+    - sudo apt-get install libgfortran5
+    - sudo apt-get install liblapack-dev
+    - sudo apt-get install libblas-dev
 
     # ONLY FOR BIONIC
-    - sudo apt-get install libgfortran3 
+    # - sudo apt-get install libgfortran3 
 
 
 install:
