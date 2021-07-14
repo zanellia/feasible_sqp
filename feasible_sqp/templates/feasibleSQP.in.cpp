@@ -274,10 +274,10 @@ int {{ solver_opts.solver_name }}( )
     real_t lb[nv]; 
     real_t ub[nv]; 
 
-    DM myvector = dfdy_eval.at(0);
+    std::vector<double> myvector = std::vector<double>(dfdy_eval.at(0));
     for(int i = 0; i < nv; i++) {
 
-        g[i] = (double) myvector(i);
+        g[i] = myvector[i];
         lb[i] = lby[i];
         ub[i] = uby[i];
     }
@@ -313,10 +313,10 @@ int {{ solver_opts.solver_name }}( )
     // printf("H matrix\n");
     // H->print();
 
-    myvector = g_eval.at(0);
+    myvector = std::vector<double>(g_eval.at(0));
     for(int i = 0; i < ni; i++) {
-        lbA[i] = lbg[i] -(double) myvector(i);
-        ubA[i] = ubg[i] -(double) myvector(i);
+        lbA[i] = lbg[i] - myvector[i];
+        ubA[i] = ubg[i] - myvector[i];
     }
 
     for(int i = 0; i < nv; i++) {
@@ -379,22 +379,22 @@ int {{ solver_opts.solver_name }}( )
 
         dfdy_eval = ca_dfdy(ca_y_p);
         // cout << "new gradient: " << dfdy_eval.at(0) << endl;
-        myvector = dfdy_eval.at(0);
+        myvector = std::vector<double>(dfdy_eval.at(0));
 
         // ca_lam[0] = reshape(DM(lam), ni, 1);
 
         for(int i = 0; i < nv; i++) {
 
-            g[i] = (double) myvector(i);
+            g[i] = myvector[i];
         }
 
         g_eval = ca_g(ca_y_p);
         // cout << "new gradient: " << g_eval.at(0) << endl;
-        myvector = g_eval.at(0);
+        myvector = std::vector<double>(g_eval.at(0));
 
         for(int i = 0; i < ni; i++) {
-            lbA[i] = lbg[i] -(double) myvector(i);
-            ubA[i] = ubg[i] -(double) myvector(i);
+            lbA[i] = lbg[i] - myvector[i];
+            ubA[i] = ubg[i] - myvector[i];
         }
 
         for(int i = 0; i < nv; i++) {
@@ -465,22 +465,22 @@ int {{ solver_opts.solver_name }}( )
 
             dfdy_eval = ca_dfdy(ca_y_p);
             // cout << "new gradient: " << dfdy_eval.at(0) << endl;
-            myvector = dfdy_eval.at(0);
+            myvector = std::vector<double>(dfdy_eval.at(0));
 
             // ca_lam[0] = reshape(DM(lam), ni, 1);
 
             for(int i = 0; i < nv; i++) {
 
-                g[i] = (double) myvector(i);
+                g[i] = myvector[i];
             }
 
             g_eval = ca_g(ca_y_p);
             // cout << "new evaluation of g: " << g_eval.at(0) << endl;
-            myvector = g_eval.at(0);
+            myvector = std::vector<double>(g_eval.at(0));
 
             for(int i = 0; i < ni; i++) {
-                lbA[i] = lbg[i] -(double) myvector(i);
-                ubA[i] = ubg[i] -(double) myvector(i);
+                lbA[i] = lbg[i] - myvector[i];
+                ubA[i] = ubg[i] - myvector[i];
             }
 
             for(int i = 0; i < nv; i++) {
