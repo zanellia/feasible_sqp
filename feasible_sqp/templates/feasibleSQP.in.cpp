@@ -13,6 +13,8 @@
 #include "qpOASES.hpp"
 #include <casadi/casadi.hpp>
 #include <casadi/casadi_c.h>
+#include "ca_f.h"
+#include "ca_f0.h"
 #include "ca_dfdy.h"
 #include "ca_dgdy.h"
 #include "ca_g.h"
@@ -633,6 +635,7 @@ double get_f(double *primal_sol) {
     
     vector<DM> ca_y_p = {reshape(DM(y), nv, 1), reshape(DM(p), np, 1)};
 
+    Function ca_f = external("ca_f");
     vector<DM> f_eval = ca_f(ca_y_p);
     
     return std::vector<double>(f_eval.at(0))[0];
@@ -652,6 +655,7 @@ double get_f0(double *primal_sol) {
     
     vector<DM> ca_y_p = {reshape(DM(y), nv, 1), reshape(DM(p), np, 1)};
 
+    Function ca_f0 = external("ca_f0");
     vector<DM> f0_eval = ca_f0(ca_y_p);
     
     return std::vector<double>(f0_eval.at(0))[0];
