@@ -83,6 +83,11 @@ extern "C" {
 int {{ solver_opts.solver_name }}( )
 {
 
+    num_iters = 0;
+    for(int i = 0; i < 1000; i++){
+        iter_runtimes[i] = 0;
+    }
+    
     vector<double> y(nv, 0);
     vector<double> lam(ni, 0);
     vector<double> p(np, 0);
@@ -107,6 +112,11 @@ int {{ solver_opts.solver_name }}( )
     vector<DM> ca_y_p = {reshape(DM(y), nv, 1), reshape(DM(p), np, 1)};
     vector<DM> dfdy_eval = ca_dfdy(ca_y_p);
     // cout << "result (0): " << dfdy_eval.at(0) << endl;
+    
+    Function ca_f = external("ca_f");
+    vector<DM> f_eval = ca_f(ca_y_p);
+    Function ca_f0 = external("ca_f0");
+    vector<DM> f0_eval = ca_f0(ca_y_p);
 
     Function ca_g = external("ca_g");
     vector<DM> g_eval = ca_g(ca_y_p);
@@ -334,6 +344,8 @@ int {{ solver_opts.solver_name }}( )
     tot_iter += 1;
 
     toc = getCPUtime();
+    iter_runtimes[0] = toc - tic;
+    
     qpSchur.getPrimalSolution(y_QP);
 
     // for (i = 0; i < nv; i++)
@@ -415,6 +427,7 @@ int {{ solver_opts.solver_name }}( )
         qpSchur.hotstart(H, g, A, NULL, NULL, lbA, ubA, nWSR);
 #endif
         toc = getCPUtime();
+        iter_runtimes[1] = toc - tic;
         tot_iter += 1;
         qpSchur.getPrimalSolution(y_QP);
 
@@ -456,6 +469,8 @@ int {{ solver_opts.solver_name }}( )
         // fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
     
         for(int k = 0; k < MAX_INNER_IT; k ++) { 
+            num_iters = k + 2;
+        
             // inner loop
             // printf("in inner loop\n");
             // update vectors and solve hotstarted QP
@@ -497,6 +512,7 @@ int {{ solver_opts.solver_name }}( )
             qpSchur.hotstart(g, NULL, NULL, lbA, ubA, nWSR);
 #endif
             toc = getCPUtime();
+            iter_runtimes[k+2] = toc - tic;
             tot_iter += 1;
             qpSchur.getPrimalSolution(y_QP);
             qpSchur.getDualSolution(lam_QP);
@@ -602,6 +618,59 @@ int set_param(double *par) {
         p_val[i] = par[i];
     }
 }
+
+double get_f(double *primal_sol) {
+    vector<double> y(nv, 0);
+    vector<double> p(np, 0);
+    
+    for(int i = 0; i < np; i++) {
+        p[i] = p_val[i];
+    }
+    
+    for(int i = 0; i < nv; i++) {
+        y[i] = primal_sol[i];
+    }
+    
+    vector<DM> ca_y_p = {reshape(DM(y), nv, 1), reshape(DM(p), np, 1)};
+
+    vector<DM> f_eval = ca_f(ca_y_p);
+    
+    return std::vector<double>(f_eval.at(0))[0];
+}
+
+double get_f0(double *primal_sol) {
+    vector<double> y(nv, 0);
+    vector<double> p(np, 0);
+    
+    for(int i = 0; i < np; i++) {
+        p[i] = p_val[i];
+    }
+    
+    for(int i = 0; i < nv; i++) {
+        y[i] = primal_sol[i];
+    }
+    
+    vector<DM> ca_y_p = {reshape(DM(y), nv, 1), reshape(DM(p), np, 1)};
+
+    vector<DM> f0_eval = ca_f0(ca_y_p);
+    
+    return std::vector<double>(f0_eval.at(0))[0];
+}
+
+double get_constraint_violation_L1(double *primal_sol) {
+    return 0;
+}
+
+int get_num_iters() {
+  return num_iters;
+}
+
+int get_iter_runtimes(double *iter_runtimes_out){
+  for(int i = 0; i < 1000; i++) {
+    iter_runtimes_out[i] = iter_runtimes[i];
+  }
+}
+
 }
 
 
