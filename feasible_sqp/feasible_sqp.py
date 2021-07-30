@@ -91,7 +91,7 @@ class feasible_sqp():
 
         return
 
-    def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None):
+    def generate_solver(self, f, f0, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None):
         g_shape = g.shape
 
         if g_shape[1] != 1:
@@ -190,6 +190,19 @@ class feasible_sqp():
             raise Exception('{} failed'.format(cmd))
 
         os.chdir(self.opts['solver_name'])
+        
+        ca_f = ca.Function('ca_f', [y,p], [f])
+        ca_f.generate('ca_f', opts)
+        print('compiling generated code for f...')
+        os.system('gcc -fPIC -shared {} ca_f.c -o libca_f.so'.format(optlevel))
+        os.system('gcc -fPIC -shared {} ca_f.c -o ca_f.so'.format(optlevel))
+        
+        ca_f0 = ca.Function('ca_f0', [y,p], [f0])
+        ca_f0.generate('ca_f0', opts)
+        print('compiling generated code for f0...')
+        os.system('gcc -fPIC -shared {} ca_f0.c -o libca_f0.so'.format(optlevel))
+        os.system('gcc -fPIC -shared {} ca_f0.c -o ca_f0.so'.format(optlevel))
+        
         ca_dfdy = ca.Function('ca_dfdy', [y,p], [ca.jacobian(f,y)])
         ca_dfdy.generate('ca_dfdy', opts)
         print('compiling generated code for dfdy...')
