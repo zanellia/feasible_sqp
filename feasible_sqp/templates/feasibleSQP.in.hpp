@@ -14,7 +14,7 @@ double OUTER_TOL = {{ solver_opts.outer_tol }};
 
 int {{ solver_opts.solver_name }}( );
 
-int set_max_inner_iter(int max_inner_it);
+int set_max_inner_it(int max_inner_it);
 
 int set_max_outer_it(int max_outer_it);
 
