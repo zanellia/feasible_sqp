@@ -7,9 +7,9 @@ int MAX_INNER_IT = {{ solver_opts.max_inner_it }};
 int MAX_OUTER_IT = {{ solver_opts.max_outer_it }};
 double INNER_TOL = {{ solver_opts.inner_tol }};
 double OUTER_TOL = {{ solver_opts.outer_tol }};
-#define nv {{ NV }}
-#define ni {{ NI }}
-#define np {{ NP }}
+#define NV {{ NV }}
+#define NI {{ NI }}
+#define NP {{ NP }}
 #define BOUNDS 1
 
 int {{ solver_opts.solver_name }}( );
@@ -36,8 +36,9 @@ int set_param(double *par);
 }
 
 // solution
-double y_val[nv] = {0};
-double lam_val[ni] = {0};
+double y_val[NV] = {0};
+double y_outer[NV] = {0};
+double lam_val[NI] = {0};
 
 double lby[{{NV}}] = {
     {% for d in lby %}

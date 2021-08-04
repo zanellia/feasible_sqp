@@ -9,7 +9,7 @@ import sys
 
 def install_dependencies(matlab_root_path=None, \
         blas_lib_path=None, lapack_lib_path=None, hsl_lib_path=None, \
-        qpoases_root=None, casadi_root=None):
+        qpoases_root=None, casadi_root=None, eigen_root=None):
 
     if (matlab_root_path == None) and \
             (blas_lib_path == None or lapack_lib_path == None or hsl_lib_path == None):
@@ -29,8 +29,13 @@ def install_dependencies(matlab_root_path=None, \
         casadi_root = root_path + '/external/casadi'
         print('Warning: using default CasADi path: {}'.format(casadi_root))
 
+    if eigen_root is None:
+        eigen_root = root_path + '/external/eigen-git-mirror/Eigen'
+        print('Warning: using default Eigen path: {}'.format(eigen_root))
+
     library_paths['qpoases'] = qpoases_root + '/bin'
     library_paths['casadi'] = casadi_root + '/installation/lib'
+    library_paths['eigen'] = eigen_root
 
     os.chdir('external')
     if matlab_root_path:
@@ -91,7 +96,7 @@ class feasible_sqp():
 
         return
 
-    def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None):
+    def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None):
         g_shape = g.shape
 
         if g_shape[1] != 1:
@@ -193,21 +198,39 @@ class feasible_sqp():
         ca_dfdy = ca.Function('ca_dfdy', [y,p], [ca.jacobian(f,y)])
         ca_dfdy.generate('ca_dfdy', opts)
         print('compiling generated code for dfdy...')
-        os.system('gcc -fPIC -shared {} ca_dfdy.c -o libca_dfdy.so'.format(optlevel))
-        os.system('gcc -fPIC -shared {} ca_dfdy.c -o ca_dfdy.so'.format(optlevel))
+        cmd = 'gcc -fPIC -shared {} ca_dfdy.c -o libca_dfdy.so'.format(optlevel)
+        status = os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
+        cmd = 'gcc -fPIC -shared {} ca_dfdy.c -o ca_dfdy.so'.format(optlevel)
+        status = os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
 
         ca_g = ca.Function('ca_g', [y,p], [g])
         ca_g.generate('ca_g', opts)
         print('compiling generated code for g...')
-        os.system('gcc -fPIC -shared {} ca_g.c -o libca_g.so'.format(optlevel))
-        os.system('gcc -fPIC -shared {} ca_g.c -o ca_g.so'.format(optlevel))
+        cmd = 'gcc -fPIC -shared {} ca_g.c -o libca_g.so'.format(optlevel)
+        os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
+        cmd = 'gcc -fPIC -shared {} ca_g.c -o ca_g.so'.format(optlevel)
+        os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
         # ca_g.save("ca_g.casadi")
 
         print('compiling generated code for dgdy...')
         ca_dgdy = ca.Function('ca_dgdy', [y,p], [ca.jacobian(g,y)])
         ca_dgdy.generate('ca_dgdy', opts)
-        os.system('gcc -fPIC -shared {} ca_dgdy.c -o libca_dgdy.so'.format(optlevel))
-        os.system('gcc -fPIC -shared {} ca_dgdy.c -o ca_dgdy.so'.format(optlevel))
+        cmd = 'gcc -fPIC -shared {} ca_dgdy.c -o libca_dgdy.so'.format(optlevel)
+        os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
+        cmd = 'gcc -fPIC -shared {} ca_dgdy.c -o ca_dgdy.so'.format(optlevel)
+        os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
 
         # Lagrangian
         L = f + ca.dot(lam, g)
@@ -215,8 +238,14 @@ class feasible_sqp():
         print('compiling generated code for dLdyy...')
         ca_dLdyy = ca.Function('ca_dLdyy', [y, lam, p], [ca.hessian(L,y)[0]])
         ca_dLdyy.generate('ca_dLdyy', opts)
-        os.system('gcc -fPIC -shared -O3 ca_dLdyy.c -o libca_dLdyy.so')
-        os.system('gcc -fPIC -shared -O3 ca_dLdyy.c -o ca_dLdyy.so')
+        cmd = 'gcc -fPIC -shared -O3 ca_dLdyy.c -o libca_dLdyy.so'
+        os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
+        cmd = 'gcc -fPIC -shared -O3 ca_dLdyy.c -o ca_dLdyy.so'
+        os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
 
         print('rendering templated C++ code...')
         env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))))
@@ -245,14 +274,21 @@ class feasible_sqp():
             casadi_root = fsqp_root + 'external/casadi'
         if qpoases_root is None:
             qpoases_root = fsqp_root + 'external/qpOASES'
+        if eigen_root is None:
+            eigen_root = fsqp_root + 'external/eigen-git-mirror/Eigen'
         build_params['qpoases_root'] = qpoases_root
         build_params['casadi_root'] = casadi_root
+        build_params['eigen_root'] = eigen_root
         build_params['solver_name'] = self.opts['solver_name']
         code = tmpl.render(build_params = build_params)
         with open('Makefile', "w+") as f:
             f.write(code)
 
-        os.system('make {}_shared'.format(self.opts['solver_name']))
+        cmd = 'make {}_shared'.format(self.opts['solver_name'])
+        status = os.system(cmd)
+
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
 
         print('successfully generated solver!')
         os.chdir('..')
