@@ -1,7 +1,7 @@
 from feasible_sqp import *
 import numpy as nmp
 
-INSTALL_DEPS = 1
+INSTALL_DEPS = 0
 USE_MATLAB_HSL = 0
 
 if INSTALL_DEPS:
@@ -26,7 +26,7 @@ p = solver.p
 # define cost
 f = 1.0/2.0*ca.dot(y-10,y-p)
 # define constraints
-g = ca.vertcat(1.0 + ca.sin(y[1]) - y[0])
+g = ca.vertcat(1.0 + 10*ca.sin(y[1]) - y[0])
 # define bounds
 lby = -0.4*nmp.ones((nv,1))
 uby = 0.7*nmp.ones((nv,1))
@@ -45,6 +45,7 @@ y_bar = solver.get_primal_sol()
 print('optimal primal solution: ', y_bar)
 lam_bar = solver.get_dual_sol()
 print('optimal dual solution: ', lam_bar)
+print('')
 
 # set params
 solver.set_param(-10.0*nmp.ones((1,1)))
@@ -58,6 +59,7 @@ y_bar = solver.get_primal_sol()
 print('optimal primal solution: ', y_bar)
 lam_bar = solver.get_dual_sol()
 print('optimal dual solution: ', lam_bar)
+print('')
 
 # set params
 solver.set_param(10.0*nmp.ones((1,1)))

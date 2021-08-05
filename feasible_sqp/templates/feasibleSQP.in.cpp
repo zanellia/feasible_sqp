@@ -359,11 +359,15 @@ int {{ solver_opts.solver_name }}( )
         if (getAbs(y_QP[i]) > step_inf_norm)
             step_inf_norm = getAbs(y_QP[i]);
 
-    printf("--------------------------------------------\n");
-    printf("dy\t\tnWSR\tCPU time [s]\tlin.\n");
-    printf("--------------------------------------------\n");
+    for (i = 0; i < NI; i++)
+        if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
+            step_inf_norm = getAbs(lam[i] - lam_QP[i]);
 
-    printf("%1.2e\t%i\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 1);
+    printf("------------------------------------------------------------\n");
+    printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
+    printf("------------------------------------------------------------\n");
+
+    printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 1.0, 1);
 
     for(int i = 0; i < NV; i++) {
         y[i] = y[i] + y_QP[i];
@@ -449,19 +453,22 @@ int {{ solver_opts.solver_name }}( )
         // for (i = 0; i < NV; i++)
         //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
 
-
         real_t step_inf_norm = 0.0;
         for (i = 0; i < NV; i++)
             if (getAbs(y_QP[i]) > step_inf_norm)
                 step_inf_norm = getAbs(y_QP[i]);
 
+        for (i = 0; i < NI; i++)
+            if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
+                step_inf_norm = getAbs(lam[i] - lam_QP[i]);
+
         if (tot_iter%10 == 0) { 
-            printf("--------------------------------------------\n");
-            printf("dy\t\tnWSR\tCPU time [s]\tlin.\n");
-            printf("--------------------------------------------\n");
+            printf("------------------------------------------------------------\n");
+            printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
+            printf("------------------------------------------------------------\n");
         }
 
-        printf("%1.2e\t%i\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 1);
+        printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 1.0, 1);
         if (step_inf_norm < OUTER_TOL) {
             printf("->solution found!\n");
             for (i = 0; i < NV; i++)
@@ -490,6 +497,10 @@ int {{ solver_opts.solver_name }}( )
         // INNER ITERATIONS
         ////////////////////////////////////////////////////
         
+        double prev_step_inf_norm = step_inf_norm;
+        double alpha_inner = 1.0;
+
+        
         for(int k = 0; k < MAX_INNER_IT; k ++) { 
             // inner loop
             // printf("in inner loop\n");
@@ -504,7 +515,7 @@ int {{ solver_opts.solver_name }}( )
             for(int i = 0; i < NV; i++)
                 g_temp.coeffRef(i) = y[i] - y_outer[i];
 
-            g_temp = P*g_temp;
+            g_temp = alpha_inner*P*g_temp;
 
             for(int i = 0; i < NV; i++)
                 g[i] = g_bar[i] + g_temp.coeffRef(i);
@@ -549,21 +560,52 @@ int {{ solver_opts.solver_name }}( )
             // for (i = 0; i < NV; i++)
             //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
 
-            real_t step_inf_norm = 0.0;
+            double step_inf_norm = 0.0;
             for (i = 0; i < NV; i++)
                 if (getAbs(y_QP[i]) > step_inf_norm)
                     step_inf_norm = getAbs(y_QP[i]);
 
-            if (tot_iter%10 == 0) { 
-                printf("--------------------------------------------\n");
-                printf("dy\t\tnWSR\tCPU time [s]\tlin.\n");
-                printf("--------------------------------------------\n");
+            for (i = 0; i < NI; i++)
+                if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
+                    step_inf_norm = getAbs(lam[i] - lam_QP[i]);
+
+            double kappa = step_inf_norm/prev_step_inf_norm;
+            // printf("step = %f, prev step = %f, kappa = %f\n", 
+            //     step_inf_norm, prev_step_inf_norm, kappa);
+
+            if (kappa > KAPPA_BAR)
+            {
+                // if (kappa > opts->kappa_max)
+                // {
+                //     printf("\n kappa > kappa_max!\n");
+                //     break;
+                // } 
+                alpha_inner = alpha_inner * THETA_BAR;
+
+                if (alpha_inner < MIN_ALPHA_INNER) {
+                    printf("alpha = %f < MIN_ALPHA_INNER = %f. abort inner iterations\n", alpha_inner, MIN_ALPHA_INNER);
+                    break;
+                }
+                // printf("alpha_inner = %f, kappa = %f\n", alpha_inner, kappa);
             }
 
-            printf("%1.2e\t%i\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 0);
+            if (kappa > KAPPA_MAX) {
+                printf("kappa = %f > KAPPA_MAX = %f. abort inner iterations\n", kappa, KAPPA_MAX);
+                break;
+            }
+
+            prev_step_inf_norm = step_inf_norm;
+
+            if (tot_iter%10 == 0) { 
+                printf("------------------------------------------------------------\n");
+                printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
+                printf("------------------------------------------------------------\n");
+            }
+
+            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, alpha_inner, 0);
             // printf("inner loop primal step: %f\n", step_inf_norm);
             if (step_inf_norm < INNER_TOL) {
-                printf("-> solved inner problem!\n");
+                printf("-> solved inner problem!\n\n");
                 k = MAX_INNER_IT;
             }
 
@@ -600,6 +642,26 @@ int set_max_inner_it(int max_inner_it) {
 
 int set_max_outer_it(int max_outer_it) {
     MAX_OUTER_IT = max_outer_it;
+    return 0;
+}
+
+double set_kappa_max(double kappa_max) {
+    KAPPA_MAX = kappa_max;
+    return 0;
+}
+
+double set_kappa_bar(double kappa_bar) {
+    KAPPA_BAR = kappa_bar;
+    return 0;
+} 
+
+double set_theta_bar(double theta_bar) {
+    THETA_BAR = theta_bar;
+    return 0;
+}
+
+double set_min_alpha_inner(double min_alpha_inner) {
+    MIN_ALPHA_INNER = min_alpha_inner;
     return 0;
 }
 

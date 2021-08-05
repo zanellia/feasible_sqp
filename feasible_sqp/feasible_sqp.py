@@ -89,7 +89,12 @@ class feasible_sqp():
         opts['max_nwsr'] = 10000
         opts['max_inner_it'] = 10
         opts['max_outer_it'] = 10
-        opts['inner_tol'] = 1E-3
+        opts['kappa_max'] = 1.0
+        opts['kappa_bar'] = 0.7
+        opts['theta_bar'] = 0.1
+        # opts['theta_bar'] = 1.0
+        opts['min_alpha_inner'] = 1E-6
+        opts['inner_tol'] = 1E-6
         opts['outer_tol'] = 1E-6
         opts['solver_name'] = solver_name
         self.opts = opts
@@ -189,6 +194,7 @@ class feasible_sqp():
         p = self.p
         lam = ca.SX.sym('lam', ni, 1)
 
+        # copy Eigen headers to solver folder
         cmd = 'mkdir -p {}'.format(self.opts['solver_name'])
         status = os.system(cmd)
         if status != 0:
@@ -329,6 +335,30 @@ class feasible_sqp():
 
     def set_max_outer_it(self,  max_outer_it):
         self.shared_lib.set_max_outer_iter(max_outer_it)
+        return
+
+    def set_kappa_max(self, kappa_max):
+        self.shared_lib.set_max_nwsr_iter(max_nwsr)
+        return
+
+    def set_kappa_bar(self, kappa_bar):
+        self.shared_lib.set_kappa_bar(kappa_bar)
+        return
+
+    def set_theta_bar(self, theta_bar):
+        self.shared_lib.set_theta_bar(theta_bar)
+        return
+
+    def set_kappa_tilde(self, kappa_tilde):
+        self.shared_lib.set_kappa_tilde(kappa_tilde)
+        return
+
+    def set_theta_tilde(self, theta_tilde):
+        self.shared_lib.set_theta_tilde(theta_tilde)
+        return
+
+    def set_min_alpha_inner(self, min_alpha_inner):
+        self.shared_lib.set_max_nwsr_iter(min_alpha_inner)
         return
 
     def set_max_nwsr(self,  max_nwsr):

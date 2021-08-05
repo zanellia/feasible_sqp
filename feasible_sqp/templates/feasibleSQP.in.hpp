@@ -5,6 +5,10 @@ extern "C" {
 int MAX_NWSR = {{ solver_opts.max_nwsr }};
 int MAX_INNER_IT = {{ solver_opts.max_inner_it }};
 int MAX_OUTER_IT = {{ solver_opts.max_outer_it }};
+double KAPPA_MAX    = {{ solver_opts.kappa_max }};
+double KAPPA_BAR    = {{ solver_opts.kappa_bar }};
+double THETA_BAR    = {{ solver_opts.theta_bar }};
+double MIN_ALPHA_INNER  = {{ solver_opts.min_alpha_inner }};
 double INNER_TOL = {{ solver_opts.inner_tol }};
 double OUTER_TOL = {{ solver_opts.outer_tol }};
 #define NV {{ NV }}
@@ -17,6 +21,14 @@ int {{ solver_opts.solver_name }}( );
 int set_max_inner_it(int max_inner_it);
 
 int set_max_outer_it(int max_outer_it);
+
+double set_kappa_max(double kappa_max);
+
+double set_kappa_bar(double kappa_bar);
+
+double set_theta_bar(double theta_bar);
+
+double set_min_alpha_inner(double min_alpha_inner);
 
 int set_max_nwsr(int max_nwsr);
 
