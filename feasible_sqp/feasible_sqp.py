@@ -87,12 +87,13 @@ class feasible_sqp():
         self.np = np
         opts = dict()
         opts['max_nwsr'] = 10000
+        # opts['max_inner_it'] = 10
         opts['max_inner_it'] = 10
-        opts['max_outer_it'] = 10
-        opts['kappa_max'] = 1.0
+        opts['max_outer_it'] = 20
+        opts['kappa_max'] = 0.9
+        opts['kappa_tilde'] = 0.99
         opts['kappa_bar'] = 0.7
-        opts['theta_bar'] = 0.1
-        # opts['theta_bar'] = 1.0
+        opts['theta_bar'] = 0.3
         opts['min_alpha_inner'] = 1E-6
         opts['inner_tol'] = 1E-6
         opts['outer_tol'] = 1E-6

@@ -26,7 +26,7 @@ p = solver.p
 # define cost
 f = 1.0/2.0*ca.dot(y-10,y-p)
 # define constraints
-g = ca.vertcat(1.0 + 10*ca.sin(y[1]) - y[0])
+g = ca.vertcat(1.0 + 1.0*ca.sin(y[0]) - y[1])
 # define bounds
 lby = -0.4*nmp.ones((nv,1))
 uby = 0.7*nmp.ones((nv,1))

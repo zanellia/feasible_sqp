@@ -381,7 +381,6 @@ int {{ solver_opts.solver_name }}( )
 
     // fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
     // exit(1);
-
 #if 1
     
     //////////////////////////////////////////////////// 
@@ -391,108 +390,108 @@ int {{ solver_opts.solver_name }}( )
     for(int j = 0; j <  MAX_OUTER_IT; j ++) { 
         // outer loop
         // printf("in outer loop\n");
-        
 
-        // update matrices and vectors
-        evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
-        A->setVal(A_val);
+        if (j > 0) { // skip first outer iteration
+            // update matrices and vectors
+            evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
+            A->setVal(A_val);
 
-          
-        evaluate_dLdyy(arg_H, res_H, iw_H, w_H, nnz_H, y_val, lam_val, p_val, H_val);
-        H->setVal(H_val);
-        
-        // update P for gradient update (necessary or 
-        // could I just map to H_val?)
-        for (int i=0; i<nnz_H; i++)
-            P_val[i] = H_val[i];
+              
+            evaluate_dLdyy(arg_H, res_H, iw_H, w_H, nnz_H, y_val, lam_val, p_val, H_val);
+            H->setVal(H_val);
+            
+            // update P for gradient update (necessary or 
+            // could I just map to H_val?)
+            for (int i=0; i<nnz_H; i++)
+                P_val[i] = H_val[i];
 
-        // TODO(andrea) only setting y here! 
-        ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
+            // TODO(andrea) only setting y here! 
+            ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
 
-        dfdy_eval = ca_dfdy(ca_y_p);
-        // cout << "new gradient: " << dfdy_eval.at(0) << endl;
-        myvector = std::vector<double>(dfdy_eval.at(0));
+            dfdy_eval = ca_dfdy(ca_y_p);
+            // cout << "new gradient: " << dfdy_eval.at(0) << endl;
+            myvector = std::vector<double>(dfdy_eval.at(0));
 
-        // ca_lam[0] = reshape(DM(lam), NI, 1);
+            // ca_lam[0] = reshape(DM(lam), NI, 1);
 
-        for(int i = 0; i < NV; i++) {
-            g_bar[i] = myvector[i];
-        }
+            for(int i = 0; i < NV; i++) {
+                g_bar[i] = myvector[i];
+            }
 
-        g_eval = ca_g(ca_y_p);
-        // cout << "new gradient: " << g_eval.at(0) << endl;
-        myvector = std::vector<double>(g_eval.at(0));
+            g_eval = ca_g(ca_y_p);
+            // cout << "new gradient: " << g_eval.at(0) << endl;
+            myvector = std::vector<double>(g_eval.at(0));
 
-        for(int i = 0; i < NI; i++) {
-            lbA[i] = lbg[i] - myvector[i];
-            ubA[i] = ubg[i] - myvector[i];
-        }
+            for(int i = 0; i < NI; i++) {
+                lbA[i] = lbg[i] - myvector[i];
+                ubA[i] = ubg[i] - myvector[i];
+            }
 
-        for(int i = 0; i < NV; i++) {
-            lb[i] = lby[i] - y[i];
-            ub[i] = uby[i] - y[i];
+            for(int i = 0; i < NV; i++) {
+                lb[i] = lby[i] - y[i];
+                ub[i] = uby[i] - y[i];
 
-            // printf("lb[%i] = %f\n", lb[i]);
-            // printf("ub[%i] = %f\n", ub[i]);
-        }
+                // printf("lb[%i] = %f\n", lb[i]);
+                // printf("ub[%i] = %f\n", ub[i]);
+            }
 
-        // solve with sparse matrices (Schur complement) 
-        nWSR = MAX_NWSR;
-        // SQProblemSchur qrecipeSchur(1, 1);
-        tic = getCPUtime();
+            // solve with sparse matrices (Schur complement) 
+            nWSR = MAX_NWSR;
+            // SQProblemSchur qrecipeSchur(1, 1);
+            tic = getCPUtime();
 
 #if BOUNDS
-        qpSchur.hotstart(H, g, A, lb, ub, lbA, ubA, nWSR);
+            qpSchur.hotstart(H, g, A, lb, ub, lbA, ubA, nWSR);
 #else
-        qpSchur.hotstart(H, g, A, NULL, NULL, lbA, ubA, nWSR);
+            qpSchur.hotstart(H, g, A, NULL, NULL, lbA, ubA, nWSR);
 #endif
-        toc = getCPUtime();
-        tot_iter += 1;
-        qpSchur.getPrimalSolution(y_QP);
+            toc = getCPUtime();
+            tot_iter += 1;
+            qpSchur.getPrimalSolution(y_QP);
 
-        // for (i = 0; i < NV; i++)
-        //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
+            // for (i = 0; i < NV; i++)
+            //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
 
-        real_t step_inf_norm = 0.0;
-        for (i = 0; i < NV; i++)
-            if (getAbs(y_QP[i]) > step_inf_norm)
-                step_inf_norm = getAbs(y_QP[i]);
-
-        for (i = 0; i < NI; i++)
-            if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
-                step_inf_norm = getAbs(lam[i] - lam_QP[i]);
-
-        if (tot_iter%10 == 0) { 
-            printf("------------------------------------------------------------\n");
-            printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
-            printf("------------------------------------------------------------\n");
-        }
-
-        printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 1.0, 1);
-        if (step_inf_norm < OUTER_TOL) {
-            printf("->solution found!\n");
+            real_t step_inf_norm = 0.0;
             for (i = 0; i < NV; i++)
-                printf("y[%i] = %f\n", i, y[i]);
-            break;
+                if (getAbs(y_QP[i]) > step_inf_norm)
+                    step_inf_norm = getAbs(y_QP[i]);
+
+            for (i = 0; i < NI; i++)
+                if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
+                    step_inf_norm = getAbs(lam[i] - lam_QP[i]);
+
+            if (tot_iter%10 == 0) { 
+                printf("------------------------------------------------------------\n");
+                printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
+                printf("------------------------------------------------------------\n");
+            }
+
+            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 1.0, 1);
+            if (step_inf_norm < OUTER_TOL) {
+                printf("->solution found!\n");
+                for (i = 0; i < NV; i++)
+                    printf("y[%i] = %f\n", i, y[i]);
+                break;
+            }
+
+            qpSchur.getDualSolution(lam_QP);
+
+            for(int i = 0; i < NV; i++) {
+                // store outer primal iterate before update
+                y_outer[i] = y_val[i];
+                y[i] = y[i] + y_QP[i];
+                y_val[i] = y[i];
+            }
+
+            for(int i = 0; i < NI; i++) {
+                lam[i] = lam_QP[i];
+                lam_val[i] = lam[i];
+            }
+
+            // fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
         }
-
-        qpSchur.getDualSolution(lam_QP);
-
-
-        for(int i = 0; i < NV; i++) {
-            // store outer primal iterate before update
-            y_outer[i] = y_val[i];
-            y[i] = y[i] + y_QP[i];
-            y_val[i] = y[i];
-        }
-
-        for(int i = 0; i < NI; i++) {
-            lam[i] = lam_QP[i];
-            lam_val[i] = lam[i];
-        }
-
-        // fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
-        
+            
         //////////////////////////////////////////////////// 
         // INNER ITERATIONS
         ////////////////////////////////////////////////////
@@ -589,10 +588,6 @@ int {{ solver_opts.solver_name }}( )
                 // printf("alpha_inner = %f, kappa = %f\n", alpha_inner, kappa);
             }
 
-            if (kappa > KAPPA_MAX) {
-                printf("kappa = %f > KAPPA_MAX = %f. abort inner iterations\n", kappa, KAPPA_MAX);
-                break;
-            }
 
             prev_step_inf_norm = step_inf_norm;
 
@@ -603,20 +598,30 @@ int {{ solver_opts.solver_name }}( )
             }
 
             printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, alpha_inner, 0);
-            // printf("inner loop primal step: %f\n", step_inf_norm);
-            if (step_inf_norm < INNER_TOL) {
-                printf("-> solved inner problem!\n\n");
-                k = MAX_INNER_IT;
+
+            if (kappa > KAPPA_TILDE) {
+                printf("kappa = %f > KAPPA_TILDE = %f. abort inner iterations\n", kappa, KAPPA_TILDE);
+                break;
             }
 
-            for(int i = 0; i < NV; i++) {
-                y[i] = y[i] + y_QP[i];
-                y_val[i] = y[i];
-            }
+            if (kappa > KAPPA_MAX) {
+                printf("kappa = %f > KAPPA_MAX = %f. skipping update\n", kappa, KAPPA_MAX);
+            } else { 
+                // printf("inner loop primal step: %f\n", step_inf_norm);
+                if (step_inf_norm < INNER_TOL) {
+                    printf("-> solved inner problem!\n\n");
+                    k = MAX_INNER_IT;
+                }
 
-            for(int i = 0; i < NI; i++) {
-                lam[i] = lam_QP[i];
-                lam_val[i] = lam[i];
+                for(int i = 0; i < NV; i++) {
+                    y[i] = y[i] + y_QP[i];
+                    y_val[i] = y[i];
+                }
+
+                for(int i = 0; i < NI; i++) {
+                    lam[i] = lam_QP[i];
+                    lam_val[i] = lam[i];
+                }
             }
 
             // fprintf(stdFile, "Solved hotstarted sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
@@ -647,6 +652,11 @@ int set_max_outer_it(int max_outer_it) {
 
 double set_kappa_max(double kappa_max) {
     KAPPA_MAX = kappa_max;
+    return 0;
+}
+
+double set_kappa_tilde(double kappa_tilde) {
+    KAPPA_TILDE = kappa_tilde;
     return 0;
 }
 
