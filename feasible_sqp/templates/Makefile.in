@@ -1,5 +1,6 @@
 QPOASES_ROOT_DIR =  {{ build_params.qpoases_root }}
 CASADI_ROOT_DIR  =  {{ build_params.casadi_root }}
+EIGEN_ROOT_DIR  =  {{ build_params.eigen_root }}
 
 QPOASES_LIB_DIR = ${QPOASES_ROOT_DIR}/bin
 QPOASES_STATIC_LIB = ${QPOASES_ROOT_DIR}/bin/libqpOASES.a
@@ -11,7 +12,8 @@ CASADI_LIB_DIR = ${CASADI_ROOT_DIR}/installation/lib
 
 IFLAGS      =  -I. \
                -I${QPOASES_ROOT_DIR}/include \
-			   -I${CASADI_ROOT_DIR}/installation/include
+			   -I${CASADI_ROOT_DIR}/installation/include \
+			   -I${EIGEN_ROOT_DIR}
 
 OUTPUT_DIR = .
 
