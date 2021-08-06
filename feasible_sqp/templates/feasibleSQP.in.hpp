@@ -17,6 +17,8 @@ double OUTER_TOL = {{ solver_opts.outer_tol }};
 #define NP {{ NP }}
 #define BOUNDS 1
 
+int init();
+
 int {{ solver_opts.solver_name }}( );
 
 int set_max_inner_it(int max_inner_it);
@@ -48,12 +50,28 @@ int set_primal_guess(double *primal_guess);
 int set_dual_guess(double *dual_guess);
 
 int set_param(double *par);
+
+int get_d_stats(double *d_stats_ret, int i);
+
+int get_i_stats(int *i_stats_ret, int i);
+
 }
 
 // solution
 double y_val[NV] = {0};
 double y_outer[NV] = {0};
 double lam_val[NI] = {0};
+double * d_stats[3];
+int    * i_stats[3];
+
+#define MAX_STATS 1000
+
+double d_stats_0[MAX_STATS] = {0.0};
+double d_stats_1[MAX_STATS] = {0.0};
+double d_stats_2[MAX_STATS] = {0.0};
+
+int i_stats_0[MAX_STATS] = {0};
+int i_stats_1[MAX_STATS] = {0};
 
 double lby[{{NV}}] = {
     {% for d in lby %}

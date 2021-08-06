@@ -81,8 +81,30 @@ int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, 
 }
 
 extern "C" {
-int {{ solver_opts.solver_name }}( )
+int init ( )
 {
+    d_stats[0] = d_stats_0;
+    d_stats[1] = d_stats_1;
+    d_stats[2] = d_stats_2;
+
+    i_stats[0] = i_stats_0;
+    i_stats[1] = i_stats_1;
+}
+
+int {{ solver_opts.solver_name }} ( )
+{
+
+    // zero out stats
+    for (int i = 0; i < MAX_STATS; i++) {
+        d_stats_0[i] = 0.0;
+        d_stats_1[i] = 0.0;
+        d_stats_2[i] = 0.0;
+    }
+
+    for (int i = 0; i < MAX_STATS; i++) {
+        d_stats_0[i] = 0;
+        d_stats_1[i] = 0;
+    }            
 
     vector<double> y(NV, 0);
     vector<double> lam(NI, 0);
@@ -367,7 +389,15 @@ int {{ solver_opts.solver_name }}( )
     printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
     printf("------------------------------------------------------------\n");
 
+    double time = toc-tic;
+
     printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 1.0, 1);
+
+    d_stats_0[tot_iter] = step_inf_norm;
+    d_stats_1[tot_iter] = time;
+    d_stats_2[tot_iter] = 1.0;
+    i_stats_0[tot_iter] = nWSR;
+    i_stats_1[tot_iter] = 1;
 
     for(int i = 0; i < NV; i++) {
         y[i] = y[i] + y_QP[i];
@@ -467,7 +497,15 @@ int {{ solver_opts.solver_name }}( )
                 printf("------------------------------------------------------------\n");
             }
 
-            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 1.0, 1);
+            time = tic - toc;
+            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, 1);
+
+            d_stats_0[tot_iter] = step_inf_norm;
+            d_stats_1[tot_iter] = time;
+            d_stats_2[tot_iter] = 1.0;
+            i_stats_0[tot_iter] = nWSR;
+            i_stats_1[tot_iter] = 1;
+
             if (step_inf_norm < OUTER_TOL) {
                 printf("->solution found!\n");
                 for (i = 0; i < NV; i++)
@@ -597,7 +635,14 @@ int {{ solver_opts.solver_name }}( )
                 printf("------------------------------------------------------------\n");
             }
 
+            time = tic - toc;
             printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, alpha_inner, 0);
+
+            d_stats_0[tot_iter] = step_inf_norm;
+            d_stats_1[tot_iter] = time;
+            d_stats_2[tot_iter] = alpha_inner;
+            i_stats_0[tot_iter] = nWSR;
+            i_stats_1[tot_iter] = 0;
 
             if (kappa > KAPPA_TILDE) {
                 printf("kappa = %f > KAPPA_TILDE = %f. abort inner iterations\n", kappa, KAPPA_TILDE);
@@ -719,6 +764,27 @@ int set_param(double *par) {
         p_val[i] = par[i];
     }
 }
+
+int get_d_stats(double *d_stats_ret, int i) {
+    if (i > 2 || i <0) {
+        printf("Invalid stat index %i - value in range [0,2] required\n");
+    } else {
+        double * temp = d_stats[i];
+        for (int j = 0; j < MAX_STATS; j++)
+            d_stats_ret[j] = temp[j];
+    }
+}
+
+int get_i_stats(int *i_stats_ret, int i) {
+    if (i > 1 || i <0) {
+        printf("Invalid stat index %i - value in range [0,1] required\n");
+    } else {
+        int * temp = i_stats[i];
+        for (int j = 0; j < MAX_STATS; j++)
+            i_stats_ret[j] = temp[j];
+    }
+}
+
 }
 
 

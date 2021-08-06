@@ -316,7 +316,7 @@ class feasible_sqp():
 
         return
 
-    def solve(self):
+    def init(self):
 
         # get solver shared_lib
         cwd = os.getcwd()
@@ -326,6 +326,16 @@ class feasible_sqp():
 
         self.shared_lib = CDLL(cwd + '/' + solver_name + '/' + solver_name + '.so')
 
+        self.shared_lib.init()
+        os.chdir('..')
+
+    def solve(self):
+
+        # get solver shared_lib
+        cwd = os.getcwd()
+        solver_name = self.opts['solver_name']
+        #TODO(andrea): why is this necessary??
+        os.chdir(self.opts['solver_name'])
         self.shared_lib.fsqp_solver()
 
         os.chdir('..')
@@ -411,3 +421,28 @@ class feasible_sqp():
         self.shared_lib.get_dual_sol.restype = c_int
         self.shared_lib.get_dual_sol(out_data)
         return out
+
+    def get_stats(self):
+        self.shared_lib.get_d_stats.argtypes = [POINTER(c_double), c_int]
+        self.shared_lib.get_d_stats.restype = c_int
+        self.shared_lib.get_i_stats.argtypes = [POINTER(c_int), c_int]
+        self.shared_lib.get_i_stats.restype = c_int
+        outdict = {'dz' : [], 'cpu_time' : [], 'alpha' : [], \
+            'nWSR' : [], 'lin' : []}
+
+        keys = list(outdict.keys())
+
+        for i in range(3):
+            out = nmp.ascontiguousarray(nmp.zeros((1000,)), dtype=nmp.float64)
+            out_data = cast(out.ctypes.data, POINTER(c_double))
+            self.shared_lib.get_d_stats(out_data, i)
+
+            outdict[keys[i]] = out
+            
+        for i in range(2):
+            out = nmp.ascontiguousarray(nmp.zeros((1000,)), dtype=nmp.int32)
+            out_data = cast(out.ctypes.data, POINTER(c_int))
+            self.shared_lib.get_i_stats(out_data, i)
+            outdict[keys[i+3]] = out
+
+        return outdict
