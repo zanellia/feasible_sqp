@@ -782,7 +782,30 @@ double get_f0(double *primal_sol) {
 }
 
 double get_constraint_violation_L1(double *primal_sol) {
-    return 0;
+    vector<double> y(NV, 0);
+    vector<double> p(NP, 0);
+    
+    for(int i = 0; i < NP; i++) {
+        p[i] = p_val[i];
+    }
+    
+    for(int i = 0; i < NV; i++) {
+        y[i] = primal_sol[i];
+    }
+    
+    vector<DM> ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
+
+    Function ca_g = external("ca_g");
+    vector<DM> g_eval = ca_g(ca_y_p);
+    vector<double> myvector = std::vector<double>(g_eval.at(0));
+    
+    double cvl1 = 0;
+    for(int i = 0; i < NI; i++) {
+        if (myvector[i] < lbg[i]) cvl1 += lbg[i] - myvector[i];
+        else if (myvector[i] > ubg[i]) cvl1 += myvector[i] - ubg[i];
+    }
+    
+    return cvl1;
 }
 
 int get_num_iters() {
