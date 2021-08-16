@@ -17,6 +17,8 @@ double OUTER_TOL = {{ solver_opts.outer_tol }};
 #define NP {{ NP }}
 #define BOUNDS 1
 
+int init();
+
 int {{ solver_opts.solver_name }}( );
 
 int set_max_inner_it(int max_inner_it);
@@ -64,10 +66,10 @@ double get_f0(double *primal_sol);
 
 double get_constraint_violation_L1(double *primal_sol);
 
-// getters for performance assessment
-int get_num_iters();
+// getters for stats
+int get_d_stats(double *d_stats_ret, int i);
 
-int get_iter_runtimes(double *iter_runtimes_out);
+int get_i_stats(int *i_stats_ret, int i);
 
 }
 
@@ -75,16 +77,24 @@ int get_iter_runtimes(double *iter_runtimes_out);
 double y_val[NV] = {0};
 double y_outer[NV] = {0};
 double lam_val[NI] = {0};
+double lam_outer[NI] = {0};
+
+#define MAX_STATS 1000
+
+// stats
+double * d_stats[3];
+int    * i_stats[3];
+double d_stats_0[MAX_STATS] = {0.0};
+double d_stats_1[MAX_STATS] = {0.0};
+double d_stats_2[MAX_STATS] = {0.0};
+int i_stats_0[MAX_STATS] = {0};
+int i_stats_1[MAX_STATS] = {0};
 
 // active set
-int bounds_guess[NV] = {-1};
-int constraints_guess[NI] = {-1};
-int bounds_last[NV] = {-1};
-int constraints_last[NI] = {-1};
-
-// performance variables
-double iter_runtimes[1000] = {0};
-int num_iters = 0;
+int bounds_guess[NV] = {0};
+int constraints_guess[NI] = {0};
+int bounds_last[NV] = {0};
+int constraints_last[NI] = {0};
 
 double lby[{{NV}}] = {
     {% for d in lby %}

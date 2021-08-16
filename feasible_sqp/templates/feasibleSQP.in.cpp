@@ -83,13 +83,30 @@ int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, 
 }
 
 extern "C" {
-int {{ solver_opts.solver_name }}( )
+int init ( )
+{
+    d_stats[0] = d_stats_0;
+    d_stats[1] = d_stats_1;
+    d_stats[2] = d_stats_2;
+
+    i_stats[0] = i_stats_0;
+    i_stats[1] = i_stats_1;
+}
+
+int {{ solver_opts.solver_name }} ( )
 {
 
-    num_iters = 0;
-    for(int i = 0; i < 1000; i++){
-        iter_runtimes[i] = 0;
+    // zero out stats
+    for (int i = 0; i < MAX_STATS; i++) {
+        d_stats_0[i] = 0.0;
+        d_stats_1[i] = 0.0;
+        d_stats_2[i] = 0.0;
     }
+
+    for (int i = 0; i < MAX_STATS; i++) {
+        d_stats_0[i] = 0;
+        d_stats_1[i] = 0;
+    }            
     
     vector<double> y(NV, 0);
     vector<double> lam(NI, 0);
@@ -321,31 +338,18 @@ int {{ solver_opts.solver_name }}( )
 	options.printLevel = PL_NONE;
     options.enableEqualities = BT_TRUE;
     // options.enableFarBounds = BT_FALSE;
+    
+    Bounds guessedBounds( NV );
+    guessedBounds.init(NV);
+    for (int i = 0; i < NV; i++) {
+        guessedBounds.setupBound(i, (SubjectToStatus)bounds_guess[i]);
+    }
 
     Constraints guessedConstraints( NI );
-    if (constraints_guess[0] < 0) {
-        guessedConstraints.setupAllInactive( );
+    guessedConstraints.init(NI);
+    for (int i = 0; i < NI; i++) {
+	guessedConstraints.setupConstraint(i, (SubjectToStatus)constraints_guess[i]);
     }
-    else {
-        std::cout << "TODO: Assign active set guess." << std::endl;
-        guessedConstraints.init(NI);
-        for (int i = 0; i < NI; i++) {
-            guessedConstraints.setupConstraint(i, (SubjectToStatus)constraints_guess[i]);
-        }
-    }
-
-    Bounds guessedBounds( NV );
-    if (bounds_guess[0] < 0) {
-        guessedBounds.setupAllFree( );
-    }
-    else {
-        std::cout << "TODO: Assign active set guess." << std::endl;
-        guessedBounds.init(NV);
-        for (int i = 0; i < NV; i++) {
-            guessedBounds.setupBound(i, (SubjectToStatus)bounds_guess[i]);
-        }
-    }
-
 
     SQProblemSchur qpSchur(NV, NI);
     // SQProblem qpSchur(NV, NI);
@@ -379,10 +383,6 @@ int {{ solver_opts.solver_name }}( )
 #endif
 
     tot_iter += 1;
-
-    toc = getCPUtime();
-    iter_runtimes[0] = toc - tic;
-    
     qpSchur.getPrimalSolution(y_QP);
 
     // for (i = 0; i < NV; i++)
@@ -401,7 +401,16 @@ int {{ solver_opts.solver_name }}( )
     printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
     printf("------------------------------------------------------------\n");
 
-    printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 1.0, 1);
+    toc = getCPUtime();
+    double time = toc-tic;
+
+    printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, 1);
+
+    d_stats_0[tot_iter] = step_inf_norm;
+    d_stats_1[tot_iter] = time;
+    d_stats_2[tot_iter] = 1.0;
+    i_stats_0[tot_iter] = nWSR;
+    i_stats_1[tot_iter] = 1;
 
     for(int i = 0; i < NV; i++) {
         y[i] = y[i] + y_QP[i];
@@ -424,9 +433,31 @@ int {{ solver_opts.solver_name }}( )
     Bounds bounds_QP;
     Constraints constraints_QP;
     
+    // this value is set to one by the inner loop 
+    // whenever iterates are aborted
+    int abort_inner = 0;
+    double alpha_outer = 1.0;
+    
     for(int j = 0; j <  MAX_OUTER_IT; j ++) { 
         // outer loop
         // printf("in outer loop\n");
+        
+
+
+        if (abort_inner) {
+            // restore outer primal iterate
+            for(int i = 0; i < NV; i++)
+                y_val[i] = y_outer[i];
+            
+            // restore outer dual iterate
+            for(int i = 0; i < NI; i++)
+                lam_val[i] = lam_outer[i];
+
+            abort_inner = 0;
+            alpha_outer = alpha_outer * THETA_BAR;
+        }
+
+        double alpha_inner = alpha_outer;
 
         if (j > 0) { // skip first outer iteration
             // update matrices and vectors
@@ -483,8 +514,7 @@ int {{ solver_opts.solver_name }}( )
 #else
             qpSchur.hotstart(H, g, A, NULL, NULL, lbA, ubA, nWSR);
 #endif
-            toc = getCPUtime();
-            iter_runtimes[1] = toc - tic;
+
             tot_iter += 1;
             qpSchur.getPrimalSolution(y_QP);
 
@@ -507,7 +537,16 @@ int {{ solver_opts.solver_name }}( )
                 printf("------------------------------------------------------------\n");
             }
 
-            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 1.0, 1);
+            toc = getCPUtime();
+            time = tic - toc;
+            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, alpha_inner, 1);
+
+            d_stats_0[tot_iter] = step_inf_norm;
+            d_stats_1[tot_iter] = time;
+            d_stats_2[tot_iter] = 1.0;
+            i_stats_0[tot_iter] = nWSR;
+            i_stats_1[tot_iter] = 1;
+
             if (step_inf_norm < OUTER_TOL) {
                 printf("->solution found!\n");
                 for (i = 0; i < NV; i++)
@@ -517,14 +556,16 @@ int {{ solver_opts.solver_name }}( )
 
             qpSchur.getDualSolution(lam_QP);
 
+            // store outer primal iterate before update
             for(int i = 0; i < NV; i++) {
-                // store outer primal iterate before update
                 y_outer[i] = y_val[i];
                 y[i] = y[i] + y_QP[i];
                 y_val[i] = y[i];
             }
-
+            
+            // store outer dual iterate before update
             for(int i = 0; i < NI; i++) {
+                lam_outer[i] = lam_val[i];
                 lam[i] = lam_QP[i];
                 lam_val[i] = lam[i];
             }
@@ -540,11 +581,9 @@ int {{ solver_opts.solver_name }}( )
         ////////////////////////////////////////////////////
         
         double prev_step_inf_norm = step_inf_norm;
-        double alpha_inner = 1.0;
 
         
         for(int k = 0; k < MAX_INNER_IT; k ++) { 
-            num_iters = k + 2;
         
             // inner loop
             // printf("in inner loop\n");
@@ -596,8 +635,7 @@ int {{ solver_opts.solver_name }}( )
 #else
             qpSchur.hotstart(g, NULL, NULL, lbA, ubA, nWSR);
 #endif
-            toc = getCPUtime();
-            iter_runtimes[k+2] = toc - tic;
+
             tot_iter += 1;
             qpSchur.getPrimalSolution(y_QP);
             qpSchur.getDualSolution(lam_QP);
@@ -629,6 +667,7 @@ int {{ solver_opts.solver_name }}( )
 
                 if (alpha_inner < MIN_ALPHA_INNER) {
                     printf("alpha = %f < MIN_ALPHA_INNER = %f. abort inner iterations\n", alpha_inner, MIN_ALPHA_INNER);
+                    abort_inner = 1;
                     break;
                 }
                 // printf("alpha_inner = %f, kappa = %f\n", alpha_inner, kappa);
@@ -643,10 +682,19 @@ int {{ solver_opts.solver_name }}( )
                 printf("------------------------------------------------------------\n");
             }
 
+            toc = getCPUtime();
+            time = tic - toc;
             printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, alpha_inner, 0);
+
+            d_stats_0[tot_iter] = step_inf_norm;
+            d_stats_1[tot_iter] = time;
+            d_stats_2[tot_iter] = alpha_inner;
+            i_stats_0[tot_iter] = nWSR;
+            i_stats_1[tot_iter] = 0;
 
             if (kappa > KAPPA_TILDE) {
                 printf("kappa = %f > KAPPA_TILDE = %f. abort inner iterations\n", kappa, KAPPA_TILDE);
+                abort_inner = 1;
                 break;
             }
 
@@ -656,6 +704,7 @@ int {{ solver_opts.solver_name }}( )
                 // printf("inner loop primal step: %f\n", step_inf_norm);
                 if (step_inf_norm < INNER_TOL) {
                     printf("-> solved inner problem!\n\n");
+                    alpha_outer = 1.0;
                     k = MAX_INNER_IT;
                 }
 
@@ -869,16 +918,25 @@ double get_constraint_violation_L1(double *primal_sol) {
     return cvl1;
 }
 
-int get_num_iters() {
-  return num_iters;
+int get_d_stats(double *d_stats_ret, int i) {
+    if (i > 2 || i <0) {
+        printf("Invalid stat index %i - value in range [0,2] required\n");
+    } else {
+        double * temp = d_stats[i];
+        for (int j = 0; j < MAX_STATS; j++)
+            d_stats_ret[j] = temp[j];
+    }
 }
 
-int get_iter_runtimes(double *iter_runtimes_out){
-  for(int i = 0; i < 1000; i++) {
-    iter_runtimes_out[i] = iter_runtimes[i];
-  }
+int get_i_stats(int *i_stats_ret, int i) {
+    if (i > 1 || i <0) {
+        printf("Invalid stat index %i - value in range [0,1] required\n");
+    } else {
+        int * temp = i_stats[i];
+        for (int j = 0; j < MAX_STATS; j++)
+            i_stats_ret[j] = temp[j];
+    }
 }
 
 }
-
 

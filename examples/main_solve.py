@@ -37,6 +37,9 @@ p0 = 10.0*nmp.ones((1,1))
 solver.generate_solver(f,f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0)
 # solver.generate_solver(f,f,g, lby = lby, uby = uby)
 
+# init NLP solver
+solver.init()
+
 # solve NLP
 solver.solve()
 y_bar = solver.get_primal_sol()
@@ -67,3 +70,5 @@ solver.set_dual_guess(lam_bar)
 solver.solve()
 lam_bar = solver.get_dual_sol()
 print('optimal dual solution: ', lam_bar)
+
+stats = solver.get_stats()
