@@ -49,6 +49,14 @@ int set_dual_guess(double *dual_guess);
 
 int set_param(double *par);
 
+int get_active_bounds(int *bounds);
+
+int get_active_constraints(int *constraints);
+
+int set_active_bounds_guess(int *bounds);
+
+int set_active_constraints_guess(int *constraints);
+
 // getters for objective function and feasibility assessment
 double get_f(double *primal_sol);
 
@@ -67,6 +75,12 @@ int get_iter_runtimes(double *iter_runtimes_out);
 double y_val[NV] = {0};
 double y_outer[NV] = {0};
 double lam_val[NI] = {0};
+
+// active set
+int bounds_guess[NV] = {-1};
+int constraints_guess[NI] = {-1};
+int bounds_last[NV] = {-1};
+int constraints_last[NI] = {-1};
 
 // performance variables
 double iter_runtimes[1000] = {0};

@@ -323,10 +323,29 @@ int {{ solver_opts.solver_name }}( )
     // options.enableFarBounds = BT_FALSE;
 
     Constraints guessedConstraints( NI );
-    guessedConstraints.setupAllInactive( );
+    if (constraints_guess[0] < 0) {
+        guessedConstraints.setupAllInactive( );
+    }
+    else {
+        std::cout << "TODO: Assign active set guess." << std::endl;
+        guessedConstraints.init(NI);
+        for (int i = 0; i < NI; i++) {
+            guessedConstraints.setupConstraint(i, (SubjectToStatus)constraints_guess[i]);
+        }
+    }
 
     Bounds guessedBounds( NV );
-    guessedBounds.setupAllFree( );
+    if (bounds_guess[0] < 0) {
+        guessedBounds.setupAllFree( );
+    }
+    else {
+        std::cout << "TODO: Assign active set guess." << std::endl;
+        guessedBounds.init(NV);
+        for (int i = 0; i < NV; i++) {
+            guessedBounds.setupBound(i, (SubjectToStatus)bounds_guess[i]);
+        }
+    }
+
 
     SQProblemSchur qpSchur(NV, NI);
     // SQProblem qpSchur(NV, NI);
@@ -401,6 +420,9 @@ int {{ solver_opts.solver_name }}( )
     //////////////////////////////////////////////////// 
     // OUTER ITERATIONS
     ////////////////////////////////////////////////////
+    
+    Bounds bounds_QP;
+    Constraints constraints_QP;
     
     for(int j = 0; j <  MAX_OUTER_IT; j ++) { 
         // outer loop
@@ -509,6 +531,9 @@ int {{ solver_opts.solver_name }}( )
 
             // fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
         }
+        
+        qpSchur.getBounds(bounds_QP);
+        qpSchur.getConstraints(constraints_QP);
             
         //////////////////////////////////////////////////// 
         // INNER ITERATIONS
@@ -528,7 +553,7 @@ int {{ solver_opts.solver_name }}( )
             // TODO(andrea): only setting y here!
             ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
 
-#if 1
+#if 0
             // do not evaluate exact gradient, but rather
             // use linear update for g
             for(int i = 0; i < NV; i++)
@@ -643,6 +668,9 @@ int {{ solver_opts.solver_name }}( )
                     lam[i] = lam_QP[i];
                     lam_val[i] = lam[i];
                 }
+                
+                qpSchur.getBounds(bounds_QP);
+                qpSchur.getConstraints(constraints_QP);
             }
 
             // fprintf(stdFile, "Solved hotstarted sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
@@ -650,6 +678,15 @@ int {{ solver_opts.solver_name }}( )
         }
     }
 #endif
+
+        for(int i = 0; i < NV; i++) {
+            bounds_last[i] = bounds_QP.getStatus(i);
+        }
+
+        for(int i = 0; i < NI; i++) {
+            constraints_last[i] = constraints_QP.getStatus(i);
+        }
+
 
 	delete H;
 	delete A;
@@ -738,6 +775,30 @@ int set_dual_guess(double *dual_guess) {
 int set_param(double *par) {
     for(int i = 0; i < NP; i++) {
         p_val[i] = par[i];
+    }
+}
+
+int get_active_bounds(int *bounds) {
+    for(int i = 0; i < NV; i++) {
+        bounds[i] = bounds_last[i];
+    }
+}
+
+int get_active_constraints(int *constraints) {
+    for(int i = 0; i < NI; i++) {
+        constraints[i] = constraints_last[i];
+    }
+}
+
+int set_active_bounds_guess(int *bounds) {
+    for(int i = 0; i < NV; i++) {
+        bounds_guess[i] = bounds[i];
+    }
+}
+
+int set_active_constraints_guess(int *constraints) {
+    for(int i = 0; i < NI; i++) {
+        constraints_guess[i] = constraints[i];
     }
 }
 
