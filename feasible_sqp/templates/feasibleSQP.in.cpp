@@ -370,7 +370,6 @@ int {{ solver_opts.solver_name }} ( )
 
     tot_iter += 1;
 
-    toc = getCPUtime();
     qpSchur.getPrimalSolution(y_QP);
 
     // for (i = 0; i < NV; i++)
@@ -389,9 +388,10 @@ int {{ solver_opts.solver_name }} ( )
     printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
     printf("------------------------------------------------------------\n");
 
+    toc = getCPUtime();
     double time = toc-tic;
 
-    printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, 1.0, 1);
+    printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, 1);
 
     d_stats_0[tot_iter] = step_inf_norm;
     d_stats_1[tot_iter] = time;
@@ -417,9 +417,31 @@ int {{ solver_opts.solver_name }} ( )
     // OUTER ITERATIONS
     ////////////////////////////////////////////////////
     
+    // this value is set to one by the inner loop 
+    // whenever iterates are aborted
+    int abort_inner = 0;
+    double alpha_outer = 1.0;
+    
     for(int j = 0; j <  MAX_OUTER_IT; j ++) { 
         // outer loop
         // printf("in outer loop\n");
+        
+
+
+        if (abort_inner) {
+            // restore outer primal iterate
+            for(int i = 0; i < NV; i++)
+                y_val[i] = y_outer[i];
+            
+            // restore outer dual iterate
+            for(int i = 0; i < NI; i++)
+                lam_val[i] = lam_outer[i];
+
+            abort_inner = 0;
+            alpha_outer = alpha_outer * THETA_BAR;
+        }
+
+        double alpha_inner = alpha_outer;
 
         if (j > 0) { // skip first outer iteration
             // update matrices and vectors
@@ -475,7 +497,6 @@ int {{ solver_opts.solver_name }} ( )
 #else
             qpSchur.hotstart(H, g, A, NULL, NULL, lbA, ubA, nWSR);
 #endif
-            toc = getCPUtime();
             tot_iter += 1;
             qpSchur.getPrimalSolution(y_QP);
 
@@ -497,8 +518,9 @@ int {{ solver_opts.solver_name }} ( )
                 printf("------------------------------------------------------------\n");
             }
 
+            toc = getCPUtime();
             time = tic - toc;
-            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, 1);
+            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, alpha_inner, 1);
 
             d_stats_0[tot_iter] = step_inf_norm;
             d_stats_1[tot_iter] = time;
@@ -515,14 +537,16 @@ int {{ solver_opts.solver_name }} ( )
 
             qpSchur.getDualSolution(lam_QP);
 
+            // store outer primal iterate before update
             for(int i = 0; i < NV; i++) {
-                // store outer primal iterate before update
                 y_outer[i] = y_val[i];
                 y[i] = y[i] + y_QP[i];
                 y_val[i] = y[i];
             }
-
+            
+            // store outer dual iterate before update
             for(int i = 0; i < NI; i++) {
+                lam_outer[i] = lam_val[i];
                 lam[i] = lam_QP[i];
                 lam_val[i] = lam[i];
             }
@@ -535,7 +559,6 @@ int {{ solver_opts.solver_name }} ( )
         ////////////////////////////////////////////////////
         
         double prev_step_inf_norm = step_inf_norm;
-        double alpha_inner = 1.0;
 
         
         for(int k = 0; k < MAX_INNER_IT; k ++) { 
@@ -589,7 +612,6 @@ int {{ solver_opts.solver_name }} ( )
 #else
             qpSchur.hotstart(g, NULL, NULL, lbA, ubA, nWSR);
 #endif
-            toc = getCPUtime();
             tot_iter += 1;
             qpSchur.getPrimalSolution(y_QP);
             qpSchur.getDualSolution(lam_QP);
@@ -621,6 +643,7 @@ int {{ solver_opts.solver_name }} ( )
 
                 if (alpha_inner < MIN_ALPHA_INNER) {
                     printf("alpha = %f < MIN_ALPHA_INNER = %f. abort inner iterations\n", alpha_inner, MIN_ALPHA_INNER);
+                    abort_inner = 1;
                     break;
                 }
                 // printf("alpha_inner = %f, kappa = %f\n", alpha_inner, kappa);
@@ -635,6 +658,7 @@ int {{ solver_opts.solver_name }} ( )
                 printf("------------------------------------------------------------\n");
             }
 
+            toc = getCPUtime();
             time = tic - toc;
             printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, alpha_inner, 0);
 
@@ -646,6 +670,7 @@ int {{ solver_opts.solver_name }} ( )
 
             if (kappa > KAPPA_TILDE) {
                 printf("kappa = %f > KAPPA_TILDE = %f. abort inner iterations\n", kappa, KAPPA_TILDE);
+                abort_inner = 1;
                 break;
             }
 
@@ -655,6 +680,7 @@ int {{ solver_opts.solver_name }} ( )
                 // printf("inner loop primal step: %f\n", step_inf_norm);
                 if (step_inf_norm < INNER_TOL) {
                     printf("-> solved inner problem!\n\n");
+                    alpha_outer = 1.0;
                     k = MAX_INNER_IT;
                 }
 

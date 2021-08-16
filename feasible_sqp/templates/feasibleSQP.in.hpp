@@ -61,6 +61,7 @@ int get_i_stats(int *i_stats_ret, int i);
 double y_val[NV] = {0};
 double y_outer[NV] = {0};
 double lam_val[NI] = {0};
+double lam_outer[NI] = {0};
 double * d_stats[3];
 int    * i_stats[3];
 

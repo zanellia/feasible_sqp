@@ -74,5 +74,3 @@ lam_bar = solver.get_dual_sol()
 print('optimal dual solution: ', lam_bar)
 
 stats = solver.get_stats()
-
-import pdb; pdb.set_trace()
