@@ -17,7 +17,7 @@ double OUTER_TOL = {{ solver_opts.outer_tol }};
 #define NP {{ NP }}
 #define BOUNDS 1
 
-int init();
+int {{ solver_opts.solver_name }}_init();
 
 int {{ solver_opts.solver_name }}( );
 

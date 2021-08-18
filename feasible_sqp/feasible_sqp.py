@@ -102,6 +102,19 @@ class feasible_sqp():
 
         return
 
+    def init(self):
+
+        # get solver shared_lib
+        cwd = os.getcwd()
+        solver_name = self.opts['solver_name']
+        #TODO(andrea): why is this necessary??
+        os.chdir(self.opts['solver_name'])
+
+        self.shared_lib = CDLL(cwd + '/' + solver_name + '/' + solver_name + '.so')
+
+        self.shared_lib.fsqp_solver_init()
+        os.chdir('..')
+
     def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None):
         g_shape = g.shape
 
@@ -314,20 +327,9 @@ class feasible_sqp():
         with open('set_LD_LIBRARY_PATH.sh', 'w') as f:
             f.write('#!/bin/bash\nexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{}'.format(paths))
 
+        self.init()
+
         return
-
-    def init(self):
-
-        # get solver shared_lib
-        cwd = os.getcwd()
-        solver_name = self.opts['solver_name']
-        #TODO(andrea): why is this necessary??
-        os.chdir(self.opts['solver_name'])
-
-        self.shared_lib = CDLL(cwd + '/' + solver_name + '/' + solver_name + '.so')
-
-        self.shared_lib.init()
-        os.chdir('..')
 
     def solve(self):
 
