@@ -83,7 +83,7 @@ int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, 
 }
 
 extern "C" {
-int init ( )
+int {{ solver_opts.solver_name }}_init ()
 {
     d_stats[0] = d_stats_0;
     d_stats[1] = d_stats_1;
@@ -93,7 +93,7 @@ int init ( )
     i_stats[1] = i_stats_1;
 }
 
-int {{ solver_opts.solver_name }} ( )
+int {{ solver_opts.solver_name }} ()
 {
 
     // zero out stats
@@ -609,7 +609,7 @@ int {{ solver_opts.solver_name }} ( )
 
             dfdy_eval = ca_dfdy(ca_y_p);
             for(int i = 0; i < NV; i++) {
-                g[i] = myvector[i];
+                g[i] = alpha_inner*myvector[i];
             }
 #endif
 
