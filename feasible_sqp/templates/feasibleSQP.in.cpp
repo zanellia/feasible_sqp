@@ -400,56 +400,46 @@ int {{ solver_opts.solver_name }} ()
         if (j == 0) {
 
 #if BOUNDS
-        qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+            qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #else
-        qpSchur.init(H, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+            qpSchur.init(H, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #endif
 
-    tot_iter += 1;
+            tot_iter += 1;
 
-    qpSchur.getPrimalSolution(y_QP);
+            qpSchur.getPrimalSolution(y_QP);
 
-    // for (i = 0; i < NV; i++)
-    //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
-    qpSchur.getDualSolution(lam_QP);
-    for (i = 0; i < NV; i++)
-        if (getAbs(y_QP[i]) > step_inf_norm)
-            step_inf_norm = getAbs(y_QP[i]);
+            // for (i = 0; i < NV; i++)
+            //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
+            qpSchur.getDualSolution(lam_QP);
+            for (i = 0; i < NV; i++)
+                if (getAbs(y_QP[i]) > step_inf_norm)
+                    step_inf_norm = getAbs(y_QP[i]);
 
-    for (i = 0; i < NI; i++)
-        if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
-            step_inf_norm = getAbs(lam[i] - lam_QP[i]);
+            for (i = 0; i < NI; i++)
+                if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
+                    step_inf_norm = getAbs(lam[i] - lam_QP[i]);
 
-    printf("------------------------------------------------------------\n");
-    printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
-    printf("------------------------------------------------------------\n");
+            printf("------------------------------------------------------------\n");
+            printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
+            printf("------------------------------------------------------------\n");
 
-    toc = getCPUtime();
-    time = toc-tic;
+            toc = getCPUtime();
+            time = toc-tic;
 
-    printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, 1);
+            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, 1);
 
-    d_stats_0[tot_iter] = step_inf_norm;
-    d_stats_1[tot_iter] = time;
-    d_stats_2[tot_iter] = 1.0;
-    i_stats_0[tot_iter] = nWSR;
-    i_stats_1[tot_iter] = 1;
+            d_stats_0[tot_iter] = step_inf_norm;
+            d_stats_1[tot_iter] = time;
+            d_stats_2[tot_iter] = 1.0;
+            i_stats_0[tot_iter] = nWSR;
+            i_stats_1[tot_iter] = 1;
 
-    for(int i = 0; i < NV; i++) {
-        y[i] = y[i] + y_QP[i];
-        y_val[i] = y[i];
-    }
-
-    for(int i = 0; i < NI; i++) {
-        lam[i] = lam_QP[i];
-        lam_val[i] = lam[i];
-    }
         } else {
             // update matrices and vectors
             evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
             A->setVal(A_val);
 
-              
             evaluate_dLdyy(arg_H, res_H, iw_H, w_H, nnz_H, y_val, lam_val, p_val, H_val);
             H->setVal(H_val);
             
