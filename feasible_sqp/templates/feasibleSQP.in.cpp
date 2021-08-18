@@ -376,51 +376,6 @@ int {{ solver_opts.solver_name }} ()
     }
 
     int tot_iter = 0;
-#if BOUNDS
-        qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
-#else
-        qpSchur.init(H, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
-#endif
-
-    tot_iter += 1;
-    qpSchur.getPrimalSolution(y_QP);
-
-    // for (i = 0; i < NV; i++)
-    //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
-    qpSchur.getDualSolution(lam_QP);
-    real_t step_inf_norm = 0.0;
-    for (i = 0; i < NV; i++)
-        if (getAbs(y_QP[i]) > step_inf_norm)
-            step_inf_norm = getAbs(y_QP[i]);
-
-    for (i = 0; i < NI; i++)
-        if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
-            step_inf_norm = getAbs(lam[i] - lam_QP[i]);
-
-    printf("------------------------------------------------------------\n");
-    printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
-    printf("------------------------------------------------------------\n");
-
-    toc = getCPUtime();
-    double time = toc-tic;
-
-    printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, 1);
-
-    d_stats_0[tot_iter] = step_inf_norm;
-    d_stats_1[tot_iter] = time;
-    d_stats_2[tot_iter] = 1.0;
-    i_stats_0[tot_iter] = nWSR;
-    i_stats_1[tot_iter] = 1;
-
-    for(int i = 0; i < NV; i++) {
-        y[i] = y[i] + y_QP[i];
-        y_val[i] = y[i];
-    }
-
-    for(int i = 0; i < NI; i++) {
-        lam[i] = lam_QP[i];
-        lam_val[i] = lam[i];
-    }
 
     // fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
     // exit(1);
@@ -437,12 +392,12 @@ int {{ solver_opts.solver_name }} ()
     // whenever iterates are aborted
     int abort_inner = 0;
     double alpha_outer = 1.0;
+    real_t step_inf_norm = 0.0;
+    double time;
     
     for(int j = 0; j <  MAX_OUTER_IT; j ++) { 
         // outer loop
         // printf("in outer loop\n");
-        
-
 
         if (abort_inner) {
             // restore outer primal iterate
@@ -459,7 +414,53 @@ int {{ solver_opts.solver_name }} ()
 
         double alpha_inner = alpha_outer;
 
-        if (j > 0) { // skip first outer iteration
+        if (j == 0) {
+
+#if BOUNDS
+    	    qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+#else
+            qpSchur.init(H, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+#endif
+
+	    tot_iter += 1;
+	    qpSchur.getPrimalSolution(y_QP);
+
+	    // for (i = 0; i < NV; i++)
+	    //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
+	    qpSchur.getDualSolution(lam_QP);
+	    for (i = 0; i < NV; i++)
+		if (getAbs(y_QP[i]) > step_inf_norm)
+		    step_inf_norm = getAbs(y_QP[i]);
+
+	    for (i = 0; i < NI; i++)
+		if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
+		    step_inf_norm = getAbs(lam[i] - lam_QP[i]);
+
+	    printf("------------------------------------------------------------\n");
+	    printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
+	    printf("------------------------------------------------------------\n");
+
+	    toc = getCPUtime();
+	    time = toc-tic;
+
+	    printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, 1);
+
+	    d_stats_0[tot_iter] = step_inf_norm;
+	    d_stats_1[tot_iter] = time;
+	    d_stats_2[tot_iter] = 1.0;
+	    i_stats_0[tot_iter] = nWSR;
+	    i_stats_1[tot_iter] = 1;
+
+	    for(int i = 0; i < NV; i++) {
+		y[i] = y[i] + y_QP[i];
+		y_val[i] = y[i];
+	    }
+
+	    for(int i = 0; i < NI; i++) {
+		lam[i] = lam_QP[i];
+		lam_val[i] = lam[i];
+	    }
+        } else {
             // update matrices and vectors
             evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
             A->setVal(A_val);
@@ -556,25 +557,25 @@ int {{ solver_opts.solver_name }} ()
 
             qpSchur.getDualSolution(lam_QP);
 
-            // store outer primal iterate before update
-            for(int i = 0; i < NV; i++) {
-                y_outer[i] = y_val[i];
-                y[i] = y[i] + y_QP[i];
-                y_val[i] = y[i];
-            }
-            
-            // store outer dual iterate before update
-            for(int i = 0; i < NI; i++) {
-                lam_outer[i] = lam_val[i];
-                lam[i] = lam_QP[i];
-                lam_val[i] = lam[i];
-            }
-
             // fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
         }
-        
+
         qpSchur.getBounds(bounds_QP);
         qpSchur.getConstraints(constraints_QP);
+
+        // store outer primal iterate before update
+        for(int i = 0; i < NV; i++) {
+            y_outer[i] = y_val[i];
+            y[i] = y[i] + y_QP[i];
+            y_val[i] = y[i];
+        }
+        
+        // store outer dual iterate before update
+        for(int i = 0; i < NI; i++) {
+            lam_outer[i] = lam_val[i];
+            lam[i] = lam_QP[i];
+            lam_val[i] = lam[i];
+        }
             
         //////////////////////////////////////////////////// 
         // INNER ITERATIONS
