@@ -367,16 +367,16 @@ class feasible_sqp():
 
         os.chdir('..')
 
-    def set_max_inner_iter(self,  max_inner_it):
-        self.shared_lib.set_max_inner_iter(max_inner_it)
+    def set_max_inner_it(self,  max_inner_it):
+        self.shared_lib.set_max_inner_it(max_inner_it)
         return
 
     def set_max_outer_it(self,  max_outer_it):
-        self.shared_lib.set_max_outer_iter(max_outer_it)
+        self.shared_lib.set_max_outer_it(max_outer_it)
         return
 
     def set_kappa_max(self, kappa_max):
-        self.shared_lib.set_max_nwsr_iter(max_nwsr)
+        self.shared_lib.set_kappa_max(kappa_max)
         return
 
     def set_kappa_bar(self, kappa_bar):
@@ -432,6 +432,12 @@ class feasible_sqp():
         self.shared_lib.set_param.restype = c_int
         self.shared_lib.set_param(value_data)
         return
+        
+    def get_constraint_violation_L1(self,  value_):
+        value_data = cast(value_.ctypes.data, POINTER(c_double))
+        self.shared_lib.get_constraint_violation_L1.restype = c_double
+        cv = self.shared_lib.get_constraint_violation_L1(value_data)
+        return cv
 
     def get_primal_sol(self):
         out = nmp.ascontiguousarray(nmp.zeros((self.nv,)), dtype=nmp.float64)
