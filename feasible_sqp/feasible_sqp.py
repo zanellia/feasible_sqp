@@ -342,16 +342,16 @@ class feasible_sqp():
 
         os.chdir('..')
 
-    def set_max_inner_iter(self,  max_inner_it):
-        self.shared_lib.set_max_inner_iter(max_inner_it)
+    def set_max_inner_it(self,  max_inner_it):
+        self.shared_lib.set_max_inner_it(max_inner_it)
         return
 
     def set_max_outer_it(self,  max_outer_it):
-        self.shared_lib.set_max_outer_iter(max_outer_it)
+        self.shared_lib.set_max_outer_it(max_outer_it)
         return
 
     def set_kappa_max(self, kappa_max):
-        self.shared_lib.set_max_nwsr_iter(max_nwsr)
+        self.shared_lib.set_max_nwsr_it(max_nwsr)
         return
 
     def set_kappa_bar(self, kappa_bar):
@@ -371,11 +371,11 @@ class feasible_sqp():
         return
 
     def set_min_alpha_inner(self, min_alpha_inner):
-        self.shared_lib.set_max_nwsr_iter(min_alpha_inner)
+        self.shared_lib.set_alpha_inner(min_alpha_inner)
         return
 
     def set_max_nwsr(self,  max_nwsr):
-        self.shared_lib.set_max_nwsr_iter(max_nwsr)
+        self.shared_lib.set_max_nwsr(max_nwsr)
         return
 
     def set_inner_tol(self,  inner_tol):
