@@ -46,8 +46,8 @@ LINKHSL = -Wl,-rpath=${LIB_HSL_DIR}
 ##	targets
 ##
 
-# all: qpoases casadi
-all: qpoases
+all: qpoases casadi
+# all: qpoases
 
 ifdef MATLAB_IDIR
 MAKE_QPOASES_ARGS = MATLAB_IDIR=${MATLAB_IDIR} MATLAB_LIBDIR=${MATLAB_LIBDIR} USE_SOLVER=${USE_SOLVER} LIB_BLAS=${LIB_BLAS} LIB_LAPACK=${LIB_LAPACK} REPLACE_LINALG=${REPLACE_LINALG}

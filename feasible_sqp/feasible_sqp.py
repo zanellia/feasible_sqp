@@ -386,6 +386,7 @@ class feasible_sqp():
         return
 
     def set_theta_bar(self, theta_bar):
+        self.shared_lib.set_theta_bar.argtypes = [c_double]
         self.shared_lib.set_theta_bar(theta_bar)
         return
 
@@ -395,11 +396,12 @@ class feasible_sqp():
         return
 
     def set_theta_tilde(self, theta_tilde):
+        self.shared_lib.set_theta_tilde.argtypes = [c_double]
         self.shared_lib.set_theta_tilde(theta_tilde)
         return
 
     def set_min_alpha_inner(self, min_alpha_inner):
-        self.shared_lib.set_max_nwsr_iter(min_alpha_inner)
+        self.shared_lib.set_alpha_inner(min_alpha_inner)
         return
 
     def set_max_nwsr(self,  max_nwsr):
