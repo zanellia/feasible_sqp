@@ -328,7 +328,8 @@ int {{ solver_opts.solver_name }} ()
 	// options.setToDefault();
 	// options.printLevel = PL_TABULAR;
 	// options.printLevel = PL_HIGH;
-	options.printLevel = PL_NONE;
+	options.printLevel = PL_LOW;
+	/* options.printLevel = PL_NONE; */
     options.enableEqualities = BT_TRUE;
     // options.enableFarBounds = BT_FALSE;
 
@@ -338,6 +339,7 @@ int {{ solver_opts.solver_name }} ()
     Bounds guessedBounds( NV );
     guessedBounds.setupAllFree( );
 
+    returnValue qpOASES_status;
     SQProblemSchur qpSchur(NV, NI);
     // SQProblem qpSchur(NV, NI);
     // QProblem qpSchur(NV, NI);
@@ -400,10 +402,15 @@ int {{ solver_opts.solver_name }} ()
         if (j == 0) {
 
 #if BOUNDS
-            qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+            qpOASES_status = qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #else
-            qpSchur.init(H, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+            qqpOASES_status = pSchur.init(H, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #endif
+
+            if (qpOASES_status != SUCCESSFUL_RETURN) {
+                printf("QP solution failed!\n");
+                return 1;
+            }
 
             tot_iter += 1;
 
@@ -484,10 +491,15 @@ int {{ solver_opts.solver_name }} ()
             tic = getCPUtime();
 
 #if BOUNDS
-            qpSchur.hotstart(H, g, A, lb, ub, lbA, ubA, nWSR);
+            qpOASES_status = qpSchur.hotstart(H, g, A, lb, ub, lbA, ubA, nWSR);
 #else
-            qpSchur.hotstart(H, g, A, NULL, NULL, lbA, ubA, nWSR);
+            qpOASES_status = qpSchur.hotstart(H, g, A, NULL, NULL, lbA, ubA, nWSR);
 #endif
+            if (qpOASES_status != SUCCESSFUL_RETURN) {
+                printf("QP solution failed!\n");
+                return 1;
+            }
+
             tot_iter += 1;
             qpSchur.getPrimalSolution(y_QP);
 
@@ -599,10 +611,15 @@ int {{ solver_opts.solver_name }} ()
             tic = getCPUtime();
 
 #if BOUNDS
-            qpSchur.hotstart(g, lb, ub, lbA, ubA, nWSR);
+            qpOASES_status = qpSchur.hotstart(g, lb, ub, lbA, ubA, nWSR);
 #else
-            qpSchur.hotstart(g, NULL, NULL, lbA, ubA, nWSR);
+            qpOASES_status = qpSchur.hotstart(g, NULL, NULL, lbA, ubA, nWSR);
 #endif
+            if (qpOASES_status != SUCCESSFUL_RETURN) {
+                printf("QP solution failed!\n");
+                return 1;
+            }
+
             tot_iter += 1;
             qpSchur.getPrimalSolution(y_QP);
             qpSchur.getDualSolution(lam_QP);
