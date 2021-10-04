@@ -376,10 +376,12 @@ class feasible_sqp():
         return
 
     def set_kappa_max(self, kappa_max):
+        self.shared_lib.set_kappa_max.argtypes = [c_double]
         self.shared_lib.set_kappa_max(kappa_max)
         return
 
     def set_kappa_bar(self, kappa_bar):
+        self.shared_lib.set_kappa_bar.argtypes = [c_double]
         self.shared_lib.set_kappa_bar(kappa_bar)
         return
 
@@ -388,6 +390,7 @@ class feasible_sqp():
         return
 
     def set_kappa_tilde(self, kappa_tilde):
+        self.shared_lib.set_kappa_tilde.argtypes = [c_double]
         self.shared_lib.set_kappa_tilde(kappa_tilde)
         return
 
@@ -400,7 +403,7 @@ class feasible_sqp():
         return
 
     def set_max_nwsr(self,  max_nwsr):
-        self.shared_lib.set_max_nwsr_iter(max_nwsr)
+        self.shared_lib.set_max_nwsr(max_nwsr)
         return
 
     def set_inner_tol(self,  inner_tol):
