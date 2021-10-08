@@ -296,16 +296,22 @@ int {{ solver_opts.solver_name }} ()
     casadi_int iw_H[sz_iw];
     real_t w_H[sz_w];
 
-    evaluate_dLdyy(arg_A, res_H, iw_H, w_H, nnz_H, y_val, lam_val, p_val, H_val);
+    // for (int i = 0; i < nnz_A; i++) 
+    //     printf("A_val[%i] = %f\n", i, A_val[i]);
 
-	long i;
-	int_t nWSR;
-	real_t tic, toc;
-	real_t *y_QP = new real_t[NV];
-	real_t *lam_QP = new real_t[NV + NI];
+    evaluate_dLdyy(arg_H, res_H, iw_H, w_H, nnz_H, y_val, lam_val, p_val, H_val);
 
-	// create sparse matrices
-	SymSparseMat *H = new SymSparseMat(NV, NV, H_ir, H_jc, H_val);
+    long i;
+    int_t nWSR;
+    real_t tic, toc;
+    real_t *y_QP = new real_t[NV];
+    real_t *lam_QP = new real_t[NV + NI];
+
+    // create sparse matrices
+    SymSparseMat *H = new SymSparseMat(NV, NV, H_ir, H_jc, H_val);
+    // for (int i = 0; i < nnz_A; i++) 
+    //     printf("A_val[%i] = %f\n", i, A_val[i]);
+
 	SparseMatrix *A = new SparseMatrix(NI, NV, A_ir, A_jc, A_val);
 
 	H->createDiagInfo();
@@ -383,6 +389,9 @@ int {{ solver_opts.solver_name }} ()
     // exit(1);
 #if 1
     
+    // for (i = 0; i < NV; i++)
+    //     printf("y_val[%i] = %f\n", i, y_val[i]);
+
     //////////////////////////////////////////////////// 
     // OUTER ITERATIONS
     ////////////////////////////////////////////////////
@@ -421,7 +430,7 @@ int {{ solver_opts.solver_name }} ()
 #if BOUNDS
             qpOASES_status = qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #else
-            qqpOASES_status = pSchur.init(H, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+            qpOASES_status = pSchur.init(H, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #endif
 
             if (qpOASES_status != SUCCESSFUL_RETURN) {
@@ -433,8 +442,6 @@ int {{ solver_opts.solver_name }} ()
 
             qpSchur.getPrimalSolution(y_QP);
 
-            // for (i = 0; i < NV; i++)
-            //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
             qpSchur.getDualSolution(lam_QP);
             for (i = 0; i < NV; i++)
                 if (getAbs(y_QP[i]) > step_inf_norm)
@@ -522,10 +529,6 @@ int {{ solver_opts.solver_name }} ()
             tot_iter += 1;
             qpSchur.getPrimalSolution(y_QP);
 
-
-            // for (i = 0; i < NV; i++)
-            //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
-
             real_t step_inf_norm = 0.0;
             for (i = 0; i < NV; i++)
                 if (getAbs(y_QP[i]) > step_inf_norm)
@@ -579,7 +582,13 @@ int {{ solver_opts.solver_name }} ()
             lam[i] = lam_QP[i];
             lam_val[i] = lam[i];
         }
-            
+
+        // for (i = 0; i < NV; i++)
+        //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
+
+        // for (i = 0; i < NV; i++)
+        //     printf("y_val[%i] = %f\n", i, y_val[i]);
+
         //////////////////////////////////////////////////// 
         // INNER ITERATIONS
         ////////////////////////////////////////////////////
@@ -648,9 +657,6 @@ int {{ solver_opts.solver_name }} ()
             tot_iter += 1;
             qpSchur.getPrimalSolution(y_QP);
             qpSchur.getDualSolution(lam_QP);
-
-            // for (i = 0; i < NV; i++)
-            //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
 
             double step_inf_norm = 0.0;
             for (i = 0; i < NV; i++)
@@ -721,6 +727,12 @@ int {{ solver_opts.solver_name }} ()
                     y[i] = y[i] + y_QP[i];
                     y_val[i] = y[i];
                 }
+
+                // for (i = 0; i < NV; i++)
+                //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
+
+                // for (i = 0; i < NV; i++)
+                //     printf("y_val[%i] = %f\n", i, y_val[i]);
 
                 for(int i = 0; i < NI; i++) {
                     lam[i] = lam_QP[i];
