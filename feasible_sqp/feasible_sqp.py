@@ -338,9 +338,12 @@ class feasible_sqp():
         solver_name = self.opts['solver_name']
         #TODO(andrea): why is this necessary??
         os.chdir(self.opts['solver_name'])
-        self.shared_lib.fsqp_solver()
+        self.shared_lib.fsqp_solver.restype = c_int
+        status = self.shared_lib.fsqp_solver()
 
         os.chdir('..')
+
+        return status
 
     def set_max_inner_it(self,  max_inner_it):
         self.shared_lib.set_max_inner_it(max_inner_it)
@@ -351,26 +354,38 @@ class feasible_sqp():
         return
 
     def set_kappa_max(self, kappa_max):
-        self.shared_lib.set_max_nwsr_it(max_nwsr)
+        self.shared_lib.set_kappa_max.argtypes = [c_double]
+        self.shared_lib.set_kappa_max.restype = c_int
+        self.shared_lib.set_kappa_max(kappa_max)
         return
 
     def set_kappa_bar(self, kappa_bar):
+        self.shared_lib.set_kappa_bar.argtypes = [c_double]
+        self.shared_lib.set_kappa_bar.restype = c_int
         self.shared_lib.set_kappa_bar(kappa_bar)
         return
 
     def set_theta_bar(self, theta_bar):
+        self.shared_lib.set_theta_bar.argtypes = [c_double]
+        self.shared_lib.set_theta_bar.restype = c_int
         self.shared_lib.set_theta_bar(theta_bar)
         return
 
     def set_kappa_tilde(self, kappa_tilde):
+        self.shared_lib.set_kappa_tilde.argtypes = [c_double]
+        self.shared_lib.set_kappa_tilde.restype = c_int
         self.shared_lib.set_kappa_tilde(kappa_tilde)
         return
 
     def set_theta_tilde(self, theta_tilde):
+        self.shared_lib.set_theta_tilde.argtypes = [c_double]
+        self.shared_lib.set_theta_tilde.restype = c_int
         self.shared_lib.set_theta_tilde(theta_tilde)
         return
 
     def set_min_alpha_inner(self, min_alpha_inner):
+        self.shared_lib.set_min_alpha.argtypes = [c_double]
+        self.shared_lib.set_min_alpha.restype = c_int
         self.shared_lib.set_alpha_inner(min_alpha_inner)
         return
 
