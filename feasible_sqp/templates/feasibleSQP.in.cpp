@@ -300,6 +300,10 @@ int {{ solver_opts.solver_name }} ()
     //     printf("A_val[%i] = %f\n", i, A_val[i]);
 
     evaluate_dLdyy(arg_H, res_H, iw_H, w_H, nnz_H, y_val, lam_val, p_val, H_val);
+    // update P for gradient update (necessary or 
+    // could I just map to H_val?)
+    for (int i=0; i<nnz_H; i++)
+        P_val[i] = H_val[i];
 
     long i;
     int_t nWSR;
@@ -328,6 +332,7 @@ int {{ solver_opts.solver_name }} ()
 
     for(int i = 0; i < NV; i++) {
         g[i] = myvector[i];
+        g_bar[i] = myvector[i];
         lb[i] = lby[i];
         ub[i] = uby[i];
     }
@@ -556,9 +561,9 @@ int {{ solver_opts.solver_name }} ()
 
             if (step_inf_norm < OUTER_TOL) {
                 printf("->solution found!\n");
-                for (i = 0; i < NV; i++)
-                    printf("y[%i] = %f\n", i, y[i]);
-                break;
+                // for (i = 0; i < NV; i++)
+                //     printf("y[%i] = %f\n", i, y[i]);
+                return 0;
             }
 
             qpSchur.getDualSolution(lam_QP);
@@ -746,6 +751,8 @@ int {{ solver_opts.solver_name }} ()
             // fprintf(stdFile, "Solved hotstarted sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
 
         }
+        
+        return 1;
     }
 #endif
 
