@@ -87,7 +87,6 @@ class feasible_sqp():
         self.np = np
         opts = dict()
         opts['max_nwsr'] = 10000
-        # opts['max_inner_it'] = 10
         opts['max_inner_it'] = 10
         opts['max_outer_it'] = 20
         opts['kappa_max'] = 0.9
@@ -115,7 +114,7 @@ class feasible_sqp():
         self.shared_lib.fsqp_solver_init()
         os.chdir('..')
 
-    def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None):
+    def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], approximate_hessian=None, qpoases_root=None, casadi_root=None, eigen_root=None):
         g_shape = g.shape
 
         if g_shape[1] != 1:
@@ -267,22 +266,40 @@ class feasible_sqp():
         if status != 0:
             raise Exception('Command {} failed'.format(cmd))
 
+        if approximate_hessian is not None:
+            print('compiling generated code for approximate Hessian M...')
+            ca_M = ca.Function('ca_M', [y, p], [approximate_hessian])
+            ca_M.generate('ca_M', opts)
+            cmd = 'gcc -fPIC -shared -O3 ca_M.c -o libca_M.so'
+            os.system(cmd)
+            if status != 0:
+                raise Exception('Command {} failed'.format(cmd))
+            cmd = 'gcc -fPIC -shared -O3 ca_M.c -o ca_M.so'
+            os.system(cmd)
+            if status != 0:
+                raise Exception('Command {} failed'.format(cmd))
+
+            use_approximate_hessian = True
+        else:
+            use_approximate_hessian = False 
+
+
         print('rendering templated C++ code...')
         env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))))
         tmpl = env.get_template("templates/feasibleSQP.in.cpp")
-        code = tmpl.render(solver_opts = self.opts, NI = self.ni, NV = self.nv, NP = self.np)
+        code = tmpl.render(solver_opts = self.opts, NI = self.ni, NV = self.nv, NP = self.np, use_approximate_hessian=use_approximate_hessian)
         with open('{}.cpp'.format(self.opts['solver_name']), "w+") as f:
             f.write(code)
 
         tmpl = env.get_template("templates/feasibleSQP.in.hpp")
         code = tmpl.render(solver_opts = self.opts, NV = nv, NI = ni, NP = np,\
-            lby = lby, uby = uby, lbg = lbg, ubg = ubg, p0 = p0, y0 = y0, lam0 = lam0)
+            lby = lby, uby = uby, lbg = lbg, ubg = ubg, p0 = p0, y0 = y0, lam0 = lam0, use_approximate_hessian=use_approximate_hessian)
 
         with open('{}.hpp'.format(self.opts['solver_name']), "w+") as f:
             f.write(code)
 
         tmpl = env.get_template("templates/main.in.cpp")
-        code = tmpl.render(solver_opts = self.opts)
+        code = tmpl.render(solver_opts = self.opts, use_approximate_hessian=use_approximate_hessian)
         with open('main.cpp', "w+") as f:
             f.write(code)
 
@@ -300,7 +317,7 @@ class feasible_sqp():
         build_params['casadi_root'] = casadi_root
         build_params['eigen_root'] = eigen_root
         build_params['solver_name'] = self.opts['solver_name']
-        code = tmpl.render(build_params = build_params)
+        code = tmpl.render(build_params = build_params, use_approximate_hessian=use_approximate_hessian)
         with open('Makefile', "w+") as f:
             f.write(code)
 

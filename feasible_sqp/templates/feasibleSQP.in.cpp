@@ -17,6 +17,9 @@
 #include "ca_dgdy.h"
 #include "ca_g.h"
 #include "ca_dLdyy.h"
+{% if use_approximate_hessian %}
+#include "ca_M.h"
+{% endif %}
 #include "{{ solver_opts.solver_name }}.hpp"
 #include "Sparse"
 
@@ -52,7 +55,7 @@ int evaluate_dgdy(const double** arg, double** res, casadi_int* iw, double* w, i
 
 }
 
-int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, int nnz, real_t* y_val, real_t* lam_val, real_t* p_val, double* H_val) {
+int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, int nnz, real_t* y_val, real_t* lam_val, real_t* p_val, double* M_val) {
 
     // Allocate memory (thread-safe)
     ca_dLdyy_incref();
@@ -61,7 +64,7 @@ int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, 
     arg[0] = y_val;
     arg[1] = lam_val;
     arg[2] = p_val;
-    res[0] = H_val;
+    res[0] = M_val;
 
     // Checkout thread-local memory (not thread-safe)
     int mem = ca_dLdyy_checkout();
@@ -74,11 +77,40 @@ int evaluate_dLdyy(const double** arg, double** res, casadi_int* iw, double* w, 
 
     /* Print result of evaluation */
     // for (int j=0;j<nnz;j++)
-    //     printf("H[%i] = %f\n", j, H_val[j]);
+    //     printf("M[%i] = %f\n", j, M_val[j]);
 
     return 0;
 
 }
+
+{% if use_approximate_hessian %}
+int evaluate_M(const double** arg, double** res, casadi_int* iw, double* w, int nnz, real_t* y_val, real_t* p_val, double* M_val) {
+
+    // Allocate memory (thread-safe)
+    ca_M_incref();
+
+    /* Evaluate the function */
+    arg[0] = y_val;
+    arg[1] = p_val;
+    res[0] = M_val;
+
+    // Checkout thread-local memory (not thread-safe)
+    int mem = ca_M_checkout();
+
+    // Evaluation is thread-safe
+    if (ca_M(arg, res, iw, w, mem)) return 1;
+
+    // Release thread-local (not thread-safe)
+    ca_M_release(mem);
+
+    /* Print result of evaluation */
+    // for (int j=0;j<nnz;j++)
+    //     printf("M[%i] = %f\n", j, M_val[j]);
+
+    return 0;
+
+}
+{% endif %}
 
 extern "C" {
 int {{ solver_opts.solver_name }}_init ()
@@ -89,6 +121,7 @@ int {{ solver_opts.solver_name }}_init ()
 
     i_stats[0] = i_stats_0;
     i_stats[1] = i_stats_1;
+    return 0;
 }
 
 int {{ solver_opts.solver_name }} ()
@@ -144,6 +177,11 @@ int {{ solver_opts.solver_name }} ()
     vector<DM> dLdyy_eval = ca_dLdyy(ca_z_p);
     // cout << "result (0): " << dLdyy_eval.at(0) << endl;
 
+{% if use_approximate_hessian %}
+    Function ca_M = external("ca_M");
+    vector<DM> M_eval = ca_M(ca_y_p);
+{% endif %}
+    // cout << "result (0): " << dM_eval.at(0) << endl;
 
     // get sparsity patterns
     casadi_int n_in = ca_dgdy_n_in();
@@ -212,6 +250,10 @@ int {{ solver_opts.solver_name }} ()
 
     evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
 
+    int nnz_M;
+
+{% if use_approximate_hessian %}
+    // setup P
     // get sparsity patterns
     n_in = ca_dLdyy_n_in();
     n_out = ca_dLdyy_n_out();
@@ -221,7 +263,7 @@ int {{ solver_opts.solver_name }} ()
     sz_iw=0;
     sz_w=0;
 
-    int nnz_H;
+    int nnz_P;
 
     ca_dLdyy_work(&sz_arg, &sz_res, &sz_iw, &sz_w);
     // printf("Work vector sizes:\n");
@@ -239,64 +281,213 @@ int {{ solver_opts.solver_name }} ()
     ncol = *sp_i++; /* Number of columns */
     colind = sp_i; /* Column offsets */
     row = sp_i + ncol+1; /* Row nonzero */
-    nnz_H = sp_i[ncol]; /* Number of nonzeros */
+    nnz_P = sp_i[ncol]; /* Number of nonzeros */
 
-    sparse_int_t H_ir[nnz_H];
-    sparse_int_t H_jc[ncol+1];
-    real_t H_val[nnz_H];
-
-    // data for P
-    int P_ir[nnz_H];
-    int P_jc[ncol+1];
-    double P_val[nnz_H];
-
-    // define sparse matrix for matrix-vector product involved in
-    // the gradient update
-    Eigen::Map<Eigen::SparseMatrix<double> > P(NV, NV, nnz_H, P_jc, 
-        P_ir, P_val);
-
-    /* Print the pattern */
-    // printf("  Dimension: %lld-by-%lld (%lld nonzeros)\n", nrow, ncol, nnz_H);
-    // printf("  Nonzeros: {");
+    sparse_int_t P_ir[nnz_P];
+    sparse_int_t P_jc[ncol+1];
+    real_t P_val[nnz_P];
     zcounter = 0;
     for(cc=0; cc<ncol; ++cc){                    /* loop over columns */
-      H_jc[cc] = colind[cc];
       P_jc[cc] = colind[cc];
       for(el=colind[cc]; el<colind[cc+1]; ++el){ /* loop over the nonzeros entries of the column */
         // if(el!=0) printf(", ");                  /* Separate the entries */
         rr = row[el];                            /* Get the row */
-        H_ir[zcounter] = rr;
         P_ir[zcounter] = rr;
         zcounter+=1;
         // printf("[%lld,%lld]",rr,cc);                 /* Print the nonzero */
       }
     }
 
-    H_jc[ncol] = nnz_H;
+    P_jc[ncol] = nnz_P;
 
     // printf("}\n\n");
 
-    // for (int i = 0; i < nnz_H; i++) 
-    //     printf("H_ir[%i] = %i\n", i, H_ir[i]);
+    // for (int i = 0; i < nnz_P; i++) 
+    //     printf("P_ir[%i] = %i\n", i, P_ir[i]);
 
     // for (int i = 0; i < ncol+1; i++) 
-    //     printf("H_jc[%i] = %i\n", i, H_jc[i]);
-    // evaluate H
+    //     printf("P_jc[%i] = %i\n", i, P_jc[i]);
+    // evaluate P
 
     /* Allocate input/output buffers and work vectors*/
-    const double *arg_H[sz_arg];
-    double *res_H[sz_res];
-    casadi_int iw_H[sz_iw];
-    real_t w_H[sz_w];
+    const double *arg_P[sz_arg];
+    double *res_P[sz_res];
+    casadi_int iw_P[sz_iw];
+    real_t w_P[sz_w];
 
     // for (int i = 0; i < nnz_A; i++) 
     //     printf("A_val[%i] = %f\n", i, A_val[i]);
 
-    evaluate_dLdyy(arg_H, res_H, iw_H, w_H, nnz_H, y_val, lam_val, p_val, H_val);
-    // update P for gradient update (necessary or 
-    // could I just map to H_val?)
-    for (int i=0; i<nnz_H; i++)
-        P_val[i] = H_val[i];
+    evaluate_dLdyy(arg_P, res_P, iw_P, w_P, nnz_P, y_val, lam_val, p_val, P_val);
+
+    // define sparse matrix for matrix-vector product involved in
+    // the gradient update
+    Eigen::Map<Eigen::SparseMatrix<double> > P(NV, NV, nnz_P, P_jc, 
+        P_ir, P_val);
+    
+    // setup M
+    // get sparsity patterns
+    n_in = ca_M_n_in();
+    n_out = ca_M_n_out();
+
+    // get sparsity patterns
+    n_in = ca_M_n_in();
+    n_out = ca_M_n_out();
+
+    sz_arg=n_in;
+    sz_res=n_out;
+    sz_iw=0;
+    sz_w=0;
+
+    ca_M_work(&sz_arg, &sz_res, &sz_iw, &sz_w);
+    // printf("Work vector sizes:\n");
+    // printf("sz_arg = %lld, sz_res = %lld, sz_iw = %lld, sz_w = %lld\n\n",
+    //        sz_arg, sz_res, sz_iw, sz_w);
+
+    /* Print the sparsities of the inputs and outputs */
+    // skip inputs
+    ca_i = n_in;
+    // Retrieve the sparsity pattern - CasADi uses column compressed storage (CCS)
+    // printf("Output %lld\n", ca_i-n_in);
+    sp_i = ca_M_sparsity_out(ca_i-n_in);
+    if (sp_i==0) return 1;
+    nrow = *sp_i++; /* Number of rows */
+    ncol = *sp_i++; /* Number of columns */
+    colind = sp_i; /* Column offsets */
+    row = sp_i + ncol+1; /* Row nonzero */
+    nnz_M = sp_i[ncol]; /* Number of nonzeros */
+
+    sparse_int_t M_ir[nnz_M];
+    sparse_int_t M_jc[ncol+1];
+    real_t M_val[nnz_M];
+
+
+    zcounter = 0;
+    for(cc=0; cc<ncol; ++cc){                    /* loop over columns */
+      M_jc[cc] = colind[cc];
+      for(el=colind[cc]; el<colind[cc+1]; ++el){ /* loop over the nonzeros entries of the column */
+        // if(el!=0) printf(", ");                  /* Separate the entries */
+        rr = row[el];                            /* Get the row */
+        M_ir[zcounter] = rr;
+        zcounter+=1;
+        // printf("[%lld,%lld]",rr,cc);                 /* Print the nonzero */
+      }
+    }
+
+    M_jc[ncol] = nnz_M;
+
+    // printf("}\n\n");
+
+    // for (int i = 0; i < nnz_M; i++) 
+    //     printf("M_ir[%i] = %i\n", i, M_ir[i]);
+
+    // for (int i = 0; i < ncol+1; i++) 
+    //     printf("M_jc[%i] = %i\n", i, M_jc[i]);
+    // evaluate M
+
+    /* Allocate input/output buffers and work vectors*/
+    const double *arg_M[sz_arg];
+    double *res_M[sz_res];
+    casadi_int iw_M[sz_iw];
+    real_t w_M[sz_w];
+
+    // for (int i = 0; i < nnz_A; i++) 
+    //     printf("A_val[%i] = %f\n", i, A_val[i]);
+
+    evaluate_M(arg_M, res_M, iw_M, w_M, nnz_M, y_val, p_val, M_val);
+{% else %}
+    // setup P and M at the same time
+
+    // get sparsity patterns
+    n_in = ca_dLdyy_n_in();
+    n_out = ca_dLdyy_n_out();
+
+    sz_arg=n_in;
+    sz_res=n_out;
+    sz_iw=0;
+    sz_w=0;
+
+    int nnz_P;
+
+    ca_dLdyy_work(&sz_arg, &sz_res, &sz_iw, &sz_w);
+    // printf("Work vector sizes:\n");
+    // printf("sz_arg = %lld, sz_res = %lld, sz_iw = %lld, sz_w = %lld\n\n",
+    //        sz_arg, sz_res, sz_iw, sz_w);
+
+    /* Print the sparsities of the inputs and outputs */
+    // skip inputs
+    ca_i = n_in;
+    // Retrieve the sparsity pattern - CasADi uses column compressed storage (CCS)
+    // printf("Output %lld\n", ca_i-n_in);
+    sp_i = ca_dLdyy_sparsity_out(ca_i-n_in);
+    if (sp_i==0) return 1;
+    nrow = *sp_i++; /* Number of rows */
+    ncol = *sp_i++; /* Number of columns */
+    colind = sp_i; /* Column offsets */
+    row = sp_i + ncol+1; /* Row nonzero */
+    nnz_P = sp_i[ncol]; /* Number of nonzeros */
+    nnz_M = sp_i[ncol]; /* Number of nonzeros */
+
+    sparse_int_t P_ir[nnz_P];
+    sparse_int_t P_jc[ncol+1];
+    real_t P_val[nnz_P];
+    sparse_int_t M_ir[nnz_M];
+    sparse_int_t M_jc[ncol+1];
+    real_t M_val[nnz_M];
+
+    zcounter = 0;
+    for(cc=0; cc<ncol; ++cc){                    /* loop over columns */
+      P_jc[cc] = colind[cc];
+      M_jc[cc] = colind[cc];
+      for(el=colind[cc]; el<colind[cc+1]; ++el){ /* loop over the nonzeros entries of the column */
+        // if(el!=0) printf(", ");                  /* Separate the entries */
+        rr = row[el];                            /* Get the row */
+        P_ir[zcounter] = rr;
+        M_ir[zcounter] = rr;
+        zcounter+=1;
+        // printf("[%lld,%lld]",rr,cc);                 /* Print the nonzero */
+      }
+    }
+
+    P_jc[ncol] = nnz_P;
+    M_jc[ncol] = nnz_P;
+
+
+
+    // printf("}\n\n");
+
+    // for (int i = 0; i < nnz_P; i++) 
+    //     printf("P_ir[%i] = %i\n", i, P_ir[i]);
+
+    // for (int i = 0; i < ncol+1; i++) 
+    //     printf("P_jc[%i] = %i\n", i, P_jc[i]);
+    // evaluate P
+
+    /* Allocate input/output buffers and work vectors*/
+    const double *arg_P[sz_arg];
+    double *res_P[sz_res];
+    casadi_int iw_P[sz_iw];
+    real_t w_P[sz_w];
+    const double *arg_M[sz_arg];
+    double *res_M[sz_res];
+    casadi_int iw_M[sz_iw];
+    real_t w_M[sz_w];
+
+    // for (int i = 0; i < nnz_A; i++) 
+    //     printf("A_val[%i] = %f\n", i, A_val[i]);
+
+    evaluate_dLdyy(arg_P, res_P, iw_P, w_P, nnz_P, y_val, lam_val, p_val, P_val);
+
+    // define sparse matrix for matrix-vector product involved in
+    // the gradient update
+    Eigen::Map<Eigen::SparseMatrix<double> > P(NV, NV, nnz_P, P_jc, 
+        P_ir, P_val);
+    
+    // setup M
+
+    for (int i=0; i<nnz_M; i++)
+        M_val[i] = P_val[i];
+{% endif %}
 
     long i;
     int_t nWSR;
@@ -305,13 +496,13 @@ int {{ solver_opts.solver_name }} ()
     real_t *lam_QP = new real_t[NV + NI];
 
     // create sparse matrices
-    SymSparseMat *H = new SymSparseMat(NV, NV, H_ir, H_jc, H_val);
+    SymSparseMat *M = new SymSparseMat(NV, NV, M_ir, M_jc, M_val);
     // for (int i = 0; i < nnz_A; i++) 
     //     printf("A_val[%i] = %f\n", i, A_val[i]);
 
 	SparseMatrix *A = new SparseMatrix(NI, NV, A_ir, A_jc, A_val);
 
-	H->createDiagInfo();
+	M->createDiagInfo();
 
     real_t g_bar[NV]; 
     Eigen::SparseVector<double> g_temp(NV);
@@ -360,8 +551,8 @@ int {{ solver_opts.solver_name }} ()
 
     // printf("A matrix\n");
     // A->print();
-    // printf("H matrix\n");
-    // H->print();
+    // printf("M matrix\n");
+    // M->print();
 
     myvector = std::vector<double>(g_eval.at(0));
     for(int i = 0; i < NI; i++) {
@@ -416,9 +607,9 @@ int {{ solver_opts.solver_name }} ()
         if (j == 0) {
 
 #if BOUNDS
-            qpOASES_status = qpSchur.init(H, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+            qpOASES_status = qpSchur.init(M, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #else
-            qpOASES_status = pSchur.init(H, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+            qpOASES_status = pSchur.init(M, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #endif
 
             if (qpOASES_status != SUCCESSFUL_RETURN) {
@@ -459,13 +650,19 @@ int {{ solver_opts.solver_name }} ()
             evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
             A->setVal(A_val);
 
-            evaluate_dLdyy(arg_H, res_H, iw_H, w_H, nnz_H, y_val, lam_val, p_val, H_val);
-            H->setVal(H_val);
-            
+            {% if use_approximate_hessian %}
+            evaluate_M(arg_M, res_M, iw_M, w_M, nnz_M, y_val, p_val, M_val);
+            M->setVal(M_val);
+            evaluate_dLdyy(arg_M, res_M, iw_M, w_M, nnz_M, y_val, lam_val, p_val, P_val);
+            {% else %}
+            evaluate_dLdyy(arg_M, res_M, iw_M, w_M, nnz_M, y_val, lam_val, p_val, P_val);
+            M->setVal(P_val);
             // update P for gradient update (necessary or 
-            // could I just map to H_val?)
-            for (int i=0; i<nnz_H; i++)
-                P_val[i] = H_val[i];
+            // could I just map to M_val?)
+            // for (int i=0; i<nnz_M; i++)
+            //     P_val[i] = M_val[i];
+            {% endif %}
+            
 
             // TODO(andrea) only setting y here! 
             ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
@@ -503,9 +700,9 @@ int {{ solver_opts.solver_name }} ()
             tic = getCPUtime();
 
 #if BOUNDS
-            qpOASES_status = qpSchur.hotstart(H, g, A, lb, ub, lbA, ubA, nWSR);
+            qpOASES_status = qpSchur.hotstart(M, g, A, lb, ub, lbA, ubA, nWSR);
 #else
-            qpOASES_status = qpSchur.hotstart(H, g, A, NULL, NULL, lbA, ubA, nWSR);
+            qpOASES_status = qpSchur.hotstart(M, g, A, NULL, NULL, lbA, ubA, nWSR);
 #endif
             if (qpOASES_status != SUCCESSFUL_RETURN) {
                 printf("QP solution failed!\n");
@@ -587,7 +784,7 @@ int {{ solver_opts.solver_name }} ()
             // TODO(andrea): only setting y here!
             ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
 
-#if 1
+#if 0
             // do not evaluate exact gradient, but rather
             // use linear update for g
             for(int i = 0; i < NV; i++)
@@ -691,7 +888,8 @@ int {{ solver_opts.solver_name }} ()
             if (kappa > KAPPA_TILDE) {
                 printf("kappa = %f > KAPPA_TILDE = %f. abort inner iterations\n", kappa, KAPPA_TILDE);
                 abort_inner = 1;
-                break;
+                k = MAX_INNER_IT;
+                // break;
             }
 
             if (kappa > KAPPA_MAX) {
@@ -725,17 +923,17 @@ int {{ solver_opts.solver_name }} ()
 
         }
         
-        return 1;
     }
+    return 1;
 #endif
 
-	delete H;
+	delete M;
 	delete A;
 
 	delete[] y_QP;
     delete[] lam_QP;
 
-	// return 0;
+	return 0;
 }
 
 
@@ -793,50 +991,57 @@ int get_primal_sol(double *primal_sol) {
     for(int i = 0; i < NV; i++) {
         primal_sol[i] = y_val[i];
     }
+    return 0;
 }
 
 int get_dual_sol(double *dual_sol) {
     for(int i = 0; i < NI; i++) {
         dual_sol[i] = lam_val[i];
     }
+    return 0;
 }
 
 int set_primal_guess(double *primal_guess) {
     for(int i = 0; i < NV; i++) {
         y_init[i] = primal_guess[i];
     }
+    return 0;
 }
 
 int set_dual_guess(double *dual_guess) {
     for(int i = 0; i < NI; i++) {
         lam_init[i] = dual_guess[i];
     }
+    return 0;
 }
 
 int set_param(double *par) {
     for(int i = 0; i < NP; i++) {
         p_val[i] = par[i];
     }
+    return 0;
 }
 
 int get_d_stats(double *d_stats_ret, int i) {
     if (i > 2 || i <0) {
-        printf("Invalid stat index %i - value in range [0,2] required\n");
+        printf("Invalid stat index %i - value in range [0,2] required\n", i);
     } else {
         double * temp = d_stats[i];
         for (int j = 0; j < MAX_STATS; j++)
             d_stats_ret[j] = temp[j];
     }
+    return 0;
 }
 
 int get_i_stats(int *i_stats_ret, int i) {
     if (i > 1 || i <0) {
-        printf("Invalid stat index %i - value in range [0,1] required\n");
+        printf("Invalid stat index %i - value in range [0,1] required\n", i);
     } else {
         int * temp = i_stats[i];
         for (int j = 0; j < MAX_STATS; j++)
             i_stats_ret[j] = temp[j];
     }
+    return 0;
 }
 
 }
