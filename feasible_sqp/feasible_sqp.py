@@ -267,6 +267,9 @@ class feasible_sqp():
             raise Exception('Command {} failed'.format(cmd))
 
         if approximate_hessian is not None:
+            if approximate_hessian.shape != (nv,nv):
+                raise Exception('Hessian approximation has wrong dimension! You have {} instead of {}'.format(approximate_hessian.shape, (nv,nv)))
+
             print('compiling generated code for approximate Hessian M...')
             ca_M = ca.Function('ca_M', [y, p], [approximate_hessian])
             ca_M.generate('ca_M', opts)

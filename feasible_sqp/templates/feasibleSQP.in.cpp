@@ -330,10 +330,6 @@ int {{ solver_opts.solver_name }} ()
     n_in = ca_M_n_in();
     n_out = ca_M_n_out();
 
-    // get sparsity patterns
-    n_in = ca_M_n_in();
-    n_out = ca_M_n_out();
-
     sz_arg=n_in;
     sz_res=n_out;
     sz_iw=0;

@@ -27,7 +27,7 @@ p = solver.p
 r = ca.vertcat(ca.sin(y[0]-p), y[1])
 f = 1.0/2.0*ca.dot(r,r)
 J = ca.jacobian(r,y)
-gn_hess = ca.dot(J,J)
+gn_hess = ca.mtimes(J.T,J)
 
 # define constraints
 g = ca.vertcat(ca.sin(y[1]) + 0.5)
@@ -44,8 +44,8 @@ ubg = 0.000*nmp.ones((1,1))
 p0 = 1.0*nmp.ones((1,1))
 
 # generate solver
-# solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0, approximate_hessian=gn_hess)
-solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0)
+solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0, approximate_hessian=gn_hess)
+# solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0)
 # solver.generate_solver(f,g, lby = lby, uby = uby)
 
 # solve NLP
