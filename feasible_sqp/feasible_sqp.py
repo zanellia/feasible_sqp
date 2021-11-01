@@ -97,6 +97,8 @@ class feasible_sqp():
         opts['inner_tol'] = 1E-6
         opts['outer_tol'] = 1E-6
         opts['solver_name'] = solver_name
+        opts['r_conv_n'] = 5
+        opts['inner_solves'] = 1
         self.opts = opts
 
         return

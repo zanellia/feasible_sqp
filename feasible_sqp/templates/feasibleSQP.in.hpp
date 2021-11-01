@@ -12,6 +12,9 @@ double THETA_BAR    = {{ solver_opts.theta_bar }};
 double MIN_ALPHA_INNER  = {{ solver_opts.min_alpha_inner }};
 double INNER_TOL = {{ solver_opts.inner_tol }};
 double OUTER_TOL = {{ solver_opts.outer_tol }};
+int R_CONV_N = {{ solver_opts.r_conv_n }};
+int INNER_SOLVES = {{ solver_opts.inner_solves }};
+
 #define NV {{ NV }}
 #define NI {{ NI }}
 #define NP {{ NP }}
@@ -24,6 +27,8 @@ int {{ solver_opts.solver_name }}( );
 int set_max_inner_it(int max_inner_it);
 
 int set_max_outer_it(int max_outer_it);
+
+int set_r_conv_n(int r_conv_n);
 
 double set_kappa_max(double kappa_max);
 
@@ -54,6 +59,7 @@ int set_param(double *par);
 int get_d_stats(double *d_stats_ret, int i);
 
 int get_i_stats(int *i_stats_ret, int i);
+
 
 }
 

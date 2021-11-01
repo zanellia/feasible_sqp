@@ -594,7 +594,6 @@ int {{ solver_opts.solver_name }} ()
             for(int i = 0; i < NI; i++)
                 lam_val[i] = lam_outer[i];
 
-            abort_inner = 0;
             alpha_outer = alpha_outer * THETA_BAR;
         }
 
@@ -633,7 +632,7 @@ int {{ solver_opts.solver_name }} ()
             toc = getCPUtime();
             time = toc-tic;
 
-            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, 1);
+            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, !abort_inner);
 
             d_stats_0[tot_iter] = step_inf_norm;
             d_stats_1[tot_iter] = time;
@@ -642,22 +641,24 @@ int {{ solver_opts.solver_name }} ()
             i_stats_1[tot_iter] = 1;
 
         } else {
-            // update matrices and vectors
-            evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
-            A->setVal(A_val);
+            if (abort_inner==0) {
+                // update matrices and vectors
+                evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
+                A->setVal(A_val);
 
-            {% if use_approximate_hessian %}
-            evaluate_M(arg_M, res_M, iw_M, w_M, nnz_M, y_val, p_val, M_val);
-            M->setVal(M_val);
-            evaluate_dLdyy(arg_M, res_M, iw_M, w_M, nnz_M, y_val, lam_val, p_val, P_val);
-            {% else %}
-            evaluate_dLdyy(arg_M, res_M, iw_M, w_M, nnz_M, y_val, lam_val, p_val, P_val);
-            M->setVal(P_val);
+                {% if use_approximate_hessian %}
+                evaluate_M(arg_M, res_M, iw_M, w_M, nnz_M, y_val, p_val, M_val);
+                M->setVal(M_val);
+                evaluate_dLdyy(arg_M, res_M, iw_M, w_M, nnz_M, y_val, lam_val, p_val, P_val);
+                {% else %}
+                evaluate_dLdyy(arg_M, res_M, iw_M, w_M, nnz_M, y_val, lam_val, p_val, P_val);
+                M->setVal(P_val);
+                {% endif %}
+            }
             // update P for gradient update (necessary or 
             // could I just map to M_val?)
             // for (int i=0; i<nnz_M; i++)
             //     P_val[i] = M_val[i];
-            {% endif %}
             
 
             // TODO(andrea) only setting y here! 
@@ -725,7 +726,9 @@ int {{ solver_opts.solver_name }} ()
 
             toc = getCPUtime();
             time = tic - toc;
-            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, alpha_inner, 1);
+            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, alpha_inner, !abort_inner);
+
+            if(abort_inner) abort_inner = 0;
 
             d_stats_0[tot_iter] = step_inf_norm;
             d_stats_1[tot_iter] = time;
@@ -841,29 +844,40 @@ int {{ solver_opts.solver_name }} ()
                 if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
                     step_inf_norm = getAbs(lam[i] - lam_QP[i]);
 
+            // monitor N-step R-linear convergence
             double kappa = step_inf_norm/prev_step_inf_norm;
-            // printf("step = %f, prev step = %f, kappa = %f\n", 
-            //     step_inf_norm, prev_step_inf_norm, kappa);
+            if (k%R_CONV_N == 0 && k > 1) {
+                // printf("step = %f, prev step = %f, kappa = %f\n", 
+                //     step_inf_norm, prev_step_inf_norm, kappa);
 
-            if (kappa > KAPPA_BAR)
-            {
-                // if (kappa > opts->kappa_max)
-                // {
-                //     printf("\n kappa > kappa_max!\n");
-                //     break;
-                // } 
-                alpha_inner = alpha_inner * THETA_BAR;
+                if (kappa > KAPPA_BAR)
+                {
+                    // if (kappa > opts->kappa_max)
+                    // {
+                    //     printf("\n kappa > kappa_max!\n");
+                    //     break;
+                    // } 
+                    alpha_inner = alpha_inner * THETA_BAR;
 
-                if (alpha_inner < MIN_ALPHA_INNER) {
-                    printf("alpha = %f < MIN_ALPHA_INNER = %f. abort inner iterations\n", alpha_inner, MIN_ALPHA_INNER);
-                    abort_inner = 1;
-                    break;
+                    if (alpha_inner < MIN_ALPHA_INNER) {
+                        printf("alpha = %f < MIN_ALPHA_INNER = %f. abort inner iterations\n", alpha_inner, MIN_ALPHA_INNER);
+                        abort_inner = 1;
+                        break;
+                    }
+                    // printf("alpha_inner = %f, kappa = %f\n", alpha_inner, kappa);
                 }
-                // printf("alpha_inner = %f, kappa = %f\n", alpha_inner, kappa);
+                prev_step_inf_norm = step_inf_norm;
+
+                if (kappa > KAPPA_TILDE) {
+                    printf("kappa = %f > KAPPA_TILDE = %f. abort inner iterations\n", kappa, KAPPA_TILDE);
+                    abort_inner = 1;
+                    k = MAX_INNER_IT;
+                    // break;
+                }
             }
 
 
-            prev_step_inf_norm = step_inf_norm;
+
 
             if (tot_iter%10 == 0) { 
                 printf("------------------------------------------------------------\n");
@@ -881,14 +895,8 @@ int {{ solver_opts.solver_name }} ()
             i_stats_0[tot_iter] = nWSR;
             i_stats_1[tot_iter] = 0;
 
-            if (kappa > KAPPA_TILDE) {
-                printf("kappa = %f > KAPPA_TILDE = %f. abort inner iterations\n", kappa, KAPPA_TILDE);
-                abort_inner = 1;
-                k = MAX_INNER_IT;
-                // break;
-            }
 
-            if (kappa > KAPPA_MAX) {
+            if (kappa > KAPPA_MAX && k%R_CONV_N==0 && k > 1) {
                 printf("kappa = %f > KAPPA_MAX = %f. skipping update\n", kappa, KAPPA_MAX);
             } else { 
                 // printf("inner loop primal step: %f\n", step_inf_norm);
@@ -896,6 +904,10 @@ int {{ solver_opts.solver_name }} ()
                     printf("-> solved inner problem!\n\n");
                     alpha_outer = 1.0;
                     k = MAX_INNER_IT;
+                    if (j + 1 >= INNER_SOLVES) {
+                        printf("-> solved %i inner problems, stopping iterations!\n\n", j+1);
+                        return 0;
+                    } 
                 }
 
                 for(int i = 0; i < NV; i++) {
@@ -983,6 +995,16 @@ int set_outer_tol(int outer_tol) {
     return 0;
 }
 
+int set_r_conv_n(int r_conv_n) {
+    R_CONV_N = r_conv_n;
+    return 0;
+}
+
+int set_inner_solves(int inner_solves) {
+    INNER_SOLVES = INNER_SOLVES;
+    return 0;
+}
+
 int get_primal_sol(double *primal_sol) {
     for(int i = 0; i < NV; i++) {
         primal_sol[i] = y_val[i];
@@ -1041,5 +1063,3 @@ int get_i_stats(int *i_stats_ret, int i) {
 }
 
 }
-
-
