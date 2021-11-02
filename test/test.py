@@ -26,7 +26,7 @@ ubg = 0.0001*nmp.ones((1,1))
 
 # generate solver
 # solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg)
-solver.generate_solver(f,g, lby = lby, uby = uby)
+solver.generate_solver(f, f, g, lby = lby, uby = uby)
 
 # solve NLP
 solver.solve()
