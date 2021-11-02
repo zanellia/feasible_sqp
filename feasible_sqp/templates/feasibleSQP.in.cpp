@@ -972,8 +972,6 @@ int {{ solver_opts.solver_name }} ()
         constraints_last[i] = constraints_QP.getStatus(i);
     }
 
-
-	delete P;
 	delete M;
 	delete A;
 
@@ -1083,24 +1081,28 @@ int get_active_bounds(int *bounds) {
     for(int i = 0; i < NV; i++) {
         bounds[i] = bounds_last[i];
     }
+    return 0;
 }
 
 int get_active_constraints(int *constraints) {
     for(int i = 0; i < NI; i++) {
         constraints[i] = constraints_last[i];
     }
+    return 0;
 }
 
 int set_active_bounds_guess(int *bounds) {
     for(int i = 0; i < NV; i++) {
         bounds_guess[i] = bounds[i];
     }
+    return 0;
 }
 
 int set_active_constraints_guess(int *constraints) {
     for(int i = 0; i < NI; i++) {
         constraints_guess[i] = constraints[i];
     }
+    return 0;
 }
 
 double get_f(double *primal_sol) {

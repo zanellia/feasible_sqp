@@ -44,7 +44,7 @@ ubg = 0.000*nmp.ones((1,1))
 p0 = 5.0*nmp.ones((1,1))
 
 # generate solver
-solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0, approximate_hessian=gn_hess)
+solver.generate_solver(f, f, g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0, approximate_hessian=gn_hess)
 # solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0)
 # solver.generate_solver(f,g, lby = lby, uby = uby)
 

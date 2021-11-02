@@ -116,7 +116,7 @@ class feasible_sqp():
         self.shared_lib.fsqp_solver_init()
         os.chdir('..')
 
-    def generate_solver(self, f, f0, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None):
+    def generate_solver(self, f, f0, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None, approximate_hessian=None):
         g_shape = g.shape
 
         if g_shape[1] != 1:
