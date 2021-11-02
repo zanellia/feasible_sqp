@@ -415,6 +415,18 @@ class feasible_sqp():
         self.shared_lib.set_max_nwsr(max_nwsr)
         return
 
+    def set_inner_solves(self, inner_solves):
+        self.shared_lib.set_inner_solves.argtypes = [c_int]
+        self.shared_lib.set_inner_solves.restype = c_int
+        self.shared_lib.set_inner_solves(inner_solves)
+        return
+
+    def set_r_conv_n(self, r_conv_n):
+        self.shared_lib.set_r_conv_n.argtypes = [c_int]
+        self.shared_lib.set_r_conv_n.restype = c_int
+        self.shared_lib.set_r_conv_n(r_conv_n)
+        return
+
     def set_inner_tol(self,  inner_tol):
         self.shared_lib.set_inner_tol(inner_tol)
         return

@@ -581,6 +581,7 @@ int {{ solver_opts.solver_name }} ()
     real_t step_inf_norm = 0.0;
     double time;
     
+    int inner_solves_counter = 0;
     for(int j = 0; j <  MAX_OUTER_IT; j ++) { 
         // outer loop
         // printf("in outer loop\n");
@@ -904,8 +905,9 @@ int {{ solver_opts.solver_name }} ()
                     printf("-> solved inner problem!\n\n");
                     alpha_outer = 1.0;
                     k = MAX_INNER_IT;
-                    if (j + 1 >= INNER_SOLVES) {
-                        printf("-> solved %i inner problems, stopping iterations!\n\n", j+1);
+                    inner_solves_counter+=1;
+                    if (inner_solves_counter >= INNER_SOLVES) {
+                        printf("-> solved %i inner problems, stopping iterations!\n\n", inner_solves_counter);
                         return 0;
                     } 
                 }
@@ -1001,7 +1003,7 @@ int set_r_conv_n(int r_conv_n) {
 }
 
 int set_inner_solves(int inner_solves) {
-    INNER_SOLVES = INNER_SOLVES;
+    INNER_SOLVES = inner_solves;
     return 0;
 }
 

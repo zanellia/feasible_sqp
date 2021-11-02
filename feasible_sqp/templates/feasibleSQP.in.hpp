@@ -30,6 +30,8 @@ int set_max_outer_it(int max_outer_it);
 
 int set_r_conv_n(int r_conv_n);
 
+int set_inner_solves(int inner_solves);
+
 double set_kappa_max(double kappa_max);
 
 double set_kappa_tilde(double kappa_tilde);

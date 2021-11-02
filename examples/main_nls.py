@@ -49,6 +49,7 @@ solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0, app
 # solver.generate_solver(f,g, lby = lby, uby = uby)
 
 # solve NLP
+solver.set_inner_solves(10)
 solver.solve()
 y_bar = solver.get_primal_sol()
 print('optimal primal solution: ', y_bar)
