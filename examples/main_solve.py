@@ -9,11 +9,9 @@ if INSTALL_DEPS:
         install_dependencies(matlab_root_path='/usr/local/MATLAB/R2017b')
     else:
         install_dependencies(
-            blas_lib_path='/usr/lib/libblas.so', \
-            lapack_lib_path='/usr/lib/lapack/liblapack.so', \
-            # hsl_lib_path='/usr/local/MATLAB/R2017b/bin/glnxa64/libmwma57.so')
-            hsl_lib_path='/home/andrea/coinhsl-2015.06.23-fsqp/.libs/libcoinhsl.so')
-            # hsl_lib_path='/usr/local/lib/libhsl.so')
+            blas_lib_path='/usr/lib/x86_64-linux-gnu/blas/libblas.so', \
+            lapack_lib_path='/usr/lib/x86_64-linux-gnu/lapack/liblapack.so', \
+            hsl_lib_path='/usr/local/lib/libhsl.so')
 
 # number of primal variables
 nv = 2
@@ -36,8 +34,8 @@ ubg = 0.000*nmp.ones((1,1))
 # define parameters
 p0 = 10.0*nmp.ones((1,1))
 # generate solver
-solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0)
-# solver.generate_solver(f,g, lby = lby, uby = uby)
+solver.generate_solver(f,f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0)
+# solver.generate_solver(f,f,g, lby = lby, uby = uby)
 
 # solve NLP
 solver.solve()

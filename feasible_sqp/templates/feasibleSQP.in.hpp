@@ -30,6 +30,8 @@ int set_max_outer_it(int max_outer_it);
 
 int set_r_conv_n(int r_conv_n);
 
+int set_inner_solves(int inner_solves);
+
 double set_kappa_max(double kappa_max);
 
 double set_kappa_tilde(double kappa_tilde);
@@ -56,6 +58,22 @@ int set_dual_guess(double *dual_guess);
 
 int set_param(double *par);
 
+int get_active_bounds(int *bounds);
+
+int get_active_constraints(int *constraints);
+
+int set_active_bounds_guess(int *bounds);
+
+int set_active_constraints_guess(int *constraints);
+
+// getters for objective function and feasibility assessment
+double get_f(double *primal_sol);
+
+double get_f0(double *primal_sol);
+
+double get_constraint_violation_L1(double *primal_sol);
+
+// getters for stats
 int get_d_stats(double *d_stats_ret, int i);
 
 int get_i_stats(int *i_stats_ret, int i);
@@ -68,17 +86,23 @@ double y_val[NV] = {0};
 double y_outer[NV] = {0};
 double lam_val[NI] = {0};
 double lam_outer[NI] = {0};
-double * d_stats[3];
-int    * i_stats[3];
 
 #define MAX_STATS 1000
 
+// stats
+double * d_stats[3];
+int    * i_stats[3];
 double d_stats_0[MAX_STATS] = {0.0};
 double d_stats_1[MAX_STATS] = {0.0};
 double d_stats_2[MAX_STATS] = {0.0};
-
 int i_stats_0[MAX_STATS] = {0};
 int i_stats_1[MAX_STATS] = {0};
+
+// active set
+int bounds_guess[NV] = {0};
+int constraints_guess[NI] = {0};
+int bounds_last[NV] = {0};
+int constraints_last[NI] = {0};
 
 double lby[{{NV}}] = {
     {% for d in lby %}

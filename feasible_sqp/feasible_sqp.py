@@ -116,7 +116,7 @@ class feasible_sqp():
         self.shared_lib.fsqp_solver_init()
         os.chdir('..')
 
-    def generate_solver(self, f, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], approximate_hessian=None, qpoases_root=None, casadi_root=None, eigen_root=None):
+    def generate_solver(self, f, f0, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None, approximate_hessian=None):
         g_shape = g.shape
 
         if g_shape[1] != 1:
@@ -216,6 +216,31 @@ class feasible_sqp():
             raise Exception('{} failed'.format(cmd))
 
         os.chdir(self.opts['solver_name'])
+        
+        ca_f = ca.Function('ca_f', [y,p], [f])
+        ca_f.generate('ca_f', opts)
+        print('compiling generated code for f...')
+        cmd = 'gcc -fPIC -shared {} ca_f.c -o libca_f.so'.format(optlevel)
+        status = os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
+        cmd = 'gcc -fPIC -shared {} ca_f.c -o ca_f.so'.format(optlevel)
+        status = os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
+        
+        ca_f0 = ca.Function('ca_f0', [y,p], [f0])
+        ca_f0.generate('ca_f0', opts)
+        print('compiling generated code for f0...')
+        cmd = 'gcc -fPIC -shared {} ca_f0.c -o libca_f0.so'.format(optlevel)
+        status = os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
+        cmd = 'gcc -fPIC -shared {} ca_f0.c -o ca_f0.so'.format(optlevel)
+        status = os.system(cmd)
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
+        
         ca_dfdy = ca.Function('ca_dfdy', [y,p], [ca.jacobian(f,y)])
         ca_dfdy.generate('ca_dfdy', opts)
         print('compiling generated code for dfdy...')
@@ -415,6 +440,18 @@ class feasible_sqp():
         self.shared_lib.set_max_nwsr(max_nwsr)
         return
 
+    def set_inner_solves(self, inner_solves):
+        self.shared_lib.set_inner_solves.argtypes = [c_int]
+        self.shared_lib.set_inner_solves.restype = c_int
+        self.shared_lib.set_inner_solves(inner_solves)
+        return
+
+    def set_r_conv_n(self, r_conv_n):
+        self.shared_lib.set_r_conv_n.argtypes = [c_int]
+        self.shared_lib.set_r_conv_n.restype = c_int
+        self.shared_lib.set_r_conv_n(r_conv_n)
+        return
+
     def set_inner_tol(self,  inner_tol):
         self.shared_lib.set_inner_tol(inner_tol)
         return
@@ -444,6 +481,12 @@ class feasible_sqp():
         self.shared_lib.set_param.restype = c_int
         self.shared_lib.set_param(value_data)
         return
+        
+    def get_constraint_violation_L1(self,  value_):
+        value_data = cast(value_.ctypes.data, POINTER(c_double))
+        self.shared_lib.get_constraint_violation_L1.restype = c_double
+        cv = self.shared_lib.get_constraint_violation_L1(value_data)
+        return cv
 
     def get_primal_sol(self):
         out = nmp.ascontiguousarray(nmp.zeros((self.nv,)), dtype=nmp.float64)

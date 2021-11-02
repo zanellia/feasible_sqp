@@ -13,6 +13,8 @@
 #include "qpOASES.hpp"
 #include <casadi/casadi.hpp>
 #include <casadi/casadi_c.h>
+#include "ca_f.h"
+#include "ca_f0.h"
 #include "ca_dfdy.h"
 #include "ca_dgdy.h"
 #include "ca_g.h"
@@ -138,7 +140,7 @@ int {{ solver_opts.solver_name }} ()
         d_stats_0[i] = 0;
         d_stats_1[i] = 0;
     }            
-
+    
     vector<double> y(NV, 0);
     vector<double> lam(NI, 0);
     vector<double> p(NP, 0);
@@ -163,6 +165,11 @@ int {{ solver_opts.solver_name }} ()
     vector<DM> ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
     vector<DM> dfdy_eval = ca_dfdy(ca_y_p);
     // cout << "result (0): " << dfdy_eval.at(0) << endl;
+    
+    Function ca_f = external("ca_f");
+    vector<DM> f_eval = ca_f(ca_y_p);
+    Function ca_f0 = external("ca_f0");
+    vector<DM> f0_eval = ca_f0(ca_y_p);
 
     Function ca_g = external("ca_g");
     vector<DM> g_eval = ca_g(ca_y_p);
@@ -509,8 +516,8 @@ int {{ solver_opts.solver_name }} ()
     real_t ub[NV]; 
 
     std::vector<double> myvector = std::vector<double>(dfdy_eval.at(0));
-    for(int i = 0; i < NV; i++) {
 
+    for(int i = 0; i < NV; i++) {
         g[i] = myvector[i];
         g_bar[i] = myvector[i];
         lb[i] = lby[i];
@@ -530,12 +537,18 @@ int {{ solver_opts.solver_name }} ()
 	/* options.printLevel = PL_NONE; */
     options.enableEqualities = BT_TRUE;
     // options.enableFarBounds = BT_FALSE;
+    
+    Bounds guessedBounds( NV );
+    guessedBounds.init(NV);
+    for (int i = 0; i < NV; i++) {
+        guessedBounds.setupBound(i, (SubjectToStatus)bounds_guess[i]);
+    }
 
     Constraints guessedConstraints( NI );
-    guessedConstraints.setupAllInactive( );
-
-    Bounds guessedBounds( NV );
-    guessedBounds.setupAllFree( );
+    guessedConstraints.init(NI);
+    for (int i = 0; i < NI; i++) {
+	guessedConstraints.setupConstraint(i, (SubjectToStatus)constraints_guess[i]);
+    }
 
     returnValue qpOASES_status;
     SQProblemSchur qpSchur(NV, NI);
@@ -551,6 +564,7 @@ int {{ solver_opts.solver_name }} ()
     // M->print();
 
     myvector = std::vector<double>(g_eval.at(0));
+
     for(int i = 0; i < NI; i++) {
         lbA[i] = lbg[i] - myvector[i];
         ubA[i] = ubg[i] - myvector[i];
@@ -574,6 +588,9 @@ int {{ solver_opts.solver_name }} ()
     // OUTER ITERATIONS
     ////////////////////////////////////////////////////
     
+    Bounds bounds_QP;
+    Constraints constraints_QP;
+    
     // this value is set to one by the inner loop 
     // whenever iterates are aborted
     int abort_inner = 0;
@@ -581,6 +598,7 @@ int {{ solver_opts.solver_name }} ()
     real_t step_inf_norm = 0.0;
     double time;
     
+    int inner_solves_counter = 0;
     for(int j = 0; j <  MAX_OUTER_IT; j ++) { 
         // outer loop
         // printf("in outer loop\n");
@@ -668,6 +686,7 @@ int {{ solver_opts.solver_name }} ()
             // cout << "new gradient: " << dfdy_eval.at(0) << endl;
             myvector = std::vector<double>(dfdy_eval.at(0));
 
+
             // ca_lam[0] = reshape(DM(lam), NI, 1);
 
             for(int i = 0; i < NV; i++) {
@@ -701,6 +720,7 @@ int {{ solver_opts.solver_name }} ()
 #else
             qpOASES_status = qpSchur.hotstart(M, g, A, NULL, NULL, lbA, ubA, nWSR);
 #endif
+
             if (qpOASES_status != SUCCESSFUL_RETURN) {
                 printf("QP solution failed!\n");
                 return 1;
@@ -748,6 +768,9 @@ int {{ solver_opts.solver_name }} ()
             // fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
         }
 
+        qpSchur.getBounds(bounds_QP);
+        qpSchur.getConstraints(constraints_QP);
+
         // store outer primal iterate before update
         for(int i = 0; i < NV; i++) {
             y_outer[i] = y_val[i];
@@ -776,6 +799,7 @@ int {{ solver_opts.solver_name }} ()
 
         
         for(int k = 0; k < MAX_INNER_IT; k ++) { 
+        
             // inner loop
             // printf("in inner loop\n");
             // update vectors and solve hotstarted QP
@@ -826,6 +850,7 @@ int {{ solver_opts.solver_name }} ()
 #else
             qpOASES_status = qpSchur.hotstart(g, NULL, NULL, lbA, ubA, nWSR);
 #endif
+
             if (qpOASES_status != SUCCESSFUL_RETURN) {
                 printf("QP solution failed!\n");
                 return 1;
@@ -904,8 +929,9 @@ int {{ solver_opts.solver_name }} ()
                     printf("-> solved inner problem!\n\n");
                     alpha_outer = 1.0;
                     k = MAX_INNER_IT;
-                    if (j + 1 >= INNER_SOLVES) {
-                        printf("-> solved %i inner problems, stopping iterations!\n\n", j+1);
+                    inner_solves_counter+=1;
+                    if (inner_solves_counter >= INNER_SOLVES) {
+                        printf("-> solved %i inner problems, stopping iterations!\n\n", inner_solves_counter);
                         return 0;
                     } 
                 }
@@ -925,6 +951,9 @@ int {{ solver_opts.solver_name }} ()
                     lam[i] = lam_QP[i];
                     lam_val[i] = lam[i];
                 }
+                
+                qpSchur.getBounds(bounds_QP);
+                qpSchur.getConstraints(constraints_QP);
             }
 
             // fprintf(stdFile, "Solved hotstarted sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
@@ -934,6 +963,14 @@ int {{ solver_opts.solver_name }} ()
     }
     return 1;
 #endif
+
+    for(int i = 0; i < NV; i++) {
+        bounds_last[i] = bounds_QP.getStatus(i);
+    }
+
+    for(int i = 0; i < NI; i++) {
+        constraints_last[i] = constraints_QP.getStatus(i);
+    }
 
 	delete M;
 	delete A;
@@ -1001,7 +1038,7 @@ int set_r_conv_n(int r_conv_n) {
 }
 
 int set_inner_solves(int inner_solves) {
-    INNER_SOLVES = INNER_SOLVES;
+    INNER_SOLVES = inner_solves;
     return 0;
 }
 
@@ -1038,6 +1075,101 @@ int set_param(double *par) {
         p_val[i] = par[i];
     }
     return 0;
+}
+
+int get_active_bounds(int *bounds) {
+    for(int i = 0; i < NV; i++) {
+        bounds[i] = bounds_last[i];
+    }
+    return 0;
+}
+
+int get_active_constraints(int *constraints) {
+    for(int i = 0; i < NI; i++) {
+        constraints[i] = constraints_last[i];
+    }
+    return 0;
+}
+
+int set_active_bounds_guess(int *bounds) {
+    for(int i = 0; i < NV; i++) {
+        bounds_guess[i] = bounds[i];
+    }
+    return 0;
+}
+
+int set_active_constraints_guess(int *constraints) {
+    for(int i = 0; i < NI; i++) {
+        constraints_guess[i] = constraints[i];
+    }
+    return 0;
+}
+
+double get_f(double *primal_sol) {
+    vector<double> y(NV, 0);
+    vector<double> p(NP, 0);
+    
+    for(int i = 0; i < NP; i++) {
+        p[i] = p_val[i];
+    }
+    
+    for(int i = 0; i < NV; i++) {
+        y[i] = primal_sol[i];
+    }
+    
+    vector<DM> ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
+
+    Function ca_f = external("ca_f");
+    vector<DM> f_eval = ca_f(ca_y_p);
+    
+    return std::vector<double>(f_eval.at(0))[0];
+}
+
+double get_f0(double *primal_sol) {
+    vector<double> y(NV, 0);
+    vector<double> p(NP, 0);
+    
+    for(int i = 0; i < NP; i++) {
+        p[i] = p_val[i];
+    }
+    
+    for(int i = 0; i < NV; i++) {
+        y[i] = primal_sol[i];
+    }
+    
+    vector<DM> ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
+
+    Function ca_f0 = external("ca_f0");
+    vector<DM> f0_eval = ca_f0(ca_y_p);
+    
+    return std::vector<double>(f0_eval.at(0))[0];
+}
+
+double get_constraint_violation_L1(double *primal_sol) {
+    vector<double> y(NV, 0);
+    vector<double> p(NP, 0);
+    
+    for(int i = 0; i < NP; i++) {
+        p[i] = p_val[i];
+    }
+    
+    for(int i = 0; i < NV; i++) {
+        y[i] = primal_sol[i];
+    }
+    
+    vector<DM> ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
+
+    Function ca_g = external("ca_g");
+    vector<DM> g_eval = ca_g(ca_y_p);
+    vector<double> myvector = std::vector<double>(g_eval.at(0));
+    
+    double cvl1 = 0;
+    for(int i = 0; i < NI; i++) {
+        if (myvector[i] < lbg[i]) cvl1 += lbg[i] - myvector[i];
+        else if (myvector[i] > ubg[i]) cvl1 += myvector[i] - ubg[i];
+    }
+    
+    return cvl1;
 }
 
 int get_d_stats(double *d_stats_ret, int i) {
