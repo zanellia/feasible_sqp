@@ -3,7 +3,7 @@
 This package provides a solver for nonconvex programs of the form
 
 <img src="https://github.com/zanellia/feasible_sqp/blob/master/figures/nlp_description.png"
-     width="370" height="200">
+     width="296" height="160">
 ## installation
 - clone the repo: 
 ```bash
