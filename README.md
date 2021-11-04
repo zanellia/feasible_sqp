@@ -2,12 +2,8 @@
 # A feasible sequential quadratic programming strategy with iterated second-order corrections
 This package provides a solver for nonconvex programs of the form
 
-<p>min_y f(y,p)
-</p>
-<p>s.t.  lb_g <= g(y,p) <= ub_g,
-</p>
-<p>      lb_y <= y <= ub_y,
-
+<img src="https://github.com/zanellia/feasible_sqp/blob/master/figures/nlp_description.png"
+     width="370" height="200">
 ## installation
 - clone the repo: 
 ```bash
@@ -56,7 +52,7 @@ lby = -np.ones((nv,1))
 uby = np.ones((nv,1))
 
 # generate solver
-solver.generate_solver(f,g, lby = lby, uby = uby)
+solver.generate_solver(f, g, lby = lby, uby = uby)
 
 # solve NLP
 solver.solve()
