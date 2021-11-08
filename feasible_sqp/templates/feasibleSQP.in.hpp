@@ -2,7 +2,8 @@
 #define {{ solver_opts.solver_name }}_H
 extern "C" {
 
-int MAX_NWSR = {{ solver_opts.max_nwsr }};
+int MAX_CUM_NWSR = {{ solver_opts.max_cum_nwsr }};
+int MAX_ITER_NWSR = {{ solver_opts.max_iter_nwsr }};
 int MAX_INNER_IT = {{ solver_opts.max_inner_it }};
 int MAX_OUTER_IT = {{ solver_opts.max_outer_it }};
 double KAPPA_MAX    = {{ solver_opts.kappa_max }};
@@ -42,11 +43,15 @@ double set_theta_bar(double theta_bar);
 
 double set_min_alpha_inner(double min_alpha_inner);
 
-int set_max_nwsr(int max_nwsr);
+int set_max_cum_nwsr(int max_cum_nwsr);
+
+int set_max_iter_nwsr(int max_iter_nwsr);
 
 int set_inner_tol(int inner_tol);
 
 int set_outer_tol(int outer_tol);
+
+int get_primal_guess(double *primal_guess);
 
 int get_primal_sol(double *primal_sol);
 

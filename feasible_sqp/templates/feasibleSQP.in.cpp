@@ -128,7 +128,6 @@ int {{ solver_opts.solver_name }}_init ()
 
 int {{ solver_opts.solver_name }} ()
 {
-
     // zero out stats
     for (int i = 0; i < MAX_STATS; i++) {
         d_stats_0[i] = 0.0;
@@ -144,6 +143,8 @@ int {{ solver_opts.solver_name }} ()
     vector<double> y(NV, 0);
     vector<double> lam(NI, 0);
     vector<double> p(NP, 0);
+    
+    int cum_nwsr = 0;
     
     // init y
     for(int i = 0; i < NV; i++) {
@@ -518,7 +519,7 @@ int {{ solver_opts.solver_name }} ()
     std::vector<double> myvector = std::vector<double>(dfdy_eval.at(0));
 
     for(int i = 0; i < NV; i++) {
-        g[i] = myvector[i];
+        g[i] = 0.3 * myvector[i];
         g_bar[i] = myvector[i];
         lb[i] = lby[i];
         ub[i] = uby[i];
@@ -556,7 +557,7 @@ int {{ solver_opts.solver_name }} ()
     // QProblem qpSchur(NV, NI);
     qpSchur.setOptions(options);
     tic = getCPUtime();
-    nWSR = MAX_NWSR;
+    nWSR = min(MAX_ITER_NWSR, MAX_CUM_NWSR - cum_nwsr);
 
     // printf("A matrix\n");
     // A->print();
@@ -624,6 +625,8 @@ int {{ solver_opts.solver_name }} ()
 #else
             qpOASES_status = pSchur.init(M, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #endif
+
+	    cum_nwsr += nWSR;
 
             if (qpOASES_status != SUCCESSFUL_RETURN) {
                 printf("QP solution failed!\n");
@@ -711,7 +714,7 @@ int {{ solver_opts.solver_name }} ()
             }
 
             // solve with sparse matrices (Schur complement) 
-            nWSR = MAX_NWSR;
+            nWSR = min(MAX_ITER_NWSR, MAX_CUM_NWSR - cum_nwsr);
             // SQProblemSchur qrecipeSchur(1, 1);
             tic = getCPUtime();
 
@@ -721,6 +724,8 @@ int {{ solver_opts.solver_name }} ()
             qpOASES_status = qpSchur.hotstart(M, g, A, NULL, NULL, lbA, ubA, nWSR);
 #endif
 
+	    cum_nwsr += nWSR;
+	    
             if (qpOASES_status != SUCCESSFUL_RETURN) {
                 printf("QP solution failed!\n");
                 return 1;
@@ -824,7 +829,7 @@ int {{ solver_opts.solver_name }} ()
 
             dfdy_eval = ca_dfdy(ca_y_p);
             for(int i = 0; i < NV; i++) {
-                g[i] = alpha_inner*myvector[i];
+                g[i] = 0.3 * alpha_inner*myvector[i];
             }
 #endif
 
@@ -842,7 +847,7 @@ int {{ solver_opts.solver_name }} ()
                 ub[i] = uby[i] - y[i];
             }
             
-            nWSR = MAX_NWSR;
+            nWSR = min(MAX_ITER_NWSR, MAX_CUM_NWSR - cum_nwsr);
             tic = getCPUtime();
 
 #if BOUNDS
@@ -850,6 +855,8 @@ int {{ solver_opts.solver_name }} ()
 #else
             qpOASES_status = qpSchur.hotstart(g, NULL, NULL, lbA, ubA, nWSR);
 #endif
+
+	    cum_nwsr += nWSR;
 
             if (qpOASES_status != SUCCESSFUL_RETURN) {
                 printf("QP solution failed!\n");
@@ -961,9 +968,7 @@ int {{ solver_opts.solver_name }} ()
         }
         
     }
-    return 1;
-#endif
-
+    
     for(int i = 0; i < NV; i++) {
         bounds_last[i] = bounds_QP.getStatus(i);
     }
@@ -971,6 +976,9 @@ int {{ solver_opts.solver_name }} ()
     for(int i = 0; i < NI; i++) {
         constraints_last[i] = constraints_QP.getStatus(i);
     }
+    
+    return 1;
+#endif
 
 	delete M;
 	delete A;
@@ -1017,8 +1025,13 @@ double set_min_alpha_inner(double min_alpha_inner) {
     return 0;
 }
 
-int set_max_nwsr(int max_nwsr) {
-    MAX_NWSR = max_nwsr;
+int set_max_cum_nwsr(int max_cum_nwsr) {
+    MAX_CUM_NWSR = max_cum_nwsr;
+    return 0;
+}
+
+int set_max_iter_nwsr(int max_iter_nwsr) {
+    MAX_ITER_NWSR = max_iter_nwsr;
     return 0;
 }
 
@@ -1040,6 +1053,12 @@ int set_r_conv_n(int r_conv_n) {
 int set_inner_solves(int inner_solves) {
     INNER_SOLVES = inner_solves;
     return 0;
+}
+
+int get_primal_guess(double *primal_guess) {
+  for(int i = 0; i < NV; i++) {
+    primal_guess[i] = y_init[i];
+  }
 }
 
 int get_primal_sol(double *primal_sol) {

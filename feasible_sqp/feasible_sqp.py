@@ -86,7 +86,8 @@ class feasible_sqp():
         self.nv = nv
         self.np = np
         opts = dict()
-        opts['max_nwsr'] = 10000
+        opts['max_cum_nwsr'] = 100000
+        opts['max_iter_nwsr'] = 10000
         opts['max_inner_it'] = 10
         opts['max_outer_it'] = 20
         opts['kappa_max'] = 0.9
