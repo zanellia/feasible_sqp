@@ -52,7 +52,7 @@ lby = -np.ones((nv,1))
 uby = np.ones((nv,1))
 
 # generate solver
-solver.generate_solver(f, g, lby = lby, uby = uby)
+solver.generate_solver(f, f, g, lby = lby, uby = uby)
 
 # solve NLP
 solver.solve()
