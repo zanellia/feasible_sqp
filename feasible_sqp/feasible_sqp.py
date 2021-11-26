@@ -116,7 +116,9 @@ class feasible_sqp():
         self.shared_lib.fsqp_solver_init()
         os.chdir('..')
 
-    def generate_solver(self, f, f0, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None, approximate_hessian=None):
+    def generate_solver(self, f, f0, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], \
+            y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None, approximate_hessian=None):
+
         g_shape = g.shape
 
         if g_shape[1] != 1:
@@ -461,6 +463,8 @@ class feasible_sqp():
         return
 
     def set_primal_guess(self,  value_):
+        if value_.shape != (self.nv,1):
+            raise Exception('Invalid size for primal guess! You have {} instead of {}'.format(value_.shape,(self.nv,1)))
         value_data = cast(value_.ctypes.data, POINTER(c_double))
         self.shared_lib.set_primal_guess.argtypes = [POINTER(c_double)]
         self.shared_lib.set_primal_guess.restype = c_int
@@ -469,6 +473,8 @@ class feasible_sqp():
         return
 
     def set_dual_guess(self,  value_):
+        if value_.shape != (self.ni,1):
+            raise Exception('Invalid size for dual guess! You have {} instead of {}'.format(value_.shape,(self.ni,1)))
         value_data = cast(value_.ctypes.data, POINTER(c_double))
         self.shared_lib.set_dual_guess.argtypes = [POINTER(c_double)]
         self.shared_lib.set_dual_guess.restype = c_int
@@ -476,6 +482,8 @@ class feasible_sqp():
         return
 
     def set_param(self,  value_):
+        if value_.shape != (self.np,1):
+            raise Exception('Invalid size for parameters! You have {} instead of {}'.format(value_.shape,(self.np,1)))
         value_data = cast(value_.ctypes.data, POINTER(c_double))
         self.shared_lib.set_param.argtypes = [POINTER(c_double)]
         self.shared_lib.set_param.restype = c_int
