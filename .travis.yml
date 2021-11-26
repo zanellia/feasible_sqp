@@ -14,7 +14,9 @@ dist: focal
 # matlab: R2021a
 
 # python: 3.7 # this is ignored when `language: matlab` is in place
-
+addons:
+    apt_packages:
+        - gfortran
 git:
     submodules: false
 
