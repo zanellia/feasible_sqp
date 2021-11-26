@@ -39,7 +39,6 @@ before_install:
     # ONLY FOR BIONIC
     # - sudo apt-get install libgfortran3 
 
-
 install:
     - python3 -m pip install -e .
     - export LD_LIBRARY_PATH=$(pwd)/external/qpOASES/bin:$LD_LIBRARY_PATH
