@@ -5,9 +5,9 @@ dist: focal
 
 # this is only required to install MATLAB such that we
 # have access to HSL on the machine
-language: matlab
+# language: matlab
 # matlab: R2020a
-matlab: R2021a
+# matlab: R2021a
 
 # python: 3.7 # this is ignored when `language: matlab` is in place
 
@@ -24,6 +24,8 @@ before_install:
     - sudo apt-get install liblapack-dev
     - sudo apt-get install libblas-dev
 
+    - pushd external/coin_hsl_source & ./configure & make
+
     # ONLY FOR BIONIC
     # - sudo apt-get install libgfortran3 
 
@@ -33,9 +35,10 @@ install:
     - export LD_LIBRARY_PATH=$(pwd)/external/qpOASES/bin:$LD_LIBRARY_PATH
     - export LD_LIBRARY_PATH=$(pwd)/external/casadi/installation/lib:$LD_LIBRARY_PATH
     - pushd test
-    - matlab -batch "fileID = fopen('matlab_root_path.txt','w'); fprintf(fileID,'%s', matlabroot); fclose(fileID);"
-    - python3 install_dependencies.py 'matlab_root_path.txt' 
-    - export LD_LIBRARY_PATH=$(<matlab_root_path.txt)/bin/glnxa64:$LD_LIBRARY_PATH
+    # - matlab -batch "fileID = fopen('matlab_root_path.txt','w'); fprintf(fileID,'%s', matlabroot); fclose(fileID);"
+    # - python3 install_dependencies.py 'matlab_root_path.txt' 
+
+    # - export LD_LIBRARY_PATH=$(<matlab_root_path.txt)/bin/glnxa64:$LD_LIBRARY_PATH
     - export LD_LIBRARY_PATH=$(pwd)/fsqp_solver:$LD_LIBRARY_PATH
     - echo $LD_LIBRARY_PATH
     - pwd
