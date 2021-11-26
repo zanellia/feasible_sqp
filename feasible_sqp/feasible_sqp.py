@@ -12,9 +12,9 @@ def install_dependencies(matlab_root_path=None, \
         qpoases_root=None, casadi_root=None, eigen_root=None):
 
     if (matlab_root_path == None) and \
-            (blas_lib_path == None or lapack_lib_path == None or hsl_lib_path == None):
+            (hsl_lib_path == None):
         raise Exception('MA57 from the HSL library is required. Specify either matlab_root_path or'\
-                ' blas_lib_path, lapack_lib_path, hsl_lib_path.')
+                ' hsl_lib_path.')
 
     root_path = os.path.dirname(os.path.abspath(__file__)) + '/..'
 
@@ -25,6 +25,7 @@ def install_dependencies(matlab_root_path=None, \
     if qpoases_root is None:
         qpoases_root = root_path + '/external/qpOASES'
         print('Warning: using default qpOASES path: {}'.format(qpoases_root))
+
     if casadi_root is None:
         casadi_root = root_path + '/external/casadi'
         print('Warning: using default CasADi path: {}'.format(casadi_root))
