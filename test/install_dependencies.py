@@ -9,4 +9,4 @@ from feasible_sqp import *
 cwd = os.getcwd()
 # install_dependencies(matlab_root_path=matlab_root_path)
 install_dependencies(
-    hsl_lib_path= cwd + '/../coin_hsl_source/.libs/libcoinhsl.so')
+    hsl_lib_path= cwd + '/../external/coin_hsl_source/.libs/libcoinhsl.so')
