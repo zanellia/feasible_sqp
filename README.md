@@ -1,9 +1,9 @@
 [![Build Status](https://travis-ci.com/zanellia/feasible_sqp.svg?branch=master)](https://travis-ci.com/zanellia/feasible_sqp)
 # A feasible sequential quadratic programming strategy with iterated second-order corrections
-This package provides a solver for nonconvex programs of the form
+This package provides a solver for parametric nonconvex programs of the form
 
 <img src="https://github.com/zanellia/feasible_sqp/blob/master/figures/nlp_description.png"
-     width="370" height="200">
+     width="296" height="160">
 ## installation
 - clone the repo: 
 ```bash
@@ -52,7 +52,7 @@ lby = -np.ones((nv,1))
 uby = np.ones((nv,1))
 
 # generate solver
-solver.generate_solver(f, g, lby = lby, uby = uby)
+solver.generate_solver(f, f, g, lby = lby, uby = uby)
 
 # solve NLP
 solver.solve()
