@@ -1,6 +1,8 @@
 branches:
   only:
   - testing
+  except:
+  - master
 
 dist: focal
 #dist: bionic
