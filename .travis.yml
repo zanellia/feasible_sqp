@@ -15,12 +15,7 @@ git:
     submodules: false
 
 before_install: 
-    - openssl aes-256-cbc 
-    - K $encrypted_xxxxxxxxxxxx_key 
-    - iv $encrypted_xxxxxxxxxxxx_iv 
-    - in github_deploy_key.enc 
-    - out github_deploy_key 
-    - d
+    - openssl aes-256-cbc -K $encrypted_xxxxxxxxxxxx_key -iv $encrypted_xxxxxxxxxxxx_iv -in github_deploy_key.enc -out github_deploy_key -d    
     - chmod 600 github_deploy_key
     - eval $(ssh-agent -s)
     - ssh-add github_deploy_key
