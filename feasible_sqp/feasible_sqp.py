@@ -8,8 +8,12 @@ import json
 import sys
 
 def install_dependencies(matlab_root_path=None, \
-        blas_lib_path=None, lapack_lib_path=None, hsl_lib_path=None, \
-        qpoases_root=None, casadi_root=None, eigen_root=None):
+        blas_lib_path='/usr/lib/x86_64-linux-gnu/libblas.so', \
+        lapack_lib_path='/usr/lib/x86_64-linux-gnu/liblapack.so', \
+        hsl_lib_path=None, \
+        qpoases_root=None, \
+        casadi_root=None, \
+        eigen_root=None):
 
     if (matlab_root_path == None) and \
             (hsl_lib_path == None):
