@@ -11,7 +11,7 @@ dist: focal
 
 # this is only required to install MATLAB such that we
 # have access to HSL on the machine
-# language: matlab
+language: python
 # matlab: R2020a
 # matlab: R2021a
 
