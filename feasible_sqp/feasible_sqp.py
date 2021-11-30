@@ -59,7 +59,7 @@ def install_dependencies(matlab_root_path=None, \
     else:
         hsl_lib_dir = '/'.join(hsl_lib_path.split('/')[0:-1])
 
-        cmd = 'make LIB_BLAS={} LIB_LAPACK={} LIB_SOLVER={} LIB_HSL_DIR={} CASADI_ROOT_DIR={} QPOASES_ROOT_DIR={}'.format(\
+        cmd = 'make -j4 LIB_BLAS={} LIB_LAPACK={} LIB_SOLVER={} LIB_HSL_DIR={} CASADI_ROOT_DIR={} QPOASES_ROOT_DIR={}'.format(\
             blas_lib_path, lapack_lib_path, hsl_lib_path, hsl_lib_dir, casadi_root, qpoases_root)
 
         status = os.system(cmd)

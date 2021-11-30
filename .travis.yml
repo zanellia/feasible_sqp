@@ -36,7 +36,7 @@ before_install:
     - sudo apt-get install liblapack-dev
     - sudo apt-get install libblas-dev
 
-    - pushd external/coin_hsl_source && ./configure && make && popd
+    - pushd external/coin_hsl_source && ./configure && make -j12 && popd
 
     # ONLY FOR BIONIC
     # - sudo apt-get install libgfortran3 
