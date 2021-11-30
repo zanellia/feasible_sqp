@@ -502,7 +502,7 @@ class feasible_sqp():
         return cv
 
     def get_primal_sol(self):
-        out = nmp.ascontiguousarray(nmp.zeros((self.nv,)), dtype=nmp.float64)
+        out = nmp.ascontiguousarray(nmp.zeros((self.nv, 1)), dtype=nmp.float64)
         out_data = cast(out.ctypes.data, POINTER(c_double))
         self.shared_lib.get_primal_sol.argtypes = [POINTER(c_double)]
         self.shared_lib.get_primal_sol.restype = c_int
@@ -510,7 +510,7 @@ class feasible_sqp():
         return out
 
     def get_dual_sol(self):
-        out = nmp.ascontiguousarray(nmp.zeros((self.ni,)), dtype=nmp.float64)
+        out = nmp.ascontiguousarray(nmp.zeros((self.ni, 1)), dtype=nmp.float64)
         out_data = cast(out.ctypes.data, POINTER(c_double))
         self.shared_lib.get_dual_sol.argtypes = [POINTER(c_double)]
         self.shared_lib.get_dual_sol.restype = c_int
