@@ -36,7 +36,7 @@ before_install:
     - sudo apt-get install liblapack-dev
     - sudo apt-get install libblas-dev
 
-    - pushd external/coin_hsl_source && ./configure && make -j2 && popd
+    - pushd external/coin_hsl_source && ./configure && make && popd
 
     # ONLY FOR BIONIC
     # - sudo apt-get install libgfortran3 
@@ -55,4 +55,6 @@ install:
     - echo $LD_LIBRARY_PATH
     - pwd
     - ls
+
+script:
     - python3 test.py
