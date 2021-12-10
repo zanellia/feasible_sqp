@@ -437,8 +437,12 @@ class feasible_sqp():
         self.shared_lib.set_alpha_inner(min_alpha_inner)
         return
 
-    def set_max_nwsr(self,  max_nwsr):
-        self.shared_lib.set_max_nwsr(max_nwsr)
+    def set_max_cum_nwsr(self,  max_cum_nwsr):
+        self.shared_lib.set_max_cum_nwsr(max_cum_nwsr)
+        return
+
+    def set_max_iter_nwsr(self,  max_iter_nwsr):
+        self.shared_lib.set_max_iter_nwsr(max_iter_nwsr)
         return
 
     def set_inner_solves(self, inner_solves):
