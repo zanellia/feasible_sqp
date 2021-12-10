@@ -329,7 +329,7 @@ int {{ solver_opts.solver_name }} ()
 
     // define sparse matrix for matrix-vector product involved in
     // the gradient update
-    Eigen::Map<Eigen::SparseMatrix<double> > P(NV, NV, nnz_P, P_jc, 
+    Eigen::Map<Eigen::SparseMatrix<double> > P_(NV, NV, nnz_P, P_jc, 
         P_ir, P_val);
     
     // setup M
@@ -398,6 +398,11 @@ int {{ solver_opts.solver_name }} ()
     //     printf("A_val[%i] = %f\n", i, A_val[i]);
 
     evaluate_M(arg_M, res_M, iw_M, w_M, nnz_M, y_val, p_val, M_val);
+
+    // define sparse matrix for matrix-vector product involved in
+    // the gradient update
+    Eigen::Map<Eigen::SparseMatrix<double> > M_(NV, NV, nnz_M, M_jc, 
+        M_ir, M_val);
 {% else %}
     // setup P and M at the same time
 
@@ -455,8 +460,6 @@ int {{ solver_opts.solver_name }} ()
     P_jc[ncol] = nnz_P;
     M_jc[ncol] = nnz_P;
 
-
-
     // printf("}\n\n");
 
     // for (int i = 0; i < nnz_P; i++) 
@@ -487,7 +490,6 @@ int {{ solver_opts.solver_name }} ()
         P_ir, P_val);
     
     // setup M
-
     for (int i=0; i<nnz_M; i++)
         M_val[i] = P_val[i];
 {% endif %}
@@ -807,13 +809,13 @@ int {{ solver_opts.solver_name }} ()
             // TODO(andrea): only setting y here!
             ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
 
-#if 0
+#if 1
             // do not evaluate exact gradient, but rather
             // use linear update for g
             for(int i = 0; i < NV; i++)
                 g_temp.coeffRef(i) = y[i] - y_outer[i];
 
-            g_temp = alpha_inner*P*g_temp;
+            g_temp = alpha_inner*(alpha_inner*P_ + (1 - alpha_inner)*M_)*g_temp;
 
             for(int i = 0; i < NV; i++)
                 g[i] = g_bar[i] + g_temp.coeffRef(i);

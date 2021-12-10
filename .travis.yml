@@ -12,10 +12,7 @@ dist: focal
 # this is only required to install MATLAB such that we
 # have access to HSL on the machine
 language: python
-# matlab: R2020a
-# matlab: R2021a
 
-# python: 3.7 # this is ignored when `language: matlab` is in place
 addons:
     apt_packages:
         - gfortran
