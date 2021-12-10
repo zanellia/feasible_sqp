@@ -486,7 +486,7 @@ int {{ solver_opts.solver_name }} ()
 
     // define sparse matrix for matrix-vector product involved in
     // the gradient update
-    Eigen::Map<Eigen::SparseMatrix<double> > P(NV, NV, nnz_P, P_jc, 
+    Eigen::Map<Eigen::SparseMatrix<double> > P_(NV, NV, nnz_P, P_jc, 
         P_ir, P_val);
     
     // setup M
