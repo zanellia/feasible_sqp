@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/zanellia/feasible_sqp.svg?branch=master)](https://travis-ci.com/zanellia/feasible_sqp)
+[![Build Status](https://travis-ci.com/zanellia/feasible_sqp.svg?branch=testing)](https://travis-ci.com/zanellia/feasible_sqp)
 # A feasible sequential quadratic programming strategy with iterated second-order corrections
 This package provides a solver for parametric nonconvex programs of the form
 
