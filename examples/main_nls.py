@@ -9,10 +9,9 @@ if INSTALL_DEPS:
         install_dependencies(matlab_root_path='/usr/local/MATLAB/R2017b')
     else:
         install_dependencies(
-            blas_lib_path='/usr/lib/libblas.so', \
-            lapack_lib_path='/usr/lib/lapack/liblapack.so', \
             # hsl_lib_path='/usr/local/MATLAB/R2017b/bin/glnxa64/libmwma57.so')
-            hsl_lib_path='/home/andrea/coinhsl-2015.06.23-fsqp/.libs/libcoinhsl.so')
+            # hsl_lib_path='/home/andrea/coinhsl-2015.06.23-fsqp/.libs/libcoinhsl.so')
+            hsl_lib_path='/home/andrea/feasible_sqp/external/coin_hsl_source/.libs/libcoinhsl.so')
             # hsl_lib_path='/usr/local/lib/libhsl.so')
 
 # number of primal variables

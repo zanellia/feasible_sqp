@@ -1,3 +1,9 @@
+branches:
+  only:
+  - testing
+  except:
+  - master
+
 dist: focal
 #dist: bionic
 
@@ -5,16 +11,19 @@ dist: focal
 
 # this is only required to install MATLAB such that we
 # have access to HSL on the machine
-language: matlab
-# matlab: R2020a
-matlab: R2021a
+language: python
 
-# python: 3.7 # this is ignored when `language: matlab` is in place
-
+addons:
+    apt_packages:
+        - gfortran
 git:
     submodules: false
 
 before_install: 
+    - openssl aes-256-cbc -K $encrypted_8ebb1ef83f64_key -iv $encrypted_8ebb1ef83f64_iv -in github_deploy_key.enc -out github_deploy_key -d
+    - chmod 600 github_deploy_key
+    - eval $(ssh-agent -s)
+    - ssh-add github_deploy_key
     - git submodule update --init
     - sudo apt-get -y install python3-pip
     - sudo apt-get -y install python3-setuptools
@@ -24,20 +33,25 @@ before_install:
     - sudo apt-get install liblapack-dev
     - sudo apt-get install libblas-dev
 
+    - pushd external/coin_hsl_source && ./configure && make && popd
+
     # ONLY FOR BIONIC
     # - sudo apt-get install libgfortran3 
-
 
 install:
     - python3 -m pip install -e .
     - export LD_LIBRARY_PATH=$(pwd)/external/qpOASES/bin:$LD_LIBRARY_PATH
     - export LD_LIBRARY_PATH=$(pwd)/external/casadi/installation/lib:$LD_LIBRARY_PATH
+    - export LD_LIBRARY_PATH=$(pwd)/external/coin_hsl_source/.libs/:$LD_LIBRARY_PATH
     - pushd test
-    - matlab -batch "fileID = fopen('matlab_root_path.txt','w'); fprintf(fileID,'%s', matlabroot); fclose(fileID);"
-    - python3 install_dependencies.py 'matlab_root_path.txt' 
-    - export LD_LIBRARY_PATH=$(<matlab_root_path.txt)/bin/glnxa64:$LD_LIBRARY_PATH
+    # - matlab -batch "fileID = fopen('matlab_root_path.txt','w'); fprintf(fileID,'%s', matlabroot); fclose(fileID);"
+    - python3 install_dependencies.py
+
+    # - export LD_LIBRARY_PATH=$(<matlab_root_path.txt)/bin/glnxa64:$LD_LIBRARY_PATH
     - export LD_LIBRARY_PATH=$(pwd)/fsqp_solver:$LD_LIBRARY_PATH
     - echo $LD_LIBRARY_PATH
     - pwd
     - ls
+
+script:
     - python3 test.py

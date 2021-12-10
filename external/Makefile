@@ -25,11 +25,13 @@ LIB_HSL_DIR= ${MATLAB_LIBDIR}
 endif
 
 ifndef LIB_BLAS
-$(error LIB_BLAS is not set)
+$(warning LIB_BLAS is not set - using default)
+LIB_BLAS = /usr/lib/x86_64-linux-gnu/libblas.so
 endif
 
 ifndef LIB_LAPACK
-$(error LIB_LAPACK is not set)
+$(warning LIB_LAPACK is not set - using default)
+LIB_LAPACK = /usr/lib/x86_64-linux-gnu/liblapack.so
 endif
 
 ifndef LIB_SOLVER

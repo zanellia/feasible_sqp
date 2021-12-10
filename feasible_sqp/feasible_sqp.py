@@ -8,13 +8,17 @@ import json
 import sys
 
 def install_dependencies(matlab_root_path=None, \
-        blas_lib_path=None, lapack_lib_path=None, hsl_lib_path=None, \
-        qpoases_root=None, casadi_root=None, eigen_root=None):
+        blas_lib_path='/usr/lib/x86_64-linux-gnu/libblas.so', \
+        lapack_lib_path='/usr/lib/x86_64-linux-gnu/liblapack.so', \
+        hsl_lib_path=None, \
+        qpoases_root=None, \
+        casadi_root=None, \
+        eigen_root=None):
 
     if (matlab_root_path == None) and \
-            (blas_lib_path == None or lapack_lib_path == None or hsl_lib_path == None):
+            (hsl_lib_path == None):
         raise Exception('MA57 from the HSL library is required. Specify either matlab_root_path or'\
-                ' blas_lib_path, lapack_lib_path, hsl_lib_path.')
+                ' hsl_lib_path.')
 
     root_path = os.path.dirname(os.path.abspath(__file__)) + '/..'
 
@@ -25,6 +29,7 @@ def install_dependencies(matlab_root_path=None, \
     if qpoases_root is None:
         qpoases_root = root_path + '/external/qpOASES'
         print('Warning: using default qpOASES path: {}'.format(qpoases_root))
+
     if casadi_root is None:
         casadi_root = root_path + '/external/casadi'
         print('Warning: using default CasADi path: {}'.format(casadi_root))
@@ -54,7 +59,7 @@ def install_dependencies(matlab_root_path=None, \
     else:
         hsl_lib_dir = '/'.join(hsl_lib_path.split('/')[0:-1])
 
-        cmd = 'make LIB_BLAS={} LIB_LAPACK={} LIB_SOLVER={} LIB_HSL_DIR={} CASADI_ROOT_DIR={} QPOASES_ROOT_DIR={}'.format(\
+        cmd = 'make -j4 LIB_BLAS={} LIB_LAPACK={} LIB_SOLVER={} LIB_HSL_DIR={} CASADI_ROOT_DIR={} QPOASES_ROOT_DIR={}'.format(\
             blas_lib_path, lapack_lib_path, hsl_lib_path, hsl_lib_dir, casadi_root, qpoases_root)
 
         status = os.system(cmd)
@@ -117,7 +122,9 @@ class feasible_sqp():
         self.shared_lib.fsqp_solver_init()
         os.chdir('..')
 
-    def generate_solver(self, f, f0, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None, approximate_hessian=None):
+    def generate_solver(self, f, f0, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], \
+            y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None, approximate_hessian=None):
+
         g_shape = g.shape
 
         if g_shape[1] != 1:
@@ -466,6 +473,8 @@ class feasible_sqp():
         return
 
     def set_primal_guess(self,  value_):
+        if value_.shape != (self.nv,1):
+            raise Exception('Invalid size for primal guess! You have {} instead of {}'.format(value_.shape,(self.nv,1)))
         value_data = cast(value_.ctypes.data, POINTER(c_double))
         self.shared_lib.set_primal_guess.argtypes = [POINTER(c_double)]
         self.shared_lib.set_primal_guess.restype = c_int
@@ -474,6 +483,8 @@ class feasible_sqp():
         return
 
     def set_dual_guess(self,  value_):
+        if value_.shape != (self.ni,1):
+            raise Exception('Invalid size for dual guess! You have {} instead of {}'.format(value_.shape,(self.ni,1)))
         value_data = cast(value_.ctypes.data, POINTER(c_double))
         self.shared_lib.set_dual_guess.argtypes = [POINTER(c_double)]
         self.shared_lib.set_dual_guess.restype = c_int
@@ -481,6 +492,8 @@ class feasible_sqp():
         return
 
     def set_param(self,  value_):
+        if value_.shape != (self.np,1):
+            raise Exception('Invalid size for parameters! You have {} instead of {}'.format(value_.shape,(self.np,1)))
         value_data = cast(value_.ctypes.data, POINTER(c_double))
         self.shared_lib.set_param.argtypes = [POINTER(c_double)]
         self.shared_lib.set_param.restype = c_int
@@ -494,7 +507,7 @@ class feasible_sqp():
         return cv
 
     def get_primal_sol(self):
-        out = nmp.ascontiguousarray(nmp.zeros((self.nv,)), dtype=nmp.float64)
+        out = nmp.ascontiguousarray(nmp.zeros((self.nv, 1)), dtype=nmp.float64)
         out_data = cast(out.ctypes.data, POINTER(c_double))
         self.shared_lib.get_primal_sol.argtypes = [POINTER(c_double)]
         self.shared_lib.get_primal_sol.restype = c_int
@@ -502,7 +515,7 @@ class feasible_sqp():
         return out
 
     def get_dual_sol(self):
-        out = nmp.ascontiguousarray(nmp.zeros((self.ni,)), dtype=nmp.float64)
+        out = nmp.ascontiguousarray(nmp.zeros((self.ni, 1)), dtype=nmp.float64)
         out_data = cast(out.ctypes.data, POINTER(c_double))
         self.shared_lib.get_dual_sol.argtypes = [POINTER(c_double)]
         self.shared_lib.get_dual_sol.restype = c_int
