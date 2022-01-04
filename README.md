@@ -4,6 +4,8 @@ This package provides a solver for parametric nonconvex programs of the form
 
 <img src="https://github.com/zanellia/feasible_sqp/blob/master/figures/nlp_description.png"
      width="296" height="160">
+## dependencies 
+`feasible_sqp` uses the sparse implementation of the QP solver `qpOASES` which depends on MA57. You need to obtain a valid license for it and compile it on your machine (see [this page](https://www.hsl.rl.ac.uk/download/MA57/3.11.0/))
 ## installation
 - clone the repo: 
 ```bash
@@ -21,16 +23,16 @@ pip install -e .
 - build and install the dependencies:
 ```python
 import feasible_sqp
-feasible_sqp.install_dependencies(matlab_root_path=<...>)
+feasible_sqp.install_dependencies(hsl_lib_path=<...>)
 ```
 
 ## usage
 ```python
 from feasible_sqp import *
 
-matlab_root_path =     <...> # e.g., '/usr/local/MATLAB/R2017b'
+hsl_lib_path =     <...> # e.g., '/usr/local/lib/libcoinhsl.so'
 
-install_dependencies(matlab_root_path=matlab_root_path)
+install_dependencies(hsl_lib_path=hsl_lib_path)
 
 # number of primal variables
 nv = 2
