@@ -5,7 +5,7 @@ This package provides a solver for parametric nonconvex programs of the form
 <img src="https://github.com/zanellia/feasible_sqp/blob/master/figures/nlp_description.png"
      width="296" height="160">
 ## dependencies 
-`feasible_sqp` uses the sparse implementation of the QP solver `qpOASES` which depends on MA57. You need to obtain a valid license for it and compile it on your machine (see [this page](https://www.hsl.rl.ac.uk/download/MA57/3.11.0/))
+`feasible_sqp` uses the sparse implementation of the QP solver `qpOASES` which depends on MA57. Unfortunately, this complicates installation a bit. You need to obtain a valid license for it and compile it on your machine (see [this page](https://www.hsl.rl.ac.uk/download/MA57/3.11.0/)). After obtaining the source code for HSL, you'll need to download the METIS package (version 4.3 is required) [here](http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/OLD/metis-4.0.3.tar.gz), extract the code and place it inside the root folder of coinhsl. Proceed then with the installation instructions of HSL, i.e., run `./configure`, `make` and `make install`.
 ## installation
 - clone the repo: 
 ```bash
