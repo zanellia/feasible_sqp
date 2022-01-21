@@ -65,7 +65,7 @@ def install_dependencies(matlab_root_path=None, \
         status = os.system(cmd)
 
         if status != 0:
-            raise Exception('{} failed'.format(cmd))
+            raise Exception('{} failed error code {}'.format(cmd, status))
 
         blas_lib_dir = '/'.join(blas_lib_path.split('/')[0:-1])
         lapack_lib_dir = '/'.join(lapack_lib_path.split('/')[0:-1])

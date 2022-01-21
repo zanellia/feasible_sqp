@@ -22,7 +22,7 @@ y = solver.y
 p = solver.p
 
 # define cost
-f = 1.0/2.0*ca.dot(y-10,y-p)
+f = 1.0/2.0*ca.mtimes(y.T-10,y-p)
 # define constraints
 g = ca.vertcat(1.0 + ca.sin(y[1]) - y[0])
 # define bounds

@@ -24,7 +24,7 @@ p = solver.p
 
 # define cost
 r = ca.vertcat(ca.sin(y[0]-p), y[1])
-f = 1.0/2.0*ca.dot(r,r)
+f = 1.0/2.0*ca.mtimes(r.T,r)
 J = ca.jacobian(r,y)
 gn_hess = ca.mtimes(J.T,J)
 
