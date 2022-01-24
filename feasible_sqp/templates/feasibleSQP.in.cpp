@@ -30,6 +30,34 @@ using namespace std;
 
 USING_NAMESPACE_QPOASES
 
+void print_qp(SymSparseMat* M, double* g, SparseMatrix* A, double* lb, double* ub, double* lbA, double* ubA) {
+
+    printf("\n");
+    printf("=============================================================\n");
+    printf("M = \n");
+    M->print();
+    printf("\n");
+    printf("g = \n");
+    for (int i = 0; i < NV; i++) printf("g[%i] = %f\n", i, g[i]);
+    printf("\n");
+    printf("lb = \n");
+    for (int i = 0; i < NV; i++) printf("lb[%i] = %f\n", i, lb[i]);
+    printf("\n");
+    printf("ub = \n");
+    for (int i = 0; i < NV; i++) printf("lb[%i] = %f\n", i, ub[i]);
+    printf("A = \n");
+    A->print();
+    printf("\n");
+    printf("lbA = \n");
+    for (int i = 0; i < NI; i++) printf("lbA[%i] = %f\n", i, lbA[i]);
+    printf("\n");
+    printf("ubA = \n");
+    for (int i = 0; i < NI; i++) printf("ubA[%i] = %f\n", i, ubA[i]);
+    printf("\n");
+    printf("=============================================================\n");
+    return;
+}
+
 int evaluate_dgdy(const double** arg, double** res, casadi_int* iw, double* w, int nnz, real_t* y_val, real_t* p_val, double* A_val) {
 
     // Allocate memory (thread-safe)
@@ -398,6 +426,8 @@ int {{ solver_opts.solver_name }} ()
     //     printf("A_val[%i] = %f\n", i, A_val[i]);
 
     evaluate_M(arg_M, res_M, iw_M, w_M, nnz_M, y_val, p_val, M_val);
+        // for (int i = 0; i < 2; i++)
+        //     printf("M_val[%i] = %f", i, M_val[i]);
 
     // define sparse matrix for matrix-vector product involved in
     // the gradient update
@@ -519,6 +549,8 @@ int {{ solver_opts.solver_name }} ()
 
     std::vector<double> myvector = std::vector<double>(dfdy_eval.at(0));
 
+    // cout << "new gradient: " << g_eval.at(0) << endl;
+
     for(int i = 0; i < NV; i++) {
         g[i] = myvector[i];
         g_bar[i] = myvector[i];
@@ -596,28 +628,36 @@ int {{ solver_opts.solver_name }} ()
     // this value is set to one by the inner loop 
     // whenever iterates are aborted
     int abort_inner = 0;
-    double alpha_outer = 1.0;
+    double alpha = 1.0;
+    int updated_alpha = 0;
     real_t step_inf_norm = 0.0;
     double time;
+    double kappa;
     
     int inner_solves_counter = 0;
+    int solved_inner = 0;
     for(int j = 0; j <  MAX_OUTER_IT; j ++) { 
+        kappa = -1.0;
+        printf("----------------------------------------------------------------------------------\n");
+
         // outer loop
         // printf("in outer loop\n");
 
         if (abort_inner) {
             // restore outer primal iterate
-            for(int i = 0; i < NV; i++)
+            for(int i = 0; i < NV; i++) {
                 y_val[i] = y_outer[i];
+                y[i] = y_outer[i];
+                // printf("y_outer[%i] = %f\n", i, y_outer[i]);
+            }
             
             // restore outer dual iterate
             for(int i = 0; i < NI; i++)
                 lam_val[i] = lam_outer[i];
 
-            alpha_outer = alpha_outer * THETA_BAR;
+            alpha = alpha * THETA_BAR;
         }
 
-        double alpha_inner = alpha_outer;
 
         if (j == 0) {
 
@@ -645,14 +685,14 @@ int {{ solver_opts.solver_name }} ()
                 if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
                     step_inf_norm = getAbs(lam[i] - lam_QP[i]);
 
-            printf("------------------------------------------------------------\n");
-            printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
-            printf("------------------------------------------------------------\n");
+            printf("----------------------------------------------------------------------------------\n");
+            printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
+            printf("----------------------------------------------------------------------------------\n");
 
             toc = getCPUtime();
             time = toc-tic;
 
-            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, !abort_inner);
+            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, kappa, !abort_inner, 0);
 
             d_stats_0[tot_iter] = step_inf_norm;
             d_stats_1[tot_iter] = time;
@@ -668,18 +708,18 @@ int {{ solver_opts.solver_name }} ()
 
                 {% if use_approximate_hessian %}
                 evaluate_M(arg_M, res_M, iw_M, w_M, nnz_M, y_val, p_val, M_val);
+                // exit(1);
+                // for (int i = 0; i < 2; i++)
+                //     printf("M_val[%i] = %f", i, M_val[i]);
                 M->setVal(M_val);
-                evaluate_dLdyy(arg_M, res_M, iw_M, w_M, nnz_M, y_val, lam_val, p_val, P_val);
+                // printf("M = \n");
+                // M->print();
+                evaluate_dLdyy(arg_P, res_P, iw_P, w_P, nnz_P, y_val, lam_val, p_val, P_val);
                 {% else %}
-                evaluate_dLdyy(arg_M, res_M, iw_M, w_M, nnz_M, y_val, lam_val, p_val, P_val);
+                evaluate_dLdyy(arg_P, res_P, iw_P, w_P, nnz_P, y_val, lam_val, p_val, P_val);
                 M->setVal(P_val);
                 {% endif %}
             }
-            // update P for gradient update (necessary or 
-            // could I just map to M_val?)
-            // for (int i=0; i<nnz_M; i++)
-            //     P_val[i] = M_val[i];
-            
 
             // TODO(andrea) only setting y here! 
             ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
@@ -741,14 +781,14 @@ int {{ solver_opts.solver_name }} ()
                     step_inf_norm = getAbs(lam[i] - lam_QP[i]);
 
             if (tot_iter%10 == 0) { 
-                printf("------------------------------------------------------------\n");
-                printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
-                printf("------------------------------------------------------------\n");
+                printf("----------------------------------------------------------------------------------\n");
+                printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
+                printf("----------------------------------------------------------------------------------\n");
             }
 
             toc = getCPUtime();
             time = tic - toc;
-            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, time, alpha_inner, !abort_inner);
+            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", step_inf_norm, (int)nWSR, time, alpha, kappa, !abort_inner, 0);
 
             if(abort_inner) abort_inner = 0;
 
@@ -760,8 +800,8 @@ int {{ solver_opts.solver_name }} ()
 
             if (step_inf_norm < OUTER_TOL) {
                 printf("->solution found!\n");
-                // for (i = 0; i < NV; i++)
-                //     printf("y[%i] = %f\n", i, y[i]);
+                for (int i = 0; i < NV; i++)
+                    printf("y[%i] = %f\n", i, y[i]);
                 return 0;
             }
 
@@ -773,7 +813,12 @@ int {{ solver_opts.solver_name }} ()
         qpSchur.getBounds(bounds_QP);
         qpSchur.getConstraints(constraints_QP);
 
+        // print_qp(M, g, A, lb, ub, lbA, ubA);
         // store outer primal iterate before update
+        // for (i = 0; i < NV; i++)
+        //     printf("y[%i] = %f\n", i, y[i]);
+        // for (i = 0; i < NV; i++)
+        //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
         for(int i = 0; i < NV; i++) {
             y_outer[i] = y_val[i];
             y[i] = y[i] + y_QP[i];
@@ -796,14 +841,14 @@ int {{ solver_opts.solver_name }} ()
         //////////////////////////////////////////////////// 
         // INNER ITERATIONS
         ////////////////////////////////////////////////////
-        
-        double prev_step_inf_norm = step_inf_norm;
 
-        
-        for(int k = 0; k < MAX_INNER_IT; k ++) { 
+        step_history[0] = step_inf_norm;
+
+        for(int k = 1; k < MAX_INNER_IT; k ++) { 
+
+            kappa = -1.0;
         
             // inner loop
-            // printf("in inner loop\n");
             // update vectors and solve hotstarted QP
 
             // TODO(andrea): only setting y here!
@@ -815,18 +860,25 @@ int {{ solver_opts.solver_name }} ()
             for(int i = 0; i < NV; i++)
                 g_temp.coeffRef(i) = y[i] - y_outer[i];
 
-            g_temp = alpha_inner*(alpha_inner*P_ + (1 - alpha_inner)*M_)*g_temp;
+            g_temp = (alpha*P_ + (1 - alpha)*M_)*g_temp;
 
-            for(int i = 0; i < NV; i++)
-                g[i] = g_bar[i] + g_temp.coeffRef(i);
+            for(int i = 0; i < NV; i++) {
+                g[i] = alpha*(g_bar[i] + g_temp.coeffRef(i));
+                // printf("g[%i] = %f\n", i, g[i]);
+            }
 #else
-            // cout << "new gradient: " << dfdy_eval.at(0) << endl;
-            myvector = std::vector<double>(dfdy_eval.at(0));
             // ca_lam[0] = reshape(DM(lam), NI, 1);
 
             dfdy_eval = ca_dfdy(ca_y_p);
+            myvector = std::vector<double>(dfdy_eval.at(0));
+            // cout << "new gradient: " << dfdy_eval.at(0) << endl;
+            // cout << "ca_y_p: " << ca_y_p << endl;
+            // for (i = 0; i < NV; i++)
+            //     printf("y_val[%i] = %f\n", i, y_val[i]);
+            // for (i = 0; i < NV; i++)
+            //     printf("y[%i] = %f\n", i, y[i]);
             for(int i = 0; i < NV; i++) {
-                g[i] = alpha_inner*myvector[i];
+                g[i] = alpha*myvector[i];
             }
 #endif
 
@@ -843,10 +895,11 @@ int {{ solver_opts.solver_name }} ()
                 lb[i] = lby[i] - y[i];
                 ub[i] = uby[i] - y[i];
             }
-            
+
             nWSR = MAX_NWSR;
             tic = getCPUtime();
 
+            // print_qp(M, g, A, lb, ub, lbA, ubA);
 #if BOUNDS
             qpOASES_status = qpSchur.hotstart(g, lb, ub, lbA, ubA, nWSR);
 #else
@@ -872,79 +925,85 @@ int {{ solver_opts.solver_name }} ()
                     step_inf_norm = getAbs(lam[i] - lam_QP[i]);
 
             // monitor N-step R-linear convergence
-            double kappa = step_inf_norm/prev_step_inf_norm;
-            if (k%R_CONV_N == 0 && k > 1) {
-                // printf("step = %f, prev step = %f, kappa = %f\n", 
-                //     step_inf_norm, prev_step_inf_norm, kappa);
+            if (k>=R_CONV_N && k >= 1) {
+                step_history[R_CONV_N] = step_inf_norm;
+                // printf("\n\n\nSHIFT buffer - k = %i\n\n\n", k);
 
+                // for (int i =0; i < R_CONV_N+1; i++) 
+                //     printf("step_history[%i] = %f\n", i, step_history[i]);
+                kappa = step_history[R_CONV_N]/step_history[0];
+                 
                 if (kappa > KAPPA_BAR)
                 {
-                    // if (kappa > opts->kappa_max)
-                    // {
-                    //     printf("\n kappa > kappa_max!\n");
-                    //     break;
-                    // } 
-                    alpha_inner = alpha_inner * THETA_BAR;
+                    alpha = alpha * THETA_BAR;
+                    updated_alpha = 1;
 
-                    if (alpha_inner < MIN_ALPHA_INNER) {
-                        printf("alpha = %f < MIN_ALPHA_INNER = %f. abort inner iterations\n", alpha_inner, MIN_ALPHA_INNER);
+                    if (alpha < MIN_ALPHA_INNER) {
+                        printf("alpha = %f < MIN_ALPHA_INNER = %f. abort inner iterations\n", 
+                            alpha, MIN_ALPHA_INNER);
                         abort_inner = 1;
                         break;
                     }
-                    // printf("alpha_inner = %f, kappa = %f\n", alpha_inner, kappa);
                 }
-                prev_step_inf_norm = step_inf_norm;
 
                 if (kappa > KAPPA_TILDE) {
                     printf("kappa = %f > KAPPA_TILDE = %f. abort inner iterations\n", kappa, KAPPA_TILDE);
                     abort_inner = 1;
                     k = MAX_INNER_IT;
-                    // break;
                 }
+
+                // shift step history
+                for (int l=0; l < R_CONV_N; l++) {
+                    step_history[l] = step_history[l+1];
+                }
+            } else { // fill buffer 
+                // printf("\n\n\nfill buffer - k = %i\n\n\n", k);
+                // for (int i =0; i < R_CONV_N+1; i++) 
+                //     printf("step_history[%i] = %f\n", i, step_history[i]);
+                step_history[k] = step_inf_norm;
             }
 
-
-
-
             if (tot_iter%10 == 0) { 
-                printf("------------------------------------------------------------\n");
-                printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tlin.\n");
-                printf("------------------------------------------------------------\n");
+                printf("----------------------------------------------------------------------------------\n");
+                printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
+                printf("----------------------------------------------------------------------------------\n");
             }
 
             toc = getCPUtime();
             time = tic - toc;
-            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%i\n", step_inf_norm, (int)nWSR, toc-tic, alpha_inner, 0);
+            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", step_inf_norm, (int)nWSR, toc-tic, alpha, kappa, 0, k+1);
 
             d_stats_0[tot_iter] = step_inf_norm;
             d_stats_1[tot_iter] = time;
-            d_stats_2[tot_iter] = alpha_inner;
+            d_stats_2[tot_iter] = alpha;
             i_stats_0[tot_iter] = nWSR;
             i_stats_1[tot_iter] = 0;
 
-
-            if (kappa > KAPPA_MAX && k%R_CONV_N==0 && k > 1) {
+            // printf("R_CONV = %i, KAPPA_MAX = %f, REMAINDER = %i\n, kappa = %f, k = %i", R_CONV_N, KAPPA_MAX, k%R_CONV_N, kappa, k);
+            if (kappa > KAPPA_MAX && k>R_CONV_N && !abort_inner) {
                 printf("kappa = %f > KAPPA_MAX = %f. skipping update\n", kappa, KAPPA_MAX);
             } else { 
                 // printf("inner loop primal step: %f\n", step_inf_norm);
                 if (step_inf_norm < INNER_TOL) {
                     printf("-> solved inner problem!\n\n");
-                    alpha_outer = 1.0;
+                    alpha = min(alpha * 1 / THETA_BAR, 1.0);
                     k = MAX_INNER_IT;
                     inner_solves_counter+=1;
+                    solved_inner = 1;
                     if (inner_solves_counter >= INNER_SOLVES) {
                         printf("-> solved %i inner problems, stopping iterations!\n\n", inner_solves_counter);
                         return 0;
                     } 
                 }
 
+                // for (i = 0; i < NV; i++)
+                //     printf("y[%i] = %f\n", i, y[i]);
+                // for (i = 0; i < NV; i++)
+                //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
                 for(int i = 0; i < NV; i++) {
                     y[i] = y[i] + y_QP[i];
                     y_val[i] = y[i];
                 }
-
-                // for (i = 0; i < NV; i++)
-                //     printf("y_QP[%i] = %f\n", i, y_QP[i]);
 
                 // for (i = 0; i < NV; i++)
                 //     printf("y_val[%i] = %f\n", i, y_val[i]);
@@ -960,6 +1019,10 @@ int {{ solver_opts.solver_name }} ()
 
             // fprintf(stdFile, "Solved hotstarted sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
 
+            if (k >= MAX_INNER_IT-1 && !solved_inner && !abort_inner) { 
+                printf("max number of inner iterations reached (%i). Abort inner iterations and restore to outer iterate.\n", k); 
+                abort_inner = 1;
+            }
         }
         
     }
@@ -1014,8 +1077,8 @@ double set_theta_bar(double theta_bar) {
     return 0;
 }
 
-double set_min_alpha_inner(double min_alpha_inner) {
-    MIN_ALPHA_INNER = min_alpha_inner;
+double set_min_alpha(double min_alpha) {
+    MIN_ALPHA_INNER = min_alpha;
     return 0;
 }
 
@@ -1035,7 +1098,11 @@ int set_outer_tol(int outer_tol) {
 }
 
 int set_r_conv_n(int r_conv_n) {
-    R_CONV_N = r_conv_n;
+    if (r_conv_n > MAX_R_CONV_N) {
+        printf("r_conv = %i > MAX_R_CONV = %i. Skipping setter.\n", r_conv_n, MAX_R_CONV_N);
+    } else {
+        R_CONV_N = r_conv_n;
+    }
     return 0;
 }
 

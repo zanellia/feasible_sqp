@@ -98,7 +98,7 @@ class feasible_sqp():
         opts['kappa_tilde'] = 0.99
         opts['kappa_bar'] = 0.7
         opts['theta_bar'] = 0.3
-        opts['min_alpha_inner'] = 1E-6
+        opts['min_alpha'] = 1E-6
         opts['inner_tol'] = 1E-6
         opts['outer_tol'] = 1E-6
         opts['solver_name'] = solver_name
@@ -437,10 +437,10 @@ class feasible_sqp():
         self.shared_lib.set_theta_tilde(theta_tilde)
         return
 
-    def set_min_alpha_inner(self, min_alpha_inner):
+    def set_min_alpha(self, min_alpha):
         self.shared_lib.set_min_alpha.argtypes = [c_double]
         self.shared_lib.set_min_alpha.restype = c_int
-        self.shared_lib.set_alpha_inner(min_alpha_inner)
+        self.shared_lib.set_alpha(min_alpha)
         return
 
     def set_max_nwsr(self,  max_nwsr):
