@@ -15,40 +15,50 @@ if INSTALL_DEPS:
             # hsl_lib_path='/usr/local/lib/libhsl.so')
 
 # number of primal variables
-nv = 2
+nv = 1
 # create solver
-solver = feasible_sqp(nv, np=1)
+solver = feasible_sqp(nv)
 # get primal variables
 y = solver.y
 p = solver.p
 
 # define cost
-r = ca.vertcat(ca.sin(y[0]-p), y[1])
-f = 1.0/2.0*ca.mtimes(r.T,r)
-J = ca.jacobian(r,y)
+# f = 1.0/2.0*ca.mtimes(y.T,y)
+# f = -1/2*((y[0])**2 + (y[1])**2) + (y[0]**2 + y[1]**2)**2
+f = -1/2*y[0]**2 + y[0]**4
+# f = -1/2*y[0]**2 #+ y[0]**4
+# f = 1/2*((y[0])**2 + (y[1])**2)
+# f = ca.mtimes(y.T,y)
+J = ca.jacobian(y,y)
 gn_hess = ca.mtimes(J.T,J)
 
 # define constraints
-g = ca.vertcat(ca.sin(y[1]) + 0.5)
+g = y 
 
 # define bounds
-lby = -0.8*nmp.ones((nv,1))
-uby = 0.8*nmp.ones((nv,1))
+lby = -1000*nmp.ones((nv,1))
+uby = 1000*nmp.ones((nv,1))
 
 # define nonlinear constraints
-lbg = -0.000*nmp.ones((1,1))
-ubg = 0.000*nmp.ones((1,1))
+lbg = -1000.000*nmp.ones((nv,1))
+ubg = 1000.000*nmp.ones((nv,1))
 
 # define parameters
-p0 = 5.0*nmp.ones((1,1))
+y0 = 0.55*nmp.ones((nv,1))
 
 # generate solver
-solver.generate_solver(f, f, g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0, approximate_hessian=gn_hess)
+solver.generate_solver(f, f, g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, y0=y0, approximate_hessian=gn_hess)
+# solver.generate_solver(f, f, g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, y0=y0)
 # solver.generate_solver(f,g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0)
 # solver.generate_solver(f,g, lby = lby, uby = uby)
 
 # solve NLP
-solver.set_inner_solves(10)
+solver.set_inner_solves(100)
+solver.set_max_outer_it(100)
+solver.set_kappa_max(0.7)
+solver.set_max_inner_it(50)
+solver.set_r_conv_n(5)
+solver.set_theta_bar(0.7)
 solver.solve()
 y_bar = solver.get_primal_sol()
 print('optimal primal solution: ', y_bar)

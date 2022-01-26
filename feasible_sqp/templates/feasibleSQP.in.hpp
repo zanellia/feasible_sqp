@@ -10,7 +10,7 @@ double KAPPA_MAX    = {{ solver_opts.kappa_max }};
 double KAPPA_TILDE    = {{ solver_opts.kappa_tilde }};
 double KAPPA_BAR    = {{ solver_opts.kappa_bar }};
 double THETA_BAR    = {{ solver_opts.theta_bar }};
-double MIN_ALPHA_INNER  = {{ solver_opts.min_alpha_inner }};
+double MIN_ALPHA_INNER  = {{ solver_opts.min_alpha }};
 double INNER_TOL = {{ solver_opts.inner_tol }};
 double OUTER_TOL = {{ solver_opts.outer_tol }};
 int R_CONV_N = {{ solver_opts.r_conv_n }};
@@ -19,7 +19,11 @@ int INNER_SOLVES = {{ solver_opts.inner_solves }};
 #define NV {{ NV }}
 #define NI {{ NI }}
 #define NP {{ NP }}
+// #define BOUNDS 1
 #define BOUNDS 1
+
+USING_NAMESPACE_QPOASES
+void print_qp(SymSparseMat* M, double* g, SparseMatrix* A, double* lb, double* ub, double* lbA, double* ubA);
 
 int {{ solver_opts.solver_name }}_init();
 
@@ -41,7 +45,7 @@ double set_kappa_bar(double kappa_bar);
 
 double set_theta_bar(double theta_bar);
 
-double set_min_alpha_inner(double min_alpha_inner);
+double set_min_alpha(double min_alpha);
 
 int set_max_cum_nwsr(int max_cum_nwsr);
 
@@ -92,7 +96,7 @@ double y_outer[NV] = {0};
 double lam_val[NI] = {0};
 double lam_outer[NI] = {0};
 
-#define MAX_STATS 1000
+#define MAX_STATS 10000
 
 // stats
 double * d_stats[3];
@@ -102,6 +106,9 @@ double d_stats_1[MAX_STATS] = {0.0};
 double d_stats_2[MAX_STATS] = {0.0};
 int i_stats_0[MAX_STATS] = {0};
 int i_stats_1[MAX_STATS] = {0};
+
+#define MAX_R_CONV_N 50
+double step_history[MAX_R_CONV_N] = {0.0};
 
 // active set
 int bounds_guess[NV] = {0};
