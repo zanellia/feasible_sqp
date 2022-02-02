@@ -122,7 +122,7 @@ class feasible_sqp():
         os.chdir('..')
 
     def generate_solver(self, f, f0, g, lby = [], uby = [], lbg = [], ubg = [], p0 = [], \
-            y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None, approximate_hessian=None):
+            y0 = [], lam0 = [], qpoases_root=None, casadi_root=None, eigen_root=None, approximate_hessian=None, optlevel='-O2'):
 
         g_shape = g.shape
 
@@ -197,7 +197,6 @@ class feasible_sqp():
         if p0_shape[0] != np or p0_shape[1] != 1:
             raise Exception('p0 must have shape (np,1) = ({},1), you have ({},{})'\
                 .format(np, p0_shape[0], p0_shape[1]))
-        optlevel = ''
 
         y0_shape = y0.shape
 
@@ -291,11 +290,11 @@ class feasible_sqp():
         print('compiling generated code for dLdyy...')
         ca_dLdyy = ca.Function('ca_dLdyy', [y, lam, p], [ca.hessian(L,y)[0]])
         ca_dLdyy.generate('ca_dLdyy', opts)
-        cmd = 'gcc -fPIC -shared -O3 ca_dLdyy.c -o libca_dLdyy.so'
+        cmd = 'gcc -fPIC -shared {} ca_dLdyy.c -o libca_dLdyy.so'.format(optlevel)
         os.system(cmd)
         if status != 0:
             raise Exception('Command {} failed'.format(cmd))
-        cmd = 'gcc -fPIC -shared -O3 ca_dLdyy.c -o ca_dLdyy.so'
+        cmd = 'gcc -fPIC -shared {} ca_dLdyy.c -o ca_dLdyy.so'.format(optlevel)
         os.system(cmd)
         if status != 0:
             raise Exception('Command {} failed'.format(cmd))
