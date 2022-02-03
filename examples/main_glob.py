@@ -44,7 +44,7 @@ solver.generate_solver(f, f, g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, \
 
 # solve NLP
 solver.set_inner_solves(100)
-solver.set_max_outer_it(10)
+solver.set_max_outer_it(100)
 solver.set_kappa_max(0.7)
 solver.set_max_inner_it(50)
 solver.set_r_conv_n(5)

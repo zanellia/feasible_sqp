@@ -648,7 +648,6 @@ int {{ solver_opts.solver_name }} ()
     for(int j = 0; j <  MAX_OUTER_IT; j ++) { 
         tic = getCPUtime();
         kappa = -1.0;
-        printf("----------------------------------------------------------------------------------\n");
 
         // outer loop
         // printf("in outer loop\n");
@@ -749,14 +748,16 @@ int {{ solver_opts.solver_name }} ()
 
         for(int i = 0; i < 2*(NI + NV); i++) lam_QP[i] = 0.0;
 
-        for(int i = 0; i < NI; i++) { 
-            if (lam_QP_compressed[i] < 0) lam_QP[i] = -lam_QP_compressed[i];
-            if (lam_QP_compressed[i] > 0) lam_QP[NI+i] = lam_QP_compressed[i];
-        }
         for(int i = 0; i < NV; i++) { 
-            if (lam_QP_compressed[NI+i] < 0) lam_QP[2*NI+i] = -lam_QP_compressed[NI+i];
-            if (lam_QP_compressed[NI+i] > 0) lam_QP[2*NI+NV+i] = lam_QP_compressed[NI+i];
+            if (lam_QP_compressed[i] < 0) lam_QP[i] = -lam_QP_compressed[i];
+            if (lam_QP_compressed[i] > 0) lam_QP[NV+i] = lam_QP_compressed[i];
         }
+
+        for(int i = 0; i < NI; i++) { 
+            if (lam_QP_compressed[NV+i] < 0) lam_QP[2*NV+i] = -lam_QP_compressed[NV+i];
+            if (lam_QP_compressed[NV+i] > 0) lam_QP[2*NV+NI+i] = lam_QP_compressed[NV+i];
+        }
+
 
         real_t step_inf_norm = 0.0;
         for (i = 0; i < NV; i++)
@@ -775,8 +776,6 @@ int {{ solver_opts.solver_name }} ()
 
         toc = getCPUtime();
         time = tic - toc;
-        printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", 
-            step_inf_norm, (int)nWSR, time, alpha, kappa, !abort_inner, 0);
 
         if(abort_inner) abort_inner = 0;
 
@@ -787,23 +786,24 @@ int {{ solver_opts.solver_name }} ()
         i_stats_1[tot_iter] = 1;
 
         // compute residuals (BEFORE updating primal-dual solution) 
-        Eigen::SparseVector<double> lam_res_p(NI+NV);
-        for(int i = 0; i < NI + NV; i++) lam_res_p.coeffRef(i) = 0.0;
+        Eigen::SparseVector<double> lam_res_u(NI+NV);
+        Eigen::SparseVector<double> lam_res_l(NI+NV);
+        for(int i = 0; i < NV; i++) {
+            lam_res_u.coeffRef(i) = lam_val[i];
+            lam_res_l.coeffRef(i) = lam_val[NV+i];
+        }
 
-        Eigen::SparseVector<double> lam_res_n(NI+NV);
-        for(int i = 0; i < NI + NV; i++) lam_res_n.coeffRef(i) = 0.0;
-
-        // split positive and negative multipliers
-        for(int i = 0; i < NI + NV; i++) if (lam_val[i] > 0) lam_res_p.coeffRef(i) = lam_val[i];
-        for(int i = 0; i < NI + NV; i++) if (lam_val[i] < 0) lam_res_n.coeffRef(i) = -lam_val[i];
-
+        for(int i = 0; i < NI; i++) {
+            lam_res_u.coeffRef(NV+i) = lam_val[2*NV+i];
+            lam_res_l.coeffRef(NV+i) = lam_val[2*NV+NI+i];
+        }
 
         // compute stationarity residuals
         Eigen::SparseVector<double> stat_res(NV);
 
         for(int i = 0; i < NV; i++) stat_res.coeffRef(i) = dfdy_std[i];
-        stat_res = stat_res + (A_.transpose())*lam_res_p.head(NI) - 
-            (A_.transpose())*lam_res_n.head(NI)+ lam_res_p.tail(NV) - lam_res_n.tail(NV);
+        stat_res = stat_res + (A_.transpose())*lam_res_u.tail(NI) - 
+            (A_.transpose())*lam_res_l.tail(NI)+ lam_res_u.head(NV) - lam_res_l.head(NV);
 
         stat_res = stat_res.cwiseAbs();
         double stat_inf_norm = stat_res.coeffs().maxCoeff();
@@ -822,29 +822,35 @@ int {{ solver_opts.solver_name }} ()
 
         // compute complementarity residuals
         Eigen::SparseVector<double> compl_res(2*(NV+NI));
-        for(int i = 0; i < NI; i++) {
-            printf("i = %i, abs(ubA) = %f, lam_res_p = %f\n", i, abs(ubA[i]), lam_res_p.coeffRef(i));
-            compl_res.coeffRef(i) = abs(ubA[i])*lam_res_p.coeffRef(i);
-            printf("i = %i, abs(lbA) = %f, lam_res_n = %f\n", i, abs(lbA[i]), lam_res_n.coeffRef(i));
-            compl_res.coeffRef(NI+i) = abs(lbA[i])*lam_res_n.coeffRef(i);
+        for(int i = 0; i < NV; i++) {
+            compl_res.coeffRef(i) = abs(ub[i])*lam_res_u.coeffRef(i);
+            // printf("i = %i, abs(ub) = %f, lam_res_p = %f\n", i, abs(ub[i]), lam_res_u.coeffRef(i));
+            compl_res.coeffRef(NV+i) = abs(lb[i])*lam_res_l.coeffRef(i);
+            // printf("i = %i, abs(lb) = %f, lam_res_n = %f\n", i, abs(lb[i]), lam_res_l.coeffRef(i));
         }
 
-        for(int i = 0; i < NV; i++) {
-            compl_res.coeffRef(2*NI+i) = abs(ub[i])*lam_res_p.coeffRef(NI+i);
-            printf("i = %i, abs(ub) = %f, lam_res_p = %f\n", i, abs(ub[i]), lam_res_p.coeffRef(NI+i));
-            compl_res.coeffRef(2*NI+NV+i) = abs(lb[i])*lam_res_n.coeffRef(NI+i);
-            printf("i = %i, abs(lb) = %f, lam_res_n = %f\n", i, abs(lb[i]), lam_res_n.coeffRef(NI+i));
+        for(int i = 0; i < NI; i++) {
+            // printf("i = %i, abs(ubA) = %f, lam_res_p = %f\n", i, abs(ubA[i]), lam_res_u.coeffRef(NV+i));
+            compl_res.coeffRef(2*NV+i) = abs(ubA[i])*lam_res_u.coeffRef(NV+i);
+            // printf("i = %i, abs(lbA) = %f, lam_res_n = %f\n", i, abs(lbA[i]), lam_res_l.coeffRef(NV+i));
+            compl_res.coeffRef(2*NV+NI+i) = abs(lbA[i])*lam_res_l.coeffRef(NV+i);
         }
+
         double compl_inf_norm = compl_res.coeffs().maxCoeff();
 
-        printf("==================================================================================\n");
-        printf("outer #it.\tstat.\t\tfeas.\t\tcompl.\n");
-        printf("%i\t\t%1.2e\t%1.2e\t%1.2e\n", j, stat_inf_norm, feas_inf_norm, compl_inf_norm);
-        printf("==================================================================================\n");
+        printf("#%i | stat = %1.2e | feas = %1.2e | compl = %1.2e\n",  j, stat_inf_norm, feas_inf_norm, compl_inf_norm);
+        printf("----------------------------------------------------------------------------------\n");
+        printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
+        printf("----------------------------------------------------------------------------------\n");
+
+        printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", 
+            step_inf_norm, (int)nWSR, time, alpha, kappa, !abort_inner, 0);
+
         if (stat_inf_norm < OUTER_TOL && feas_inf_norm < OUTER_TOL && compl_inf_norm < OUTER_TOL) {
-            printf("->solution found!\n");
+            printf("\n->solution found!\n\n");
             for (int i = 0; i < NV; i++)
                 printf("y[%i] = %f\n", i, y[i]);
+            printf("\n");
             return 0;
         }
 
@@ -957,16 +963,19 @@ int {{ solver_opts.solver_name }} ()
             tot_iter += 1;
             qpSchur.getPrimalSolution(y_QP);
             qpSchur.getDualSolution(lam_QP_compressed);
+            // for(int i = 0; i < NI+NV; i++) 
+            //     printf("lam_QP_compressed[%i] = %f\n", i, lam_QP_compressed[i]);
 
             for(int i = 0; i < 2*(NI + NV); i++) lam_QP[i] = 0.0;
 
-            for(int i = 0; i < NI; i++) { 
-                if (lam_QP_compressed[i] < 0) lam_QP[i] = -lam_QP_compressed[i];
-                if (lam_QP_compressed[i] > 0) lam_QP[NI+i] = lam_QP_compressed[i];
-            }
             for(int i = 0; i < NV; i++) { 
-                if (lam_QP_compressed[NI+i] < 0) lam_QP[2*NI+i] = -lam_QP_compressed[NI+i];
-                if (lam_QP_compressed[NI+i] > 0) lam_QP[2*NI+NV+i] = lam_QP_compressed[NI+i];
+                if (lam_QP_compressed[i] < 0) lam_QP[i] = -lam_QP_compressed[i];
+                if (lam_QP_compressed[i] > 0) lam_QP[NV+i] = lam_QP_compressed[i];
+            }
+
+            for(int i = 0; i < NI; i++) { 
+                if (lam_QP_compressed[NV+i] < 0) lam_QP[2*NV+i] = -lam_QP_compressed[NV+i];
+                if (lam_QP_compressed[NV+i] > 0) lam_QP[2*NV+NI+i] = lam_QP_compressed[NV+i];
             }
 
             double step_inf_norm = 0.0;
@@ -1017,7 +1026,7 @@ int {{ solver_opts.solver_name }} ()
                 step_history[k] = step_inf_norm;
             }
 
-            if (tot_iter%10 == 0) { 
+            if (k%10 == 0) { 
                 printf("----------------------------------------------------------------------------------\n");
                 printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
                 printf("----------------------------------------------------------------------------------\n");
