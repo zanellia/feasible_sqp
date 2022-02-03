@@ -286,7 +286,7 @@ class feasible_sqp():
             raise Exception('Command {} failed'.format(cmd))
 
         # Lagrangian
-        L = f + ca.dot(lam[0:ni], g) - ca.dot(lam[ni:2*ni], g) + ca.dot(lam[2*ni:2*ni+nv],y) - ca.dot(lam[2*ni+nv:2*ni+2*nv],y)
+        L = f + ca.dot(lam[2*nv:2*nv+ni], g) - ca.dot(lam[2*nv+ni:2*nv+2*ni], g) + ca.dot(lam[0:nv],y) - ca.dot(lam[nv:2*nv],y)
         #TODO(andrea): bounds first here!
 
         print('compiling generated code for dLdyy...')
