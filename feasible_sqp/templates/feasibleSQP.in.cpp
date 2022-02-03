@@ -660,6 +660,61 @@ int {{ solver_opts.solver_name }} ()
             alpha = alpha * THETA_BAR;
         }
 
+        if (abort_inner==0) {
+            // update matrices and vectors
+            evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
+            A->setVal(A_val);
+
+            {% if use_approximate_hessian %}
+            evaluate_M(arg_M, res_M, iw_M, w_M, nnz_M, y_val, p_val, M_val);
+            // exit(1);
+            // for (int i = 0; i < 2; i++)
+            //     printf("M_val[%i] = %f", i, M_val[i]);
+            M->setVal(M_val);
+            // printf("M = \n");
+            // M->print();
+            evaluate_dLdyy(arg_P, res_P, iw_P, w_P, nnz_P, y_val, lam_val, p_val, P_val);
+            {% else %}
+            evaluate_dLdyy(arg_P, res_P, iw_P, w_P, nnz_P, y_val, lam_val, p_val, P_val);
+            M->setVal(P_val);
+            {% endif %}
+        }
+
+        // TODO(andrea) only setting y here! 
+        ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
+
+        dfdy_eval = ca_dfdy(ca_y_p);
+        // cout << "new gradient: " << dfdy_eval.at(0) << endl;
+        myvector = std::vector<double>(dfdy_eval.at(0));
+
+
+        // ca_lam[0] = reshape(DM(lam), NI, 1);
+
+        for(int i = 0; i < NV; i++) {
+            g_bar[i] = myvector[i];
+        }
+
+        g_eval = ca_g(ca_y_p);
+        // cout << "new gradient: " << g_eval.at(0) << endl;
+        myvector = std::vector<double>(g_eval.at(0));
+
+        for(int i = 0; i < NI; i++) {
+            lbA[i] = lbg[i] - myvector[i];
+            ubA[i] = ubg[i] - myvector[i];
+        }
+
+        for(int i = 0; i < NV; i++) {
+            lb[i] = lby[i] - y[i];
+            ub[i] = uby[i] - y[i];
+
+            // printf("lb[%i] = %f\n", lb[i]);
+            // printf("ub[%i] = %f\n", ub[i]);
+        }
+
+        // solve with sparse matrices (Schur complement) 
+        nWSR = MAX_NWSR;
+        // SQProblemSchur qrecipeSchur(1, 1);
+        tic = getCPUtime();
 
         if (j == 0) {
 
@@ -668,149 +723,60 @@ int {{ solver_opts.solver_name }} ()
 #else
             qpOASES_status = pSchur.init(M, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #endif
-
-            if (qpOASES_status != SUCCESSFUL_RETURN) {
-                printf("QP solution failed!\n");
-                return 1;
-            }
-
-            tot_iter += 1;
-
-            qpSchur.getPrimalSolution(y_QP);
-
-            qpSchur.getDualSolution(lam_QP);
-            for (i = 0; i < NV; i++)
-                if (getAbs(y_QP[i]) > step_inf_norm)
-                    step_inf_norm = getAbs(y_QP[i]);
-
-            for (i = 0; i < NI; i++)
-                if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
-                    step_inf_norm = getAbs(lam[i] - lam_QP[i]);
-
-            printf("----------------------------------------------------------------------------------\n");
-            printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
-            printf("----------------------------------------------------------------------------------\n");
-
-            toc = getCPUtime();
-            time = toc-tic;
-
-            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", step_inf_norm, (int)nWSR, time, 1.0, kappa, !abort_inner, 0);
-
-            d_stats_0[tot_iter] = step_inf_norm;
-            d_stats_1[tot_iter] = time;
-            d_stats_2[tot_iter] = 1.0;
-            i_stats_0[tot_iter] = nWSR;
-            i_stats_1[tot_iter] = 1;
-
         } else {
-            if (abort_inner==0) {
-                // update matrices and vectors
-                evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
-                A->setVal(A_val);
-
-                {% if use_approximate_hessian %}
-                evaluate_M(arg_M, res_M, iw_M, w_M, nnz_M, y_val, p_val, M_val);
-                // exit(1);
-                // for (int i = 0; i < 2; i++)
-                //     printf("M_val[%i] = %f", i, M_val[i]);
-                M->setVal(M_val);
-                // printf("M = \n");
-                // M->print();
-                evaluate_dLdyy(arg_P, res_P, iw_P, w_P, nnz_P, y_val, lam_val, p_val, P_val);
-                {% else %}
-                evaluate_dLdyy(arg_P, res_P, iw_P, w_P, nnz_P, y_val, lam_val, p_val, P_val);
-                M->setVal(P_val);
-                {% endif %}
-            }
-
-            // TODO(andrea) only setting y here! 
-            ca_y_p = {reshape(DM(y), NV, 1), reshape(DM(p), NP, 1)};
-
-            dfdy_eval = ca_dfdy(ca_y_p);
-            // cout << "new gradient: " << dfdy_eval.at(0) << endl;
-            myvector = std::vector<double>(dfdy_eval.at(0));
-
-
-            // ca_lam[0] = reshape(DM(lam), NI, 1);
-
-            for(int i = 0; i < NV; i++) {
-                g_bar[i] = myvector[i];
-            }
-
-            g_eval = ca_g(ca_y_p);
-            // cout << "new gradient: " << g_eval.at(0) << endl;
-            myvector = std::vector<double>(g_eval.at(0));
-
-            for(int i = 0; i < NI; i++) {
-                lbA[i] = lbg[i] - myvector[i];
-                ubA[i] = ubg[i] - myvector[i];
-            }
-
-            for(int i = 0; i < NV; i++) {
-                lb[i] = lby[i] - y[i];
-                ub[i] = uby[i] - y[i];
-
-                // printf("lb[%i] = %f\n", lb[i]);
-                // printf("ub[%i] = %f\n", ub[i]);
-            }
-
-            // solve with sparse matrices (Schur complement) 
-            nWSR = MAX_NWSR;
-            // SQProblemSchur qrecipeSchur(1, 1);
-            tic = getCPUtime();
-
 #if BOUNDS
             qpOASES_status = qpSchur.hotstart(M, g, A, lb, ub, lbA, ubA, nWSR);
 #else
             qpOASES_status = qpSchur.hotstart(M, g, A, NULL, NULL, lbA, ubA, nWSR);
 #endif
+        }
 
-            if (qpOASES_status != SUCCESSFUL_RETURN) {
-                printf("QP solution failed!\n");
-                return 1;
-            }
+        if (qpOASES_status != SUCCESSFUL_RETURN) {
+            printf("QP solution failed!\n");
+            return 1;
+        }
 
-            tot_iter += 1;
-            qpSchur.getPrimalSolution(y_QP);
+        tot_iter += 1;
+        qpSchur.getPrimalSolution(y_QP);
+        qpSchur.getDualSolution(lam_QP);
 
-            real_t step_inf_norm = 0.0;
-            for (i = 0; i < NV; i++)
-                if (getAbs(y_QP[i]) > step_inf_norm)
-                    step_inf_norm = getAbs(y_QP[i]);
+        real_t step_inf_norm = 0.0;
+        for (i = 0; i < NV; i++)
+            if (getAbs(y_QP[i]) > step_inf_norm)
+                step_inf_norm = getAbs(y_QP[i]);
 
-            for (i = 0; i < NI; i++)
-                if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
-                    step_inf_norm = getAbs(lam[i] - lam_QP[i]);
+        for (i = 0; i < NI; i++)
+            if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
+                step_inf_norm = getAbs(lam[i] - lam_QP[i]);
 
-            if (tot_iter%10 == 0) { 
-                printf("----------------------------------------------------------------------------------\n");
-                printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
-                printf("----------------------------------------------------------------------------------\n");
-            }
+        if (tot_iter%10 == 0) { 
+            printf("----------------------------------------------------------------------------------\n");
+            printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
+            printf("----------------------------------------------------------------------------------\n");
+        }
 
-            toc = getCPUtime();
-            time = tic - toc;
-            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", step_inf_norm, (int)nWSR, time, alpha, kappa, !abort_inner, 0);
+        toc = getCPUtime();
+        time = tic - toc;
+        printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", step_inf_norm, (int)nWSR, time, alpha, kappa, !abort_inner, 0);
 
-            if(abort_inner) abort_inner = 0;
+        if(abort_inner) abort_inner = 0;
 
-            d_stats_0[tot_iter] = step_inf_norm;
-            d_stats_1[tot_iter] = time;
-            d_stats_2[tot_iter] = 1.0;
-            i_stats_0[tot_iter] = nWSR;
-            i_stats_1[tot_iter] = 1;
+        d_stats_0[tot_iter] = step_inf_norm;
+        d_stats_1[tot_iter] = time;
+        d_stats_2[tot_iter] = 1.0;
+        i_stats_0[tot_iter] = nWSR;
+        i_stats_1[tot_iter] = 1;
 
-            if (step_inf_norm < OUTER_TOL) {
-                printf("->solution found!\n");
-                for (int i = 0; i < NV; i++)
-                    printf("y[%i] = %f\n", i, y[i]);
-                return 0;
-            }
+        if (step_inf_norm < OUTER_TOL) {
+            // printf("->solution found!\n");
+            // for (int i = 0; i < NV; i++)
+            //     printf("y[%i] = %f\n", i, y[i]);
+            // return 0;
+        }
 
-            qpSchur.getDualSolution(lam_QP);
 
             // fprintf(stdFile, "Solved sparse problem (Schur complement approach) in %d iterations, %.3f seconds.\n", (int)nWSR, toc-tic);
-        }
+        // }
 
         qpSchur.getBounds(bounds_QP);
         qpSchur.getConstraints(constraints_QP);
@@ -865,7 +831,7 @@ int {{ solver_opts.solver_name }} ()
             g_temp = (alpha*P_ + (1 - alpha)*M_)*g_temp;
 
             for(int i = 0; i < NV; i++) {
-                // g[i] = alpha*(g_bar[i] + g_temp.coeffRef(i));
+                g[i] = alpha*(g_bar[i] + g_temp.coeffRef(i));
                 g[i] = alpha*g_bar[i] + g_temp.coeffRef(i);
                 // printf("g[%i] = %f\n", i, g[i]);
             }
