@@ -7,6 +7,3 @@
 [submodule "external/eigen-git-mirror"]
 	path = external/eigen-git-mirror
 	url = https://github.com/eigenteam/eigen-git-mirror.git
-[submodule "external/coin_hsl_source"]
-	path = external/coin_hsl_source
-	url = git@github.com:zanellia/coin_hsl_source.git
