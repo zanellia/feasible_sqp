@@ -519,6 +519,8 @@ int {{ solver_opts.solver_name }} ()
     Eigen::Map<Eigen::SparseMatrix<double> > P_(NV, NV, nnz_P, P_jc, 
         P_ir, P_val);
     
+    Eigen::Map<Eigen::SparseMatrix<double> > M_(NV, NV, nnz_M, M_jc, 
+        M_ir, M_val);
     // setup M
     for (int i=0; i<nnz_M; i++)
         M_val[i] = P_val[i];
@@ -863,7 +865,8 @@ int {{ solver_opts.solver_name }} ()
             g_temp = (alpha*P_ + (1 - alpha)*M_)*g_temp;
 
             for(int i = 0; i < NV; i++) {
-                g[i] = alpha*(g_bar[i] + g_temp.coeffRef(i));
+                // g[i] = alpha*(g_bar[i] + g_temp.coeffRef(i));
+                g[i] = alpha*g_bar[i] + g_temp.coeffRef(i);
                 // printf("g[%i] = %f\n", i, g[i]);
             }
 #else
