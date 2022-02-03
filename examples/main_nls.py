@@ -24,16 +24,19 @@ p = solver.p
 
 # define cost
 r = ca.vertcat(ca.sin(y[0]-p), y[1])
+# r = ca.vertcat(y[0]+5, y[1]+1)
 f = 1.0/2.0*ca.mtimes(r.T,r)
 J = ca.jacobian(r,y)
 gn_hess = ca.mtimes(J.T,J)
 
 # define constraints
-g = ca.vertcat(ca.sin(y[1]) + 0.5)
+g = ca.vertcat(y[1])
 
 # define bounds
 lby = -0.8*nmp.ones((nv,1))
 uby = 0.8*nmp.ones((nv,1))
+# lby = -10*nmp.ones((nv,1))
+# uby = 10*nmp.ones((nv,1))
 
 # define nonlinear constraints
 lbg = -0.000*nmp.ones((1,1))
@@ -51,7 +54,7 @@ solver.generate_solver(f, f, g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0,
 solver.set_inner_solves(10)
 solver.solve()
 y_bar = solver.get_primal_sol()
-print('optimal primal solution: ', y_bar)
+print('optimal primal solution:\n', y_bar)
 lam_bar = solver.get_dual_sol()
-print('optimal dual solution: ', lam_bar)
+print('optimal dual solution:\n', lam_bar)
 print('')
