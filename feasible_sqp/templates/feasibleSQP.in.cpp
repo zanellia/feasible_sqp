@@ -157,6 +157,10 @@ int {{ solver_opts.solver_name }}_init ()
 int {{ solver_opts.solver_name }} ()
 {
 
+    real_t tic, toc;
+    // real_t total_tic, total_toc, tic, toc;
+    // total_tic = getCPUtime();
+    
     // zero out stats
     for (int i = 0; i < MAX_STATS; i++) {
         d_stats_0[i] = 0.0;
@@ -170,7 +174,7 @@ int {{ solver_opts.solver_name }} ()
     }            
     
     vector<double> y(NV, 0);
-    vector<double> lam(NI, 0);
+    vector<double> lam(2*(NI+NV), 0);
     vector<double> p(NP, 0);
     
     // init y
@@ -179,7 +183,7 @@ int {{ solver_opts.solver_name }} ()
         y[i] = y_init[i];
     }
     // init lam
-    for(int i = 0; i < NI; i++) {
+    for(int i = 0; i < 2*(NI+NV); i++) {
         lam_val[i] = lam_init[i];
         lam[i] = lam_init[i];
     }
@@ -208,7 +212,7 @@ int {{ solver_opts.solver_name }} ()
     // cout << "result (0): " << dgdy_eval.at(0) << endl;
 
     Function ca_dLdyy = external("ca_dLdyy");
-    vector<DM> ca_z_p = {reshape(DM(y), NV, 1), reshape(DM(lam), NI, 1), reshape(DM(p), NP, 1)};
+    vector<DM> ca_z_p = {reshape(DM(y), NV, 1), reshape(DM(lam), 2*(NI+NV), 1), reshape(DM(p), NP, 1)};
     vector<DM> dLdyy_eval = ca_dLdyy(ca_z_p);
     // cout << "result (0): " << dLdyy_eval.at(0) << endl;
 
@@ -284,6 +288,9 @@ int {{ solver_opts.solver_name }} ()
     real_t w_A[sz_w];
 
     evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
+
+    Eigen::Map<Eigen::SparseMatrix<double> > A_(NI, NV, nnz_A, A_jc, 
+        A_ir, A_val);
 
     int nnz_M;
 
@@ -521,6 +528,7 @@ int {{ solver_opts.solver_name }} ()
     
     Eigen::Map<Eigen::SparseMatrix<double> > M_(NV, NV, nnz_M, M_jc, 
         M_ir, M_val);
+
     // setup M
     for (int i=0; i<nnz_M; i++)
         M_val[i] = P_val[i];
@@ -528,9 +536,9 @@ int {{ solver_opts.solver_name }} ()
 
     long i;
     int_t nWSR;
-    real_t tic, toc;
     real_t *y_QP = new real_t[NV];
-    real_t *lam_QP = new real_t[NV + NI];
+    real_t *lam_QP_compressed  = new real_t[NV + NI];
+    real_t *lam_QP = new real_t[2*(NV + NI)];
 
     // create sparse matrices
     SymSparseMat *M = new SymSparseMat(NV, NV, M_ir, M_jc, M_val);
@@ -549,13 +557,13 @@ int {{ solver_opts.solver_name }} ()
     real_t lb[NV]; 
     real_t ub[NV]; 
 
-    std::vector<double> myvector = std::vector<double>(dfdy_eval.at(0));
+    std::vector<double> dfdy_std = std::vector<double>(dfdy_eval.at(0));
 
     // cout << "new gradient: " << g_eval.at(0) << endl;
 
     for(int i = 0; i < NV; i++) {
-        g[i] = myvector[i];
-        g_bar[i] = myvector[i];
+        g[i] = dfdy_std[i];
+        g_bar[i] = dfdy_std[i];
         lb[i] = lby[i];
         ub[i] = uby[i];
     }
@@ -591,7 +599,6 @@ int {{ solver_opts.solver_name }} ()
     // SQProblem qpSchur(NV, NI);
     // QProblem qpSchur(NV, NI);
     qpSchur.setOptions(options);
-    tic = getCPUtime();
     nWSR = MAX_NWSR;
 
     // printf("A matrix\n");
@@ -599,11 +606,11 @@ int {{ solver_opts.solver_name }} ()
     // printf("M matrix\n");
     // M->print();
 
-    myvector = std::vector<double>(g_eval.at(0));
+    std::vector<double> g_std = std::vector<double>(g_eval.at(0));
 
     for(int i = 0; i < NI; i++) {
-        lbA[i] = lbg[i] - myvector[i];
-        ubA[i] = ubg[i] - myvector[i];
+        lbA[i] = lbg[i] - g_std[i];
+        ubA[i] = ubg[i] - g_std[i];
     }
 
     for(int i = 0; i < NV; i++) {
@@ -639,6 +646,7 @@ int {{ solver_opts.solver_name }} ()
     int inner_solves_counter = 0;
     int solved_inner = 0;
     for(int j = 0; j <  MAX_OUTER_IT; j ++) { 
+        tic = getCPUtime();
         kappa = -1.0;
         printf("----------------------------------------------------------------------------------\n");
 
@@ -654,7 +662,7 @@ int {{ solver_opts.solver_name }} ()
             }
             
             // restore outer dual iterate
-            for(int i = 0; i < NI; i++)
+            for(int i = 0; i < 2*(NI+NV); i++)
                 lam_val[i] = lam_outer[i];
 
             alpha = alpha * THETA_BAR;
@@ -685,22 +693,22 @@ int {{ solver_opts.solver_name }} ()
 
         dfdy_eval = ca_dfdy(ca_y_p);
         // cout << "new gradient: " << dfdy_eval.at(0) << endl;
-        myvector = std::vector<double>(dfdy_eval.at(0));
+        dfdy_std = std::vector<double>(dfdy_eval.at(0));
 
 
         // ca_lam[0] = reshape(DM(lam), NI, 1);
 
         for(int i = 0; i < NV; i++) {
-            g_bar[i] = myvector[i];
+            g_bar[i] = dfdy_std[i];
         }
 
         g_eval = ca_g(ca_y_p);
         // cout << "new gradient: " << g_eval.at(0) << endl;
-        myvector = std::vector<double>(g_eval.at(0));
+        g_std = std::vector<double>(g_eval.at(0));
 
         for(int i = 0; i < NI; i++) {
-            lbA[i] = lbg[i] - myvector[i];
-            ubA[i] = ubg[i] - myvector[i];
+            lbA[i] = lbg[i] - g_std[i];
+            ubA[i] = ubg[i] - g_std[i];
         }
 
         for(int i = 0; i < NV; i++) {
@@ -714,7 +722,6 @@ int {{ solver_opts.solver_name }} ()
         // solve with sparse matrices (Schur complement) 
         nWSR = MAX_NWSR;
         // SQProblemSchur qrecipeSchur(1, 1);
-        tic = getCPUtime();
 
         if (j == 0) {
 
@@ -738,7 +745,18 @@ int {{ solver_opts.solver_name }} ()
 
         tot_iter += 1;
         qpSchur.getPrimalSolution(y_QP);
-        qpSchur.getDualSolution(lam_QP);
+        qpSchur.getDualSolution(lam_QP_compressed);
+
+        for(int i = 0; i < 2*(NI + NV); i++) lam_QP[i] = 0.0;
+
+        for(int i = 0; i < NI; i++) { 
+            if (lam_QP_compressed[i] < 0) lam_QP[i] = -lam_QP_compressed[i];
+            if (lam_QP_compressed[i] > 0) lam_QP[NI+i] = lam_QP_compressed[i];
+        }
+        for(int i = 0; i < NV; i++) { 
+            if (lam_QP_compressed[NI+i] < 0) lam_QP[2*NI+i] = -lam_QP_compressed[NI+i];
+            if (lam_QP_compressed[NI+i] > 0) lam_QP[2*NI+NV+i] = lam_QP_compressed[NI+i];
+        }
 
         real_t step_inf_norm = 0.0;
         for (i = 0; i < NV; i++)
@@ -749,15 +767,16 @@ int {{ solver_opts.solver_name }} ()
             if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
                 step_inf_norm = getAbs(lam[i] - lam_QP[i]);
 
-        if (tot_iter%10 == 0) { 
-            printf("----------------------------------------------------------------------------------\n");
-            printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
-            printf("----------------------------------------------------------------------------------\n");
-        }
+        // if (tot_iter%10 == 0) { 
+        //     printf("----------------------------------------------------------------------------------\n");
+        //     printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
+        //     printf("----------------------------------------------------------------------------------\n");
+        // }
 
         toc = getCPUtime();
         time = tic - toc;
-        printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", step_inf_norm, (int)nWSR, time, alpha, kappa, !abort_inner, 0);
+        printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", 
+            step_inf_norm, (int)nWSR, time, alpha, kappa, !abort_inner, 0);
 
         if(abort_inner) abort_inner = 0;
 
@@ -767,11 +786,66 @@ int {{ solver_opts.solver_name }} ()
         i_stats_0[tot_iter] = nWSR;
         i_stats_1[tot_iter] = 1;
 
-        if (step_inf_norm < OUTER_TOL) {
-            // printf("->solution found!\n");
-            // for (int i = 0; i < NV; i++)
-            //     printf("y[%i] = %f\n", i, y[i]);
-            // return 0;
+        // compute residuals (BEFORE updating primal-dual solution) 
+        Eigen::SparseVector<double> lam_res_p(NI+NV);
+        for(int i = 0; i < NI + NV; i++) lam_res_p.coeffRef(i) = 0.0;
+
+        Eigen::SparseVector<double> lam_res_n(NI+NV);
+        for(int i = 0; i < NI + NV; i++) lam_res_n.coeffRef(i) = 0.0;
+
+        // split positive and negative multipliers
+        for(int i = 0; i < NI + NV; i++) if (lam_val[i] > 0) lam_res_p.coeffRef(i) = lam_val[i];
+        for(int i = 0; i < NI + NV; i++) if (lam_val[i] < 0) lam_res_n.coeffRef(i) = -lam_val[i];
+
+
+        // compute stationarity residuals
+        Eigen::SparseVector<double> stat_res(NV);
+
+        for(int i = 0; i < NV; i++) stat_res.coeffRef(i) = dfdy_std[i];
+        stat_res = stat_res + (A_.transpose())*lam_res_p.head(NI) - 
+            (A_.transpose())*lam_res_n.head(NI)+ lam_res_p.tail(NV) - lam_res_n.tail(NV);
+
+        stat_res = stat_res.cwiseAbs();
+        double stat_inf_norm = stat_res.coeffs().maxCoeff();
+
+        // compute feasibility residuals
+        double feas_inf_norm = 0.0;
+        for(int i = 0; i < NI; i++) {
+            if (ubA[i] < 0 && abs(ubA[i]) > feas_inf_norm) feas_inf_norm = abs(ubA[i]);
+            if (lbA[i] > 0 && abs(lbA[i]) > feas_inf_norm) feas_inf_norm = abs(lbA[i]);
+        }
+
+        for(int i = 0; i < NV; i++) {
+            if (ub[i] < 0 && abs(ub[i]) > feas_inf_norm) feas_inf_norm = abs(ub[i]);
+            if (lb[i] > 0 && abs(lb[i]) > feas_inf_norm) feas_inf_norm = abs(lb[i]);
+        }
+
+        // compute complementarity residuals
+        Eigen::SparseVector<double> compl_res(2*(NV+NI));
+        for(int i = 0; i < NI; i++) {
+            printf("i = %i, abs(ubA) = %f, lam_res_p = %f\n", i, abs(ubA[i]), lam_res_p.coeffRef(i));
+            compl_res.coeffRef(i) = abs(ubA[i])*lam_res_p.coeffRef(i);
+            printf("i = %i, abs(lbA) = %f, lam_res_n = %f\n", i, abs(lbA[i]), lam_res_n.coeffRef(i));
+            compl_res.coeffRef(NI+i) = abs(lbA[i])*lam_res_n.coeffRef(i);
+        }
+
+        for(int i = 0; i < NV; i++) {
+            compl_res.coeffRef(2*NI+i) = abs(ub[i])*lam_res_p.coeffRef(NI+i);
+            printf("i = %i, abs(ub) = %f, lam_res_p = %f\n", i, abs(ub[i]), lam_res_p.coeffRef(NI+i));
+            compl_res.coeffRef(2*NI+NV+i) = abs(lb[i])*lam_res_n.coeffRef(NI+i);
+            printf("i = %i, abs(lb) = %f, lam_res_n = %f\n", i, abs(lb[i]), lam_res_n.coeffRef(NI+i));
+        }
+        double compl_inf_norm = compl_res.coeffs().maxCoeff();
+
+        printf("==================================================================================\n");
+        printf("outer #it.\tstat.\t\tfeas.\t\tcompl.\n");
+        printf("%i\t\t%1.2e\t%1.2e\t%1.2e\n", j, stat_inf_norm, feas_inf_norm, compl_inf_norm);
+        printf("==================================================================================\n");
+        if (stat_inf_norm < OUTER_TOL && feas_inf_norm < OUTER_TOL && compl_inf_norm < OUTER_TOL) {
+            printf("->solution found!\n");
+            for (int i = 0; i < NV; i++)
+                printf("y[%i] = %f\n", i, y[i]);
+            return 0;
         }
 
 
@@ -794,7 +868,7 @@ int {{ solver_opts.solver_name }} ()
         }
         
         // store outer dual iterate before update
-        for(int i = 0; i < NI; i++) {
+        for(int i = 0; i < 2*(NI+NV); i++) {
             lam_outer[i] = lam_val[i];
             lam[i] = lam_QP[i];
             lam_val[i] = lam[i];
@@ -813,6 +887,7 @@ int {{ solver_opts.solver_name }} ()
         step_history[0] = step_inf_norm;
 
         for(int k = 1; k < MAX_INNER_IT; k ++) { 
+            tic = getCPUtime();
 
             kappa = -1.0;
         
@@ -853,11 +928,11 @@ int {{ solver_opts.solver_name }} ()
 
             g_eval = ca_g(ca_y_p);
             // cout << "new evaluation of g: " << g_eval.at(0) << endl;
-            myvector = std::vector<double>(g_eval.at(0));
+            g_std = std::vector<double>(g_eval.at(0));
 
             for(int i = 0; i < NI; i++) {
-                lbA[i] = lbg[i] - myvector[i];
-                ubA[i] = ubg[i] - myvector[i];
+                lbA[i] = lbg[i] - g_std[i];
+                ubA[i] = ubg[i] - g_std[i];
             }
 
             for(int i = 0; i < NV; i++) {
@@ -866,7 +941,6 @@ int {{ solver_opts.solver_name }} ()
             }
 
             nWSR = MAX_NWSR;
-            tic = getCPUtime();
 
             // print_qp(M, g, A, lb, ub, lbA, ubA);
 #if BOUNDS
@@ -882,7 +956,18 @@ int {{ solver_opts.solver_name }} ()
 
             tot_iter += 1;
             qpSchur.getPrimalSolution(y_QP);
-            qpSchur.getDualSolution(lam_QP);
+            qpSchur.getDualSolution(lam_QP_compressed);
+
+            for(int i = 0; i < 2*(NI + NV); i++) lam_QP[i] = 0.0;
+
+            for(int i = 0; i < NI; i++) { 
+                if (lam_QP_compressed[i] < 0) lam_QP[i] = -lam_QP_compressed[i];
+                if (lam_QP_compressed[i] > 0) lam_QP[NI+i] = lam_QP_compressed[i];
+            }
+            for(int i = 0; i < NV; i++) { 
+                if (lam_QP_compressed[NI+i] < 0) lam_QP[2*NI+i] = -lam_QP_compressed[NI+i];
+                if (lam_QP_compressed[NI+i] > 0) lam_QP[2*NI+NV+i] = lam_QP_compressed[NI+i];
+            }
 
             double step_inf_norm = 0.0;
             for (i = 0; i < NV; i++)
@@ -977,7 +1062,7 @@ int {{ solver_opts.solver_name }} ()
                 // for (i = 0; i < NV; i++)
                 //     printf("y_val[%i] = %f\n", i, y_val[i]);
 
-                for(int i = 0; i < NI; i++) {
+                for(int i = 0; i < NI+NV; i++) {
                     lam[i] = lam_QP[i];
                     lam_val[i] = lam[i];
                 }
@@ -1088,7 +1173,7 @@ int get_primal_sol(double *primal_sol) {
 }
 
 int get_dual_sol(double *dual_sol) {
-    for(int i = 0; i < NI; i++) {
+    for(int i = 0; i < 2*(NI+NV); i++) {
         dual_sol[i] = lam_val[i];
     }
     return 0;
@@ -1102,7 +1187,7 @@ int set_primal_guess(double *primal_guess) {
 }
 
 int set_dual_guess(double *dual_guess) {
-    for(int i = 0; i < NI; i++) {
+    for(int i = 0; i < 2*(NI+NV); i++) {
         lam_init[i] = dual_guess[i];
     }
     return 0;

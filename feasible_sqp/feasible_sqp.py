@@ -154,7 +154,7 @@ class feasible_sqp():
             y0 = nmp.zeros((nv,1))
 
         if lam0 == []:
-            lam0 = nmp.zeros((ni,1))
+            lam0 = nmp.zeros((2*(ni+nv),1))
 
         if not isinstance(lby, nmp.ndarray):
             raise Exception('lby must be of type nmp.array, you have {}'.format(type(lby)))
@@ -207,13 +207,14 @@ class feasible_sqp():
 
         lam0_shape = lam0.shape
 
-        if lam0_shape[0] != ni or lam0_shape[1] != 1:
-            raise Exception('lam0 must have shape (ni,1) = ({},1), you have ({},{})'\
+        if lam0_shape[0] != 2*(ni+nv) or lam0_shape[1] != 1:
+            raise Exception('lam0 must have shape (2*(ni+nv),1) = ({},1), you have ({},{})'\
                 .format(ni, lam0_shape[0], lam0_shape[1]))
 
         y = self.y
         p = self.p
-        lam = ca.SX.sym('lam', ni, 1)
+        lam = ca.SX.sym('lam', 2*(ni+nv), 1)
+        # multiplier structure: [lbg, ubg, lb, ub] 
 
         # copy Eigen headers to solver folder
         cmd = 'mkdir -p {}'.format(self.opts['solver_name'])
@@ -285,7 +286,8 @@ class feasible_sqp():
             raise Exception('Command {} failed'.format(cmd))
 
         # Lagrangian
-        L = f + ca.dot(lam, g)
+        L = f - ca.dot(lam[0:ni], g) + ca.dot(lam[ni:2*ni], g) - ca.dot(lam[2*ni:2*ni+nv],y) + ca.dot(lam[2*ni+nv:2*ni+2*nv],y)
+        import pdb; pdb.set_trace()
 
         print('compiling generated code for dLdyy...')
         ca_dLdyy = ca.Function('ca_dLdyy', [y, lam, p], [ca.hessian(L,y)[0]])
@@ -509,7 +511,7 @@ class feasible_sqp():
         return out
 
     def get_dual_sol(self):
-        out = nmp.ascontiguousarray(nmp.zeros((self.ni, 1)), dtype=nmp.float64)
+        out = nmp.ascontiguousarray(nmp.zeros((self.ni+self.nv, 1)), dtype=nmp.float64)
         out_data = cast(out.ctypes.data, POINTER(c_double))
         self.shared_lib.get_dual_sol.argtypes = [POINTER(c_double)]
         self.shared_lib.get_dual_sol.restype = c_int

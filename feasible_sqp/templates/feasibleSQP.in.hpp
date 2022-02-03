@@ -88,8 +88,8 @@ int get_i_stats(int *i_stats_ret, int i);
 // solution
 double y_val[NV] = {0};
 double y_outer[NV] = {0};
-double lam_val[NI] = {0};
-double lam_outer[NI] = {0};
+double lam_val[NI+NV] = {0};
+double lam_outer[NI+NV] = {0};
 
 #define MAX_STATS 10000
 
@@ -147,7 +147,7 @@ double y_init[{{NV}}] = {
     {%- endfor %}
 };
 
-double lam_init[{{NI}}] = {
+double lam_init[{{2*(NI+NV)}}] = {
     {% for d in lam0 %}
     {{ d[0] }},
     {%- endfor %}
