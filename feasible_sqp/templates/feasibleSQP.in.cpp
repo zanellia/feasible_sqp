@@ -876,7 +876,8 @@ int {{ solver_opts.solver_name }} ()
         // store outer dual iterate before update
         for(int i = 0; i < 2*(NI+NV); i++) {
             lam_outer[i] = lam_val[i];
-            lam[i] = lam_QP[i];
+            // scale multipliers!
+            lam[i] = 1/alpha*lam_QP[i];
             lam_val[i] = lam[i];
         }
 
@@ -985,7 +986,7 @@ int {{ solver_opts.solver_name }} ()
 
             for (i = 0; i < NI; i++)
                 if (getAbs(lam[i] - lam_QP[i]) > step_inf_norm)
-                    step_inf_norm = getAbs(lam[i] - lam_QP[i]);
+                    step_inf_norm = getAbs(lam[i] - 1/alpha*lam_QP[i]); // the iterates converge to a scaled version of the multipliers!
 
             // monitor N-step R-linear convergence
             if (k>=R_CONV_N && k >= 1) {
@@ -1049,7 +1050,7 @@ int {{ solver_opts.solver_name }} ()
                 // printf("inner loop primal step: %f\n", step_inf_norm);
                 if (step_inf_norm < INNER_TOL) {
                     printf("-> solved inner problem!\n\n");
-                    alpha = min(alpha * 1 / THETA_BAR, 1.0);
+                    alpha = min(alpha * 1 / THETA_BAR, 0.7);
                     k = MAX_INNER_IT;
                     inner_solves_counter+=1;
                     solved_inner = 1;
@@ -1072,7 +1073,8 @@ int {{ solver_opts.solver_name }} ()
                 //     printf("y_val[%i] = %f\n", i, y_val[i]);
 
                 for(int i = 0; i < NI+NV; i++) {
-                    lam[i] = lam_QP[i];
+                    // scale multipliers!
+                    lam[i] = 1/alpha*lam_QP[i];
                     lam_val[i] = lam[i];
                 }
                 
