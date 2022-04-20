@@ -1,3 +1,4 @@
+
 /*
  *    This file is part of CasADi.
  *
@@ -45,33 +46,12 @@ int main(int argc, char **argv){
     std::string problem = (argc==2) ? argv[1] : "../benchmark/cuter/nl_files/hs107.nl";
 
     // Parse an NL-file
+    cout << "Loading NL file " << problem << std::endl;
     NlpBuilder nl;
     nl.import_nl(problem);
 
-    // Set options
-    Dict opts;
-    // opts["expand"] = true;
-    //  opts["max_iter"] = 10;
-    //  opts["verbose"] = true;
-    //  opts["linear_solver"] = "ma57";
-    //  opts["hessian_approximation"] = "limited-memory";
-    //  opts["derivative_test"] = "second-order";
-
-    // Allocate NLP solver and buffers
-    // Function solver = nlpsol("nlpsol", "ipopt", nl, opts);
-    Function solver = nlpsol("solver", "ipopt", nl, opts);
-    std::map<std::string, DM> arg, res;
-
-    // Solve NLP
-    arg["lbx"] = nl.x_lb;
-    arg["ubx"] = nl.x_ub;
-    arg["lbg"] = nl.g_lb;
-    arg["ubg"] = nl.g_ub;
-    arg["x0"] = nl.x_init;
-    res = solver(arg);
-
-#if 1
     // generate C code
+    cout << "Generating CasADi code for f..." << std::endl;
     Function ca_f("ca_f", {nl.x}, {nl.f});
 
     ca_f.generate("ca_f", {{"with_header", true}});
@@ -81,6 +61,7 @@ int main(int argc, char **argv){
     int flag = system(compile_command.c_str());
     casadi_assert(flag==0, "Compilation failed");
 
+    cout << "Generating CasADi code for g..." << std::endl;
     Function ca_g("ca_g", {nl.x}, nl.g);
 
     ca_g.generate("ca_g", {{"with_header", true}});
@@ -95,6 +76,8 @@ int main(int argc, char **argv){
     MX g_exp = vertcat(nl.g);
     MX x_var = vertcat(nl.x);
     MX dgdy = MX::jacobian(g_exp, x_var);
+
+    cout << "Generating CasADi code for dgdy..." << std::endl;
     Function ca_dgdy("ca_dgdy", {x_var}, {dgdy});
 
     ca_dgdy.generate("ca_dgdy", {{"with_header", true}});
@@ -106,6 +89,7 @@ int main(int argc, char **argv){
 
     MX f_exp = nl.f;
     MX dfdy = MX::jacobian(f_exp, x_var);
+    cout << "Generating CasADi code for dfdy..." << std::endl;
     Function ca_dfdy("ca_dfdy", {x_var}, {dfdy});
 
     ca_dgdy.generate("ca_dfdy", {{"with_header", true}});
@@ -119,6 +103,7 @@ int main(int argc, char **argv){
     MX L = f_exp + dot(lambda, g_exp);
     
     MX hess_L = hessian(L,x_var);
+    cout << "Generating CasADi code for ca_dLdyy..." << std::endl;
     Function ca_dLdyy = Function("ca_dLdyy", {x_var, lambda}, {hess_L(0)});
     ca_dgdy.generate("ca_dLdyy", {{"with_header", true}});
 
@@ -132,6 +117,6 @@ int main(int argc, char **argv){
     // for (auto&& s : res) {
     //   std::cout << std::setw(10) << s.first << ": " << std::vector<double>(s.second) << std::endl;
     // }
-#endif
+    cout << "Done!" << std::endl;
     return 0;
 }
