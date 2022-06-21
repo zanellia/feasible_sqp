@@ -725,15 +725,15 @@ int {{ solver_opts.solver_name }} ()
         if (j == 0) {
 
 #if BOUNDS
-            qpOASES_status = qpSchur.init(M, g, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+            qpOASES_status = qpSchur.init(M, g_bar, A, lb, ub, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #else
-            qpOASES_status = pSchur.init(M, g, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
+            qpOASES_status = pSchur.init(M, g_bar, A, NULL, NULL, lbA, ubA, nWSR, 0, NULL, NULL, &guessedBounds, &guessedConstraints);
 #endif
         } else {
 #if BOUNDS
-            qpOASES_status = qpSchur.hotstart(M, g, A, lb, ub, lbA, ubA, nWSR);
+            qpOASES_status = qpSchur.hotstart(M, g_bar, A, lb, ub, lbA, ubA, nWSR);
 #else
-            qpOASES_status = qpSchur.hotstart(M, g, A, NULL, NULL, lbA, ubA, nWSR);
+            qpOASES_status = qpSchur.hotstart(M, g_bar, A, NULL, NULL, lbA, ubA, nWSR);
 #endif
         }
 
@@ -913,7 +913,7 @@ int {{ solver_opts.solver_name }} ()
             g_temp = (alpha*P_ + (1 - alpha)*M_)*g_temp;
 
             for(int i = 0; i < NV; i++) {
-                g[i] = alpha*(g_bar[i] + g_temp.coeffRef(i));
+                // g[i] = alpha*(g_bar[i] + g_temp.coeffRef(i));
                 g[i] = alpha*g_bar[i] + g_temp.coeffRef(i);
                 // printf("g[%i] = %f\n", i, g[i]);
             }
@@ -921,7 +921,7 @@ int {{ solver_opts.solver_name }} ()
             // ca_lam[0] = reshape(DM(lam), NI, 1);
 
             dfdy_eval = ca_dfdy(ca_y_p);
-            myvector = std::vector<double>(dfdy_eval.at(0));
+            vector<double> myvector = std::vector<double>(dfdy_eval.at(0));
             // cout << "new gradient: " << dfdy_eval.at(0) << endl;
             // cout << "ca_y_p: " << ca_y_p << endl;
             // for (i = 0; i < NV; i++)
