@@ -386,6 +386,173 @@ class feasible_sqp():
 
         return
 
+    def generate_solver_from_nl_file(self, nl_file_name, y0 = [], lam0 = [], \
+            qpoases_root=None, casadi_root=None, eigen_root=None, approximate_hessian=None, optlevel='-O2'):
+
+        ni = g_shape[0]
+        self.ni = ni
+        nv = self.nv
+        np = 0
+
+        FSQP_INF = 1E12
+        if lby == []:
+            lby = -FSQP_INF*nmp.ones((nv,1))
+
+        if uby == []:
+            uby = FSQP_INF*nmp.ones((nv,1))
+
+        if lbg == []:
+            lbg = nmp.zeros((ni,1))
+
+        if ubg == []:
+            ubg = nmp.zeros((ni,1))
+
+        if p0 == []:
+            p0 = nmp.zeros((np,1))
+
+        if y0 == []:
+            y0 = nmp.zeros((nv,1))
+
+        if lam0 == []:
+            lam0 = nmp.zeros((2*(ni+nv),1))
+
+        if not isinstance(lby, nmp.ndarray):
+            raise Exception('lby must be of type nmp.array, you have {}'.format(type(lby)))
+
+        if not isinstance(uby, nmp.ndarray):
+            raise Exception('lbu must be of type nmp.array, you have {}'.format(type(uby)))
+
+        if not isinstance(lbg, nmp.ndarray):
+            raise Exception('lbg must be of type nmp.array, you have {}'.format(type(lbg)))
+
+        if not isinstance(ubg, nmp.ndarray):
+            raise Exception('ubg must be of type nmp.array, you have {}'.format(type(ubg)))
+
+        lby_shape = lby.shape
+
+        if lby_shape[0] != nv or lby_shape[1] != 1:
+            raise Exception('lby must have shape (nv,1) = ({},1), you have ({},{})'\
+                .format(nv, lby_shape[0], lby_shape[1]))
+
+        uby_shape = uby.shape
+
+        if uby_shape[0] != nv or uby_shape[1] != 1:
+            raise Exception('uby must have shape (nv,1) = ({},1), you have ({},{})'\
+                .format(nv, uby_shape[0], uby_shape[1]))
+
+        lbg_shape = lbg.shape
+
+        if lbg_shape[0] != ni or lbg_shape[1] != 1:
+            raise Exception('lbg must have shape (ni,1) = ({},1), you have ({},{})'\
+                .format(nv, lbg_shape[0], lbg_shape[1]))
+
+        ubg_shape = ubg.shape
+
+        if ubg_shape[0] != ni or ubg_shape[1] != 1:
+            raise Exception('ubg must have shape (ni,1) = ({},1), you have ({},{})'\
+                .format(ni, ubg_shape[0], ubg_shape[1]))
+
+        p0_shape = p0.shape
+
+        if p0_shape[0] != np or p0_shape[1] != 1:
+            raise Exception('p0 must have shape (np,1) = ({},1), you have ({},{})'\
+                .format(np, p0_shape[0], p0_shape[1]))
+
+        y0_shape = y0.shape
+
+        if y0_shape[0] != nv or y0_shape[1] != 1:
+            raise Exception('y0 must have shape (nv,1) = ({},1), you have ({},{})'\
+                .format(nv, y0_shape[0], y0_shape[1]))
+        opts = dict(with_header=True)
+
+        lam0_shape = lam0.shape
+
+        if lam0_shape[0] != 2*(ni+nv) or lam0_shape[1] != 1:
+            raise Exception('lam0 must have shape (2*(ni+nv),1) = ({},1), you have ({},{})'\
+                .format(ni, lam0_shape[0], lam0_shape[1]))
+
+        y = self.y
+        p = self.p
+        lam = ca.SX.sym('lam', 2*(ni+nv), 1)
+        # multiplier structure: [ubg, lbg, ub, lb]
+
+        # copy Eigen headers to solver folder
+        cmd = 'mkdir -p {}'.format(self.opts['solver_name'])
+        status = os.system(cmd)
+        if status != 0:
+            raise Exception('{} failed'.format(cmd))
+
+        os.chdir(self.opts['solver_name'])
+        
+        use_approximate_hessian = False 
+
+        print('rendering templated C++ code...')
+        env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))))
+        tmpl = env.get_template("templates/feasibleSQP.in.cpp")
+        code = tmpl.render(solver_opts = self.opts, NI = self.ni, NV = self.nv, NP = self.np, use_approximate_hessian=use_approximate_hessian)
+        with open('{}.cpp'.format(self.opts['solver_name']), "w+") as f:
+            f.write(code)
+
+        tmpl = env.get_template("templates/feasibleSQP.in.hpp")
+        code = tmpl.render(solver_opts = self.opts, NV = nv, NI = ni, NP = np,\
+            lby = lby, uby = uby, lbg = lbg, ubg = ubg, p0 = p0, y0 = y0, lam0 = lam0, use_approximate_hessian=use_approximate_hessian)
+
+        with open('{}.hpp'.format(self.opts['solver_name']), "w+") as f:
+            f.write(code)
+
+        tmpl = env.get_template("templates/main.in.cpp")
+        code = tmpl.render(solver_opts = self.opts, use_approximate_hessian=use_approximate_hessian)
+        with open('main.cpp', "w+") as f:
+            f.write(code)
+
+        print('rendering templated Makefile...')
+        tmpl = env.get_template("templates/Makefile.in")
+        build_params = dict()
+        fsqp_root = os.path.dirname(os.path.abspath(__file__)) + '/../'
+        if casadi_root is None:
+            casadi_root = fsqp_root + 'external/casadi'
+        if qpoases_root is None:
+            qpoases_root = fsqp_root + 'external/qpOASES'
+        if eigen_root is None:
+            eigen_root = fsqp_root + 'external/eigen-git-mirror/Eigen'
+        build_params['qpoases_root'] = qpoases_root
+        build_params['casadi_root'] = casadi_root
+        build_params['eigen_root'] = eigen_root
+        build_params['solver_name'] = self.opts['solver_name']
+
+        cmd = 'make all -DCASADI_ROOT_DIR = '.format(self.opts['solver_name'])
+        status = os.system(cmd)
+
+        code = tmpl.render(build_params = build_params, use_approximate_hessian=use_approximate_hessian)
+        with open('Makefile', "w+") as f:
+            f.write(code)
+
+        cmd = 'make {}_shared'.format(self.opts['solver_name'])
+        status = os.system(cmd)
+
+        if status != 0:
+            raise Exception('Command {} failed'.format(cmd))
+
+        print('successfully generated solver!')
+        os.chdir('..')
+
+        # generate script to set LD_LIBRARY_PATH
+        fsqp_root = os.path.dirname(os.path.abspath(__file__)) + '/../'
+        with open(fsqp_root + '/feasible_sqp/paths.json', 'r') as f:
+            library_paths = json.load(f)
+
+        paths = ''
+        cwd = os.getcwd()
+        paths = paths + ':' + cwd + '/' + self.opts['solver_name']
+        for key in library_paths:
+            paths = paths + ':' + library_paths[key]
+
+        with open('set_LD_LIBRARY_PATH.sh', 'w') as f:
+            f.write('#!/bin/bash\nexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{}'.format(paths))
+
+        self.init()
+
+        return
     def solve(self):
 
         # get solver shared_lib

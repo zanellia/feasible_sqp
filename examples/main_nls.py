@@ -51,7 +51,8 @@ solver.generate_solver(f, f, g, lby = lby, uby = uby, lbg=lbg, ubg=ubg, p0 = p0,
 # solver.generate_solver(f,g, lby = lby, uby = uby)
 
 # solve NLP
-solver.set_inner_solves(10)
+solver.set_inner_solves(100)
+solver.set_max_outer_it(100)
 solver.solve()
 y_bar = solver.get_primal_sol()
 print('optimal primal solution:\n', y_bar)
