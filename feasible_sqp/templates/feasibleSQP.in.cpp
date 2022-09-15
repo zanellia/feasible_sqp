@@ -8,8 +8,8 @@
 
 
 // this is necessary to avoid linking problems with libqpOASES.so
-#define __USE_LONG_INTEGERS__
-#define __USE_LONG_FINTS__
+// #define __USE_LONG_INTEGERS__
+// #define __USE_LONG_FINTS__
 #include "qpOASES.hpp"
 #include <casadi/casadi.hpp>
 #include <casadi/casadi_c.h>
@@ -251,7 +251,9 @@ int {{ solver_opts.solver_name }} ()
     nnz_A = sp_i[ncol]; /* Number of nonzeros */
 
     sparse_int_t A_ir[nnz_A];
+    int A_ir_int[nnz_A];
     sparse_int_t A_jc[ncol+1];
+    int A_jc_int[ncol+1];
     double A_val[nnz_A];
 
     /* Print the pattern */
@@ -273,6 +275,10 @@ int {{ solver_opts.solver_name }} ()
 
     A_jc[ncol] = nnz_A;
 
+    // cast
+    array_cast_sparse_int_t_2_int(A_ir, A_ir_int, nnz_A);
+    array_cast_sparse_int_t_2_int(A_jc, A_jc_int, ncol+1);
+
     // printf("}\n\n");
     // for (int i = 0; i < nnz_A; i++) 
     //     printf("A_ir[%i] = %i\n", i, A_ir[i]);
@@ -289,8 +295,8 @@ int {{ solver_opts.solver_name }} ()
 
     evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
 
-    Eigen::Map<Eigen::SparseMatrix<double> > A_(NI, NV, nnz_A, A_jc, 
-        A_ir, A_val);
+    Eigen::Map<Eigen::SparseMatrix<double> > A_(NI, NV, nnz_A, A_jc_int, 
+        A_ir_int, A_val);
 
     int nnz_M;
 
@@ -325,8 +331,10 @@ int {{ solver_opts.solver_name }} ()
     row = sp_i + ncol+1; /* Row nonzero */
     nnz_P = sp_i[ncol]; /* Number of nonzeros */
 
-    sparse_int_t P_ir[nnz_P];
-    sparse_int_t P_jc[ncol+1];
+    // sparse_int_t P_ir[nnz_P];
+    // sparse_int_t P_jc[ncol+1];
+    int P_ir[nnz_P];
+    int P_jc[ncol+1];
     real_t P_val[nnz_P];
     zcounter = 0;
     for(cc=0; cc<ncol; ++cc){                    /* loop over columns */
@@ -396,7 +404,9 @@ int {{ solver_opts.solver_name }} ()
     nnz_M = sp_i[ncol]; /* Number of nonzeros */
 
     sparse_int_t M_ir[nnz_M];
+    int M_ir_int[nnz_M];
     sparse_int_t M_jc[ncol+1];
+    int M_jc_int[ncol+1];
     real_t M_val[nnz_M];
 
 
@@ -413,6 +423,10 @@ int {{ solver_opts.solver_name }} ()
     }
 
     M_jc[ncol] = nnz_M;
+
+    // cast
+    array_cast_sparse_int_t_2_int(M_ir, M_ir_int, nnz_M);
+    array_cast_sparse_int_t_2_int(M_jc, M_jc_int, ncol+1);
 
     // printf("}\n\n");
 
@@ -438,8 +452,8 @@ int {{ solver_opts.solver_name }} ()
 
     // define sparse matrix for matrix-vector product involved in
     // the gradient update
-    Eigen::Map<Eigen::SparseMatrix<double> > M_(NV, NV, nnz_M, M_jc, 
-        M_ir, M_val);
+    Eigen::Map<Eigen::SparseMatrix<double> > M_(NV, NV, nnz_M, M_jc_int, 
+        M_ir_int, M_val);
 {% else %}
     // setup P and M at the same time
 
@@ -475,7 +489,7 @@ int {{ solver_opts.solver_name }} ()
 
     sparse_int_t P_ir[nnz_P];
     sparse_int_t P_jc[ncol+1];
-    real_t P_val[nnz_P];
+    double P_val[nnz_P];
     sparse_int_t M_ir[nnz_M];
     sparse_int_t M_jc[ncol+1];
     real_t M_val[nnz_M];
@@ -1328,4 +1342,11 @@ int get_i_stats(int *i_stats_ret, int i) {
     return 0;
 }
 
+int array_cast_int_2_sparse_int_t(int *in, sparse_int_t *out, int n) {
+    for(int i = 0; i < n; i++) out[i] = (sparse_int_t)in[i];
+}
+
+int array_cast_sparse_int_t_2_int(sparse_int_t *in, int *out, int n) {
+    for(int i = 0; i < n; i++) out[i] = (int)in[i];
+}
 }
