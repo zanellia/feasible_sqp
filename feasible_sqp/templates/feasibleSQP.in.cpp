@@ -663,9 +663,6 @@ int {{ solver_opts.solver_name }} ()
         tic = getCPUtime();
         kappa = -1.0;
 
-        // outer loop
-        // printf("in outer loop\n");
-
         if (abort_inner) {
             // restore outer primal iterate
             for(int i = 0; i < NV; i++) {
@@ -682,6 +679,27 @@ int {{ solver_opts.solver_name }} ()
         }
 
         if (abort_inner==0) {
+            if (j > 1) {
+                double c1 = 1e-3;
+                double old_objective_value = get_f(y_outer);
+                double new_objective_value = get_f(y_val);
+                if (new_objective_value > old_objective_value - c1*step_inf_norm) {
+                    printf("No decrease in the objective function! Rejecting step\n");
+                    // restore outer primal iterate
+                    for(int i = 0; i < NV; i++) {
+                        y_val[i] = y_outer[i];
+                        y[i] = y_outer[i];
+                        // printf("y_outer[%i] = %f\n", i, y_outer[i]);
+                    }
+                    
+                    // restore outer dual iterate
+                    for(int i = 0; i < 2*(NI+NV); i++)
+                        lam_val[i] = lam_outer[i];
+
+                    alpha = alpha * THETA_BAR;
+                }
+            }
+
             // update matrices and vectors
             evaluate_dgdy(arg_A, res_A, iw_A, w_A, nnz_A, y_val, p_val, A_val);
             A->setVal(A_val);
