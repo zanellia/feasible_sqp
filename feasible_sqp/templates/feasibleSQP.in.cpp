@@ -8,8 +8,8 @@
 
 
 // this is necessary to avoid linking problems with libqpOASES.so
-#define __USE_LONG_INTEGERS__
-#define __USE_LONG_FINTS__
+// #define __USE_LONG_INTEGERS__
+// #define __USE_LONG_FINTS__
 #include "qpOASES.hpp"
 #include <casadi/casadi.hpp>
 #include <casadi/casadi_c.h>
