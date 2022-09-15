@@ -1,3 +1,4 @@
+#include "qpOASES.hpp"
 #ifndef {{ solver_opts.solver_name }}_H
 #define {{ solver_opts.solver_name }}_H
 extern "C" {
@@ -82,6 +83,9 @@ int get_d_stats(double *d_stats_ret, int i);
 
 int get_i_stats(int *i_stats_ret, int i);
 
+int array_cast_int_2_sparse_int_t(int *in, sparse_int_t *out, int n);
+
+int array_cast_sparse_int_t_2_int(sparse_int_t *in, int *out, int n);
 
 }
 
