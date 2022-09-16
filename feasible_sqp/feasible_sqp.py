@@ -628,10 +628,14 @@ class feasible_sqp():
         return
 
     def set_inner_tol(self,  inner_tol):
+        self.shared_lib.set_inner_tol.argtypes = [c_double]
+        self.shared_lib.set_inner_tol.restype = c_int
         self.shared_lib.set_inner_tol(inner_tol)
         return
 
     def set_outer_tol(self,  outer_tol):
+        self.shared_lib.outer_tol.argtypes = [c_double]
+        self.shared_lib.outer_tol.restype = c_int
         self.shared_lib.set_outer_tol(outer_tol)
         return
 

@@ -659,6 +659,9 @@ int {{ solver_opts.solver_name }} ()
     
     int inner_solves_counter = 0;
     int solved_inner = 0;
+    double old_objective_value;
+    double new_objective_value = get_f(y_val);
+    double outer_step_inf_norm = -1.0;
     for(int j = 0; j <  MAX_OUTER_IT; j ++) { 
         tic = getCPUtime();
         kappa = -1.0;
@@ -679,12 +682,16 @@ int {{ solver_opts.solver_name }} ()
         }
 
         if (abort_inner==0) {
+            old_objective_value = get_f(y_outer);
+            new_objective_value = get_f(y_val);
             if (j > 1) {
-                double c1 = 1e-3;
-                double old_objective_value = get_f(y_outer);
-                double new_objective_value = get_f(y_val);
-                if (new_objective_value > old_objective_value - c1*step_inf_norm) {
-                    printf("No decrease in the objective function! Rejecting step\n");
+                outer_step_inf_norm = 0.0;
+                for (i = 0; i < NV; i++)
+                    if (getAbs(y_val[i] - y_outer[i]) > outer_step_inf_norm)
+                        outer_step_inf_norm = getAbs(y_val[i] - y_outer[i]);
+                double c1 = 1e-16;
+                if (new_objective_value > old_objective_value - c1*outer_step_inf_norm) {
+                    printf("No decrease in the objective function! Step norm = %1.2e old cost = %1.2e new cost = %1.2e. Rejecting step\n", outer_step_inf_norm, old_objective_value, new_objective_value);
                     // restore outer primal iterate
                     for(int i = 0; i < NV; i++) {
                         y_val[i] = y_outer[i];
@@ -870,13 +877,13 @@ int {{ solver_opts.solver_name }} ()
 
         double compl_inf_norm = compl_res.coeffs().maxCoeff();
 
-        printf("#%i | stat = %1.2e | feas = %1.2e | compl = %1.2e\n",  j, stat_inf_norm, feas_inf_norm, compl_inf_norm);
-        printf("----------------------------------------------------------------------------------\n");
-        printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
-        printf("----------------------------------------------------------------------------------\n");
+        printf("#%i | stat = %1.2e | feas = %1.2e | compl = %1.2e | cost = %1.2e | outer step %1.2e\n ",  j, stat_inf_norm, feas_inf_norm, compl_inf_norm, new_objective_value, outer_step_inf_norm);
+        printf("----------------------------------------------------------------------------------------------------\n");
+        printf("dz\t\tf\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
+        printf("----------------------------------------------------------------------------------------------------\n");
 
-        printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", 
-            step_inf_norm, (int)nWSR, time, alpha, kappa, !abort_inner, 0);
+        printf("%1.2e\t%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", 
+            step_inf_norm, new_objective_value, (int)nWSR, time, alpha, kappa, !abort_inner, 0);
 
         if (stat_inf_norm < OUTER_TOL && feas_inf_norm < OUTER_TOL && compl_inf_norm < OUTER_TOL) {
             printf("\n->solution found!\n\n");
@@ -1060,14 +1067,15 @@ int {{ solver_opts.solver_name }} ()
             }
 
             if (k%10 == 0) { 
-                printf("----------------------------------------------------------------------------------\n");
-                printf("dz\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
-                printf("----------------------------------------------------------------------------------\n");
+                printf("----------------------------------------------------------------------------------------------------\n");
+                printf("dz\t\tf\t\tnWSR\tCPU time [s]\talpha\t\tkappa\t\tlin\tk\n");
+                printf("----------------------------------------------------------------------------------------------------\n");
             }
 
             toc = getCPUtime();
             time = tic - toc;
-            printf("%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", step_inf_norm, (int)nWSR, toc-tic, alpha, kappa, 0, k+1);
+            new_objective_value = get_f(y_val);
+            printf("%1.2e\t%1.2e\t%i\t%1.2e\t%1.2e\t%1.2e\t%i\t%i\n", step_inf_norm, new_objective_value, (int)nWSR, toc-tic, alpha, kappa, 0, k+1);
 
             d_stats_0[tot_iter] = step_inf_norm;
             d_stats_1[tot_iter] = time;
@@ -1184,12 +1192,12 @@ int set_max_nwsr(int max_nwsr) {
     return 0;
 }
 
-int set_inner_tol(int inner_tol) {
+int set_inner_tol(double inner_tol) {
     INNER_TOL = inner_tol;
     return 0;
 }
 
-int set_outer_tol(int outer_tol) {
+int set_outer_tol(double outer_tol) {
     OUTER_TOL = outer_tol;
     return 0;
 }

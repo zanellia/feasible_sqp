@@ -49,9 +49,9 @@ double set_min_alpha(double min_alpha);
 
 int set_max_nwsr(int max_nwsr);
 
-int set_inner_tol(int inner_tol);
+int set_inner_tol(double inner_tol);
 
-int set_outer_tol(int outer_tol);
+int set_outer_tol(double outer_tol);
 
 int get_primal_sol(double *primal_sol);
 
