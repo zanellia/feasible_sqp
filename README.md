@@ -61,3 +61,6 @@ solver.solve()
 ```
 notice: a call to
 `solver.generate_solver()` generates a script called `set_LD_LIBRARY_PATH.sh` which can be sourced in order to update the `LD_LIBRARY_PATH` environment variable such that the shared libraries needed by the solver can be located.
+
+## Citing
+[Zanelli2021, Chapter 4.1](https://publications.syscop.de/Zanelli2021c.pdf)
